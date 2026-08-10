@@ -1,0 +1,344 @@
+﻿@model Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.NotaFiscalViewModel
+
+@{
+    ViewBag.Title = "Expedição";
+    ViewBag.Description = "Imprimir Etiquetas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+
+
+<input type="hidden" id="zpl-etiqueta" value="@Model.ZPL_Etiqueta" />
+<input type="hidden" id="ps-ip" value="@Model.PrinterServerIP" />
+<input type="hidden" id="ps-port" value="@Model.PrinterServerPort" />
+
+<section class="content">
+
+    <div class="box box-default">
+
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="col-xs-12">
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <label>Impressora</label>
+                                @Html.DropDownList("ImpressoraDDL", ViewBag.ImpressoraDDL as SelectList, new { @class = "form-control", @style = "margin-left:10px" })
+                                <input type="hidden" id="ip" />
+                                <input type="hidden" id="porta" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-lg-12 col-sm-12">
+                    <div class="col-lg-5 col-xs-12">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-lg fa-barcode"></i></span>
+                            <input type="text" id="danfe" class="form-control" placeholder="DANFE" maxlength="44" style="font-size:14px; font-weight: bold; width: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-lg-12 col-sm-12">
+                    <div class="col-xs-12 col-lg-5">
+                        <label>Transportadora</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-lg fa-truck-moving"></i></span>
+                            <input type="text" id="transportadoraInput" class="form-control" readonly stylestyle="font-size:14px; font-weight: bold; width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <label style="margin-left: 14px;">Volumes</label>
+            <div class="row">
+                <div class="col-lg-6 col-xs-12">
+                    <div class="col-xs-12 col-lg-3">
+                        <div class="form-group">
+                            <input type="number" id="qtdMinVolumes" class="form-control" value="1" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-1">
+                        <p>até</p>
+                    </div>
+                    <div class="col-lg-3 col-xs-12">
+                        <div class="form-group">
+                            <input type="number" id="qtdMaxVolumes" class="form-control" placeholder="MAX" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="divImprimir" class="row hide">
+                <div class="col-xs-12">
+                    <div class="col-xs-12">
+                        <a href="#" class="btn btn-success" id="btnImprimir"><i class="fa fa-fw fa-print"></i> Imprimir</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row hide">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label>Iframe</label>
+                    <div>
+                        <iframe src="" name="dummyframe" id="dummyframe" height="130" width="200"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</section>
+
+@section Scripts {
+
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+
+    <script>
+        let ps_ip = $('#ps-ip').val();
+        let ps_port = $('#ps-port').val();
+
+        function ProcessNextPrint(arr_etiquetas) {
+            const nextItem = arr_etiquetas.shift();
+            if (nextItem) {
+                ImprimirEtiqueta(nextItem, arr_etiquetas);
+            } else {
+                // location.reload();
+            }
+        }
+
+        function ImprimirEtiqueta(zpl, arr_etiquetas) {
+            var printer_ip = $('#ip').val();
+            var printer_port = $('#porta').val();
+
+
+            if (printer_ip && printer_port && zpl) {
+                var url = "https://" + ps_ip + ":" + ps_port + "/quasardealer/impressora/iframeImpressao";
+
+                //var now = new Date();
+                //var currentDateTime = now.toLocaleString();
+                //console.log(currentDateTime, 'Carregando o iframe...')
+                $("#dummyframe").attr("src", url);
+
+                setTimeout(function () {
+                    //var now = new Date();
+                    //var currentDateTime = now.toLocaleString();
+                    //console.log(currentDateTime, 'Iframe carregado')
+                    var iframeWin = document.getElementById("dummyframe").contentWindow;
+                    var mensagem = JSON.stringify({
+                        ipServidorImpressao: ps_ip,
+                        portaServidorImpressao: ps_port,
+                        ipImpressora: printer_ip,
+                        portaImpressora: printer_port,
+                        comandosZPL: zpl
+                    });
+
+                    try {
+
+                        iframeWin.postMessage(mensagem, "*");
+
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            url: '@Url.Action("LogPrintZpl", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                            data: { zpl: zpl }
+                        }).done(function (response) {
+                            if (response.success) {
+                                console.log("Log gerado")
+                            }
+                            else {
+                                alert(response.msg);
+                            }
+                        })
+                    } catch (e) {
+                        console.log(e);
+                    }
+
+                    setTimeout(function () {
+                        ProcessNextPrint(arr_etiquetas);
+                    }, 700);
+                }, 700)
+            }
+        }
+
+
+        $('#ImpressoraDDL').on('change', function () {
+            var impressoraId = $(this).val();
+
+            $('#ip').empty();
+            $('#porta').empty();
+
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '@Url.Action("GetPrinterData", "Printer", new { area = "ConfiguracaoApp" })',
+                data: { id: impressoraId },
+                success: function (response) {
+                    // console.log(response.data);
+                    if (response.success) {
+                        $('#ip').val(response.data.IP);
+                        $('#porta').val(response.data.Porta);
+                    }
+                },
+                error: function (xhr, status, error) {
+                   var errorMessage = xhr.status + ': ' + xhr.statusText;
+                   alert(errorMessage)
+                }
+            })
+        }).change();
+
+        $('#btnImprimir').click(function (event) {
+            event.preventDefault();
+            var notaFiscal = $('#danfe').val();
+            var qtdMinVolumes = $('#qtdMinVolumes').val();
+            var qtdMaxVolumes = $('#qtdMaxVolumes').val();
+
+
+            if (notaFiscal) {
+                if (qtdMinVolumes) {
+                    if (qtdMaxVolumes) {
+                        swal({
+                            title: "Imprimir",
+                            text: "Confirmar impressão dos volumes " + qtdMinVolumes + " à " + qtdMaxVolumes + " da nota fiscal " + notaFiscal + "?",
+                            buttons: {
+                                cancel: {
+                                    text: "Não",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true,
+                                },
+                                confirm: {
+                                    text: "Sim",
+                                    className: "swal-btn-success",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        }).then((confirm) => {
+                            if (confirm) {
+                                $.ajax({
+                                    type: 'GET',
+                                    dataType: 'json',
+                                    url: '@Url.Action("GetDataToPrintVolume", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                                    data: { key: notaFiscal, minVolume: qtdMinVolumes, maxvolume: qtdMaxVolumes }
+                                }).done(function (response) {
+                                    if (response.success) {
+                                        if (response.etiquetas.length > 0) {
+                                            let arr_etiquetas = [];
+                                            arr_etiquetas = response.etiquetas;
+                                            ProcessNextPrint(arr_etiquetas);
+                                        }
+
+                                    } else {
+                                        var div = document.createElement("div");
+                                        div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                                        swal({
+                                            title: "Processar Notas Fiscais",
+                                            content: div,
+                                            buttons: {
+                                                confirm: {
+                                                    visible: false
+                                                },
+                                                cancel: {
+                                                    text: "Fechar",
+                                                    className: "swal-btn-danger",
+                                                    closeModal: true,
+                                                    visible: true
+                                                }
+                                            }
+                                        }).then(function () {
+                                            console.log("erro")
+                                        });
+
+                                    }
+
+                                }).fail(function (xhr, status, error) {
+                                    var errorMessage = xhr.status + ': ' + xhr.statusText
+                                    alert(errorMessage)
+                                })
+                            }
+                        })
+                    }
+                    else {
+                        alert('Quantidade máxima de volumes precisa ser diferente de nulo!');
+                    }
+
+                }
+                else {
+                    alert('Quantidade mímina de volumes precisa ser diferente de nulo!');
+                }
+            } else {
+                alert('Nota fiscal não pode ser nula!');
+            }
+
+
+
+        })
+
+        $('#danfe').on('keyup', function (event) {
+            event.preventDefault();
+            var input = $(this).val();
+
+            if (event.keyCode === 13) {
+                //$(this).val('');
+                let isnum = /^\d+$/.test(input);
+                if (isnum) {
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: '@Url.Action("GetDanfeInfo", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                        data: { key: input }
+                    }).done(function (response) {
+                        if (response.success == true) {
+                            $('#danfe').val(input);
+                            $('#transportadoraInput').val(response.transportadora.Nome_Fantasia);
+                            $('#qtdMaxVolumes').val(response.notaFiscal.QtdVolumes);
+                            $('#divImprimir').removeClass('hide');
+                        }
+                        else {
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                            swal({
+                                title: "Finalizar Lançamento de Nota Fiscal",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            });
+                        }
+                    }) 
+                }
+
+            }
+        });
+    </script>
+
+}
+
+

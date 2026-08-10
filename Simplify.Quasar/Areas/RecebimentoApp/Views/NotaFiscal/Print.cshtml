@@ -1,0 +1,448 @@
+﻿@model Simplify.Quasar.Areas.RecebimentoApp.ViewModels.PrintViewModel
+
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Impressão de Etiquetas";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<input type="hidden" id="ps-ip" value="@Model.PrinterServerIP" />
+<input type="hidden" id="ps-port" value="@Model.PrinterServerPort" />
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label>Impressora</label>
+                            @Html.DropDownList("ImpressoraDDL", ViewBag.ImpressoraDDL as SelectList, new { @class = "form-control", @style = "margin-left:10px" })
+                            <input type="hidden" id="ip" />
+                            <input type="hidden" id="porta" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label>Volume</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-lg fa-barcode"></i></span>
+                            <input type="text" id="volume" class="form-control" placeholder="NÚMERO DO VOLUME" style="font-size:14px; font-weight: bold">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-1 col-lg-offset-1">
+                    <div class="form-group">
+                        <label>Quantidade</label>
+                        <input type="number" id="qtdItens" class="form-control text-center" placeholder="QTD" style="font-size:14px; font-weight: bold" value="1">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label>Item</label>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa-regular fa-lg fa-file-lines"></i></span>
+                            <input type="text" id="material" class="form-control" placeholder="CÓDIGO DO ITEM" style="font-size:14px; font-weight: bold">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-xs-12 col-lg-4">
+                    <img src="~/Content/img/label-volume.png" class="img-responsive" alt="Etiqueta do volume" />
+                    <input type="hidden" id="zpl-volume" value="@Model.ZPL_Volume" />
+                </div>
+                <div class="col-xs-12 col-lg-4 col-lg-offset-1">
+                    <img src="~/Content/img/label-material.png" class="img-responsive" alt="Etiqueta do maaterial" />
+                    <input type="hidden" id="zpl-material" value="@Model.ZPL_Material" />
+                </div>
+            </div>
+
+            <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+
+        </div>
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+
+        let ps_ip = $('#ps-ip').val();
+        let ps_port = $('#ps-port').val();
+
+        console.log(ps_ip);
+
+        ////////////////////////////////////////////////////////////
+        //Não está sendo utilizado no momento, deixado para backup//
+        ////////////////////////////////////////////////////////////
+        function enviarCopias(totalCopias, zplEtiqueta) { //recursão para imprimir várias etiquetas por itens
+
+            controlaEnvioEtiquetas(1, totalCopias, zplEtiqueta);
+        }
+
+        ////////////////////////////////////////////////////////////
+        //Não está sendo utilizado no momento, deixado para backup//
+        ////////////////////////////////////////////////////////////
+        function controlaEnvioEtiquetas(numeroCopia, totalCopias, zplEtiqueta) { //recursão para imprimir várias etiquetas por itens
+
+            if (numeroCopia <= totalCopias) {
+                console.log("Cópia numero: ", numeroCopia);
+                setTimeout(() => {
+                    Imprimir(zplEtiqueta);
+                    controlaEnvioEtiquetas(numeroCopia + 1, totalCopias, zplEtiqueta);
+                }, 900);
+            };
+        }
+
+        function ProcessNextPrint(arr_etiquetas) {
+            const nextItem = arr_etiquetas.shift()
+            if (nextItem) {
+                ImprimirEtiqueta(nextItem, arr_etiquetas);
+            } else {
+                // location.reload();
+            }
+        }
+
+        function ImprimirEtiqueta(zpl, arr_etiquetas) {
+            var printer_ip = $('#ip').val();
+            var printer_port = $('#porta').val();
+
+            if (printer_ip && printer_port && zpl) {
+                var url = "https://" + ps_ip + ":" + ps_port + "/quasardealer/impressora/iframeImpressao";
+
+                //var now = new Date();
+                //var currentDateTime = now.toLocaleString();
+                //console.log(currentDateTime, 'Carregando o iframe...')
+                $("#dummyframe").attr("src", url);
+
+                setTimeout(function () {
+                    //var now = new Date();
+                    //var currentDateTime = now.toLocaleString();
+                    //console.log(currentDateTime, 'Iframe carregado')
+                    var iframeWin = document.getElementById("dummyframe").contentWindow;
+                    var mensagem = JSON.stringify({
+                        ipServidorImpressao: ps_ip,
+                        portaServidorImpressao: ps_port,
+                        ipImpressora: printer_ip,
+                        portaImpressora: printer_port,
+                        comandosZPL: zpl
+                    });
+
+                    console.log('Enviar etiqueta para ' + url);
+                    console.log(mensagem);
+
+                    try {
+                        iframeWin.postMessage(mensagem, "*");
+                    } catch (e) {
+                        console.log(e);
+                    }
+
+                    setTimeout(function () {
+                        ProcessNextPrint(arr_etiquetas);
+                    }, 700);
+                }, 700)
+            }
+        }
+
+        ////////////////////////////////////////////////////////////
+        //Não está sendo utilizado no momento, deixado para backup//
+        ////////////////////////////////////////////////////////////
+        function Imprimir(zpl) {
+            var printer_ip = $('#ip').val();
+            var printer_port = $('#porta').val();
+            if (printer_ip && printer_port && zpl) {
+
+                var url = "https://" + ps_ip + ":" + ps_port + "/quasardealer/impressora/iframeImpressao";
+                $("#dummyframe").attr("src", url);
+
+                setTimeout(function () {
+                    var iframeWin = document.getElementById("dummyframe").contentWindow;
+                        var mensagem = JSON.stringify({
+                            ipServidorImpressao: ps_ip,
+                            portaServidorImpressao: ps_port,
+                            ipImpressora: printer_ip,
+                            portaImpressora: printer_port,
+                            comandosZPL: zpl
+                        });
+                    console.log('Enviar etiqueta para ' + url);
+                    console.log(mensagem);
+
+                    try {
+                        iframeWin.postMessage(mensagem, "*");
+
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }, 900);
+
+            }
+        }
+
+        $(document).ready(function () {
+
+            $('#ImpressoraDDL').on('change', function () {
+                var impressoraId = $(this).val();
+
+                $('#ip').empty();
+                $('#porta').empty();
+
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: '@Url.Action("GetPrinterData", "Printer", new { area = "ConfiguracaoApp" })',
+                    data: { id: impressoraId },
+                    success: function (response) {
+                        // console.log(response.data);
+                        if (response.success) {
+                            $('#ip').val(response.data.IP);
+                            $('#porta').val(response.data.Porta);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                       var errorMessage = xhr.status + ': ' + xhr.statusText;
+                       alert(errorMessage)
+                    }
+                })
+            }).change();
+
+            // Imprimir etiquetas dos itens (materiais) a partir do volume
+            $('#volume').on('keyup', function (event) {
+                event.preventDefault();
+
+                var input = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+                    $('#material').val('');
+
+                    let isnum = /^\d+$/.test(input);
+                    if (isnum) {
+                        $.ajax({
+                            type: 'GET',
+                            dataType: 'json',
+                            url: '@Url.Action("GetMateriaisVolumeToPrint", "NotaFiscal", new { area = "RecebimentoApp"})',
+                            data: { volume: input}
+                        }).done(function (response) {
+                            console.log("resposta:", response)
+                            if (response.data.length == 0) {
+
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-warning'>Volume não encontrado!</h4>";
+
+                                swal({
+                                    title: "Impressão de etiquetas",
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            className: "swal-btn-info"
+                                        }
+                                    }
+                                }).then(function () {
+                                    $("#volume").focus();
+                                });
+
+                            } else {
+                                let arr_etiquetas_volume = [];
+                                arr_etiquetas_volume = response.data;
+                                console.log(response.data);
+                                console.log(arr_etiquetas_volume);
+                                //$.each(response.data, function (key, item) {
+                                //    console.log(response.data);
+                                //    var etq = $('#zpl-volume').val();
+                                //    etq = etq.replace('codigo-item', item.Material);
+                                //    etq = etq.replace('descricao-item', item.Descricao);
+                                //    etq = etq.replace('codigo-curva', item.Curva);
+                                //    etq = etq.replace('numero-volume', item.Volume);
+                                //    etq = etq.replace('qtd-item', item.Quantidade);
+                                //    etq = etq.replace('data-impressao', item.Data);
+                                //    etq = etq.replace('hora-impressao', item.Hora);
+                                //    etq = etq.replace('codigo-locacao', item.Locacao);
+                                //    //console.log(etq)
+                                //    setTimeout(function () {
+                                //        enviarCopias(1, etq);
+                                //    }, 1000);
+                                //});
+                                ProcessNextPrint(arr_etiquetas_volume);
+                            }
+                        }).fail(function (xhr, status, error) {
+                            var errorMessage = xhr.status + ': ' + xhr.statusText
+                            alert(errorMessage)
+                        })
+                    }
+                }
+            })
+
+            // Imprimir etiqueta do item (materiail)
+            $('#material').on('keyup', function (event) {
+                event.preventDefault();
+                var qtdImpressao = $('#qtdItens').val();
+                var input = $(this).val();
+                console.log("Quantidade de Impressao = ", qtdImpressao);
+                if (event.keyCode === 13) {
+                    $(this).val('');
+                    $('#volume').val('');
+
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: '@Url.Action("GetMaterialToPrint", "NotaFiscal", new { area = "RecebimentoApp"})',
+                        data: { material: input, quantidadeImpressao: qtdImpressao }
+                    }).done(function (response) {
+                        console.log(response);
+                        if (response.success) {
+                            if (response.data.length == 0) {
+
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-warning'>Item não encontrado!</h4>";
+
+                                swal({
+                                    title: "Impressão de etiquetas",
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            className: "swal-btn-info"
+                                        }
+                                    }
+                                }).then(function () {
+                                    $("#material").focus();
+                                });
+                            } else {
+                                let arr_etiquetas_material = [];
+                                arr_etiquetas_material = response.data;
+                                //var etq = $('#zpl-material').val();
+                                //etq = etq.replace('codigo-item', response.data.Material);
+                                //etq = etq.replace('descricao-item', response.data.Descricao);
+                                //etq = etq.replace('codigo-curva', response.data.Curva);
+                                //etq = etq.replace('data-impressao', response.data.Data);
+                                //etq = etq.replace('hora-impressao', response.data.Hora);
+                                //etq = etq.replace('codigo-locacao', response.data.Locacao);
+                                // console.log(etq)
+                                 if (qtdImpressao >= 10) {
+                                    swal({
+                                        title: "Confirmar impressão",
+                                        text: "Confirmar impressão de " + qtdImpressao + " etiquetas?",
+                                        buttons: {
+                                            confirm: {
+                                                className: "swal-btn-info",
+                                                text: "Sim",
+                                                closeModal: true,
+                                                visible: true,
+                                            },
+                                            cancel: {
+                                                text: "Não",
+                                                className: "swal-btn-danger",
+                                                closeModal: true,
+                                                visible: true,
+                                            }
+
+                                        }
+                                    }).then((confirm) => {
+
+                                        if (confirm) {
+                                            ProcessNextPrint(arr_etiquetas_material);
+                                            $("#qtdItens").val("1");
+                                            $("#material").focus();
+                                        }
+                                        else {
+                                            $("#qtdItens").val("1");
+                                            $("#material").focus();
+                                        }
+                                    })
+                                }
+                                else {
+                                    ProcessNextPrint(arr_etiquetas_material);
+                                    $("#qtdItens").val("1");
+                                    $("#material").focus();
+                                }
+
+
+                            }
+                        }
+                        else {
+                            $("#qtdItens").val("1");
+                            $("#volume").focus();
+                            alert(response.msg);
+                        }
+                        //if (response.data.length == 0) {
+
+                        //    var div = document.createElement("div");
+                        //    div.innerHTML = "<h4 class='swal-text-warning'>Item não encontrado!</h4>";
+
+                        //    swal({
+                        //        title: "Impressão de etiquetas",
+                        //        content: div,
+                        //        buttons: {
+                        //            confirm: {
+                        //                className: "swal-btn-info"
+                        //            }
+                        //        }
+                        //    }).then(function () {
+                        //        document.getElementById("volume").focus();
+                        //    });
+                        //} else {
+                        //    var etq = $('#zpl-material').val();
+                        //    etq = etq.replace('codigo-item', response.data.Material);
+                        //    etq = etq.replace('descricao-item', response.data.Descricao);
+                        //    etq = etq.replace('codigo-curva', response.data.Curva);
+                        //    etq = etq.replace('data-impressao', response.data.Data);
+                        //    etq = etq.replace('hora-impressao', response.data.Hora);
+                        //    etq = etq.replace('codigo-locacao', response.data.Locacao);
+                        //   // console.log(etq)
+                        //    Imprimir(etq);
+                        //}
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText
+                        alert(errorMessage)
+                    })
+                }
+            })
+
+            function bindForm(dialog) {
+                $('form', dialog).submit(function () {
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: $(this).serialize(),
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                            } else {
+                                $('#myModalContent').html(result);
+                                bindForm();
+                            }
+                        },
+                        error: function (data) {
+                            console.log('erro', data);
+                        }
+                    });
+                    return false;
+                });
+            }
+
+        });
+    </script>
+}

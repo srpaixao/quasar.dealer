@@ -1,0 +1,164 @@
+﻿@model Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.NotaFiscalViewModel
+
+@{
+    ViewBag.Title = "Expedição";
+    ViewBag.Description = "Atualizar Nota Fiscal";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/icheck/minimal/blue.css" rel="stylesheet" />
+
+<style>
+
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-lg-1">
+                    <div class="form-group">
+                        <label>Número</label>
+                        <p class="text-muted">@Model.Numero</p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-1">
+                    <div class="form-group">
+                        <label>Emissão</label>
+                        <p class="text-muted">@Model.DataEmissao.Value.ToString("dd/MM/yyyy")</p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-1">
+                    <div class="form-group">
+                        <label>Controle</label>
+                        <p class="text-muted">@Model.Controle</p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label>Classificação</label>
+                        <p class="text-muted">@Model.Classificacao</p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <p class="text-muted">@Model.CodigoCliente - @Model.NomeCliente</p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        <p class="text-muted">@Model.Cidade / @Model.Estado</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <p class="text-muted">@Model.StatusNF</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label>Movimento</label>
+                        <div style="margin-top:5px">
+                            @Html.RadioButtonFor(m => m.Movimento, "Entrada", new { id = "movEntrada" }) Entrada&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            @Html.RadioButtonFor(m => m.Movimento, "Saída", new { id = "movSaida", @checked = "checked" }) Saída
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-1">
+                    <div class="form-group">
+                        <label class="text-nowrap">Qtd Volumes</label>
+                        @Html.TextBoxFor(m => m.QtdVolumes, new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.QtdVolumes)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label>Valor</label>
+                        @Html.TextBoxFor(m => m.Valor, new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Valor)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-7">
+                    <div class="form-group">
+                        <label>DANFE</label>
+                        @Html.TextBoxFor(m => m.Danfe, new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Danfe)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label>Transportadora</label>
+                        @Html.DropDownListFor(m => m.TransportadoraId, Model.TransportadoraDDL, "-- Selecione --", new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.TransportadoraId)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label>Rota</label>
+                        @Html.DropDownListFor(m => m.RotaId, Model.RotaDDL, "-- Selecione --", new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.RotaId)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label>Parada</label>
+                        @Html.DropDownListFor(m => m.ParadaId, Model.ParadaDDL, "-- Selecione --", new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.ParadaId)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div style="margin-top:30px">
+                        <b>Imprimir roteiro&nbsp;&nbsp;</b> @Html.CheckBoxFor(m => m.ImprimirRoteiro)
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label>Observações</label>
+                        @Html.TextAreaFor(m => m.Observacoes, new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Observacoes)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+}

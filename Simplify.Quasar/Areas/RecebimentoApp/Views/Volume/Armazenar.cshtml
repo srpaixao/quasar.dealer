@@ -1,0 +1,146 @@
+﻿
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Armazenagem de Peças";
+    Layout = "~/Views/Shared/_Coletor.cshtml";
+}
+
+<style>
+    .row{
+           margin-top: 20px;
+    }
+
+    .input{
+        font-size: 20px;
+        font-weight: bold;
+        height: 48px;
+    }
+</style>
+
+<section class="content">
+
+    <form id="data-collection-form">
+
+        <div class="row">
+            <div class="col-12">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-2x fa-fw fa-barcode"></i></span>
+                    <input class="form-control text-muted input" type="text" id="itemNr" placeholder="Item Nr">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div>
+                    <input class="form-control text-muted input" type="text" id="descricao" placeholder="Descrição">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div>
+                    <input class="form-control text-muted input" type="text" id="locacao" placeholder="Locação">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div>
+                    <input class="form-control text-muted input" type="text" id="quantidade" placeholder="Quantidade Armazenada">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-2x fa-fw fa-barcode"></i></span>
+                    <input class="form-control text-muted input" type="text" id="locinformada" placeholder="Locação confirmada">
+                </div>
+            </div>
+        </div>
+
+        @*<div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Enviar Dados</button>
+            </div>
+        </div>*@
+
+    </form>
+
+    <div id="response" style="margin-top: 20px;"></div>
+
+</section>
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function () {
+
+            // Leitura do Item Nr
+            $('#itemnr').on('keyup', function (event) {
+                event.preventDefault();
+
+                var input = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+
+                    //let isnum = /^\d+$/.test(input);
+                    // if (!isnum || input.length != 8 || input.length != 10) {
+                    //if (input.length != 8) {
+                    //    return;
+                    //}
+
+                    //var areaid = $("#AreaDDL").val();
+
+                    alert("Item Nr: " + input);
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '@Url.Action("PesquisaItemNr", "Volume")',
+                        data: { itemnr: input, }
+                    }).done(function (response) {
+                        $('#itemnr').focus();
+                        console.log(response);
+                        if (response.success) {
+                            console.log("OK");
+                        }
+                        else {
+                            console.log("NÃO OK");
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro na leitura do Item Nr!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                        swal({
+                            title: "Armazenagem de Peças",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    })
+
+                }
+
+            })
+
+        });
+    </script>
+
+}
+
+

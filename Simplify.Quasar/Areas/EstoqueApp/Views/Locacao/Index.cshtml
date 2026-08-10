@@ -1,0 +1,191 @@
+﻿@{
+    ViewBag.Title = "Estoque";
+    ViewBag.Description = "Locações";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .datatable_filter {
+        padding-bottom: 15px;
+    }
+
+    select.filter {
+        margin-right: 15px;
+        border: 1px solid #eee;
+    }
+
+    div.filter-option, a > span.text {
+        font-size: 13px !important;
+    }
+
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <p id="processing">Loading...</p>
+                </div>
+            </div>
+
+            <div class="data-container hide">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-responsive">
+                            <table class="table table-condensed table-bordered table-hover table-small" id="tbLocacao">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Tipo</th>
+                                        <th>Descrição</th>
+                                        <th>Status</th>
+                                        <th>Área</th>
+                                        <th>Curva</th>
+                                        <th>Observações</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/moment/moment.min.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $.ajaxSetup({ cache: false });
+
+            $('#processing').removeClass('hide');
+            $('.data-container').addClass('hide');
+
+            var table = $('#tbLocacao').DataTable({
+                deferRender: true,
+                autoWidth: false,
+                pageLength: 25,
+                order: [],
+                ajax: {
+                    url: '@Url.Action("GetData", "Locacao", new { area = "EstoqueApp" })',
+                    type: 'GET',
+                    dataType: 'json'
+                },
+                columns: [
+                            {
+                                data: 'Codigo', title: 'Código', render: function (data, type, row) {
+                                    var codigo = row['Codigo'];
+                                    return '<a class="edit" href="#" data-codigo="' + codigo + '">' + data.replace(/\s+/g, '') + '</a>';
+                                }
+                            },
+                            { data: 'Tipo', title: 'Tipo' },
+                            { data: 'Descricao', title: 'Descrição' },
+                            { data: 'Status', title: 'Status' },
+                            { data: 'AreaNome', title: 'Área' },
+                            { data: 'Curva', title: 'Curva' },
+                            { data: 'Observacoes', title: 'Observações' },
+                ],
+                drawCallback: function () {
+                    // console.log("drawCallback");
+                },
+                fnInitComplete: function () {
+                    // console.log('fnInitComplete')
+                    $('#processing').addClass('hide');
+                    $('.data-container').removeClass('hide');
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item encontrado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            table.columns.adjust().draw(false);
+
+
+            $("#tbLocacao").on("click", "a.edit", function (e) {
+                var codigo = $(this).attr("data-codigo");
+                var url = '@Url.Action("Edit", "Locacao", new { area="EstoqueApp", codigo = "_codigo" })';
+                $('#myModalContent').load(url.replace("_codigo", codigo), function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            function bindForm(dialog) {
+                $('form', dialog).submit(function () {
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: $(this).serialize(),
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                                //Refresh
+                                location.reload();
+                            } else {
+                                $('#myModalContent').html(result);
+                                bindForm();
+                            }
+                        },
+                        error: function (data) {
+                            console.log('erro', data);
+                        }
+                    });
+                    return false;
+                });
+            }
+        });
+    </script>
+}
+

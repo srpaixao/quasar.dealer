@@ -1,0 +1,89 @@
+﻿@model HandleErrorInfo
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content">
+    <div class="error-page" style="margin-left:0px;width:100%">
+        @*<h2 class="headline text-red">404</h2>*@
+
+        <div class="error-content" style="margin-left:20px">
+            <h3><i class="fa fa-warning text-red"></i> Application Exception</h3>
+
+            <p>
+                An exception occurred while processing the request.
+                Please, try again. If the problem persists, contact support.
+            </p>
+
+            @if (Model != null)
+            {
+                <br />
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label><b>Exception</b></label>
+                            <div class="error">@Model.Exception.Message</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label><b>Area/Controller/Action</b></label>
+                            <div class="error">@ViewContext.RouteData.DataTokens["area"].ToString()/@Model.ControllerName/@Model.ActionName</div>
+                        </div>
+                    </div>
+                </div>
+
+                if (Model.Exception.InnerException != null)
+                {
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label><b>Message error</b></label>
+                                <div class="error">@Model.Exception.InnerException.InnerException.Message</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                if (Model.Exception.Source != null)
+                {
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label><b>Source</b></label>
+                                <div class="error">@Model.Exception.Source</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                if (TempData["ErrorDetail"] != null && TempData["ErrorDetail"].ToString() != string.Empty)
+                {
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label><b>Details</b></label>
+                                <div class="error">@TempData["ErrorDetail"]</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label><b>Occurred at</b></label>
+                            <div class="error">@DateTime.UtcNow</div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <br />
+            @*<a href="@Url.Action("Index", "Home", new { area = ""})" class="btn btn-danger" role="button"><i class="fa fa-home"></i> Voltar para a página inicial</a>*@
+        </div>
+    </div>
+</section>

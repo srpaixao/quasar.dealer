@@ -1,0 +1,58 @@
+﻿@model Simplify.Quasar.ViewModels.NewPasswordViewModel
+
+@using (Html.BeginForm("AtualizarSenha", "Account", FormMethod.Post, new { id = "frmAtualizarSenha" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(m => m.UsuarioId)
+
+    <div class="modal-content">
+        <div class="modal-header bg-blue-gradient">
+            <h5 class="text-center mb-0">Senha de acesso expirada</h5>
+            <button type="button" class="close" data-dismiss="modal"><i class="fa-solid fa-xmark" style="color:#fff"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="card login-form" style="border:none">
+                <div class="card-body pt-0">
+                    <div class="card-text mt-3">
+                        <div class="row">
+                            <div class="offset-2 col-8">
+                                <div class="form-group text-center">
+                                    <label for="NovaSenha" class="form-label text-muted">Cadastre uma nova senha de acesso</label>
+                                    @Html.PasswordFor(m => m.NovaSenha, new { @class = "form-control form-control-sm text-center", @autocomplete = "off", @required = "required", @style="font-size:18px;" })
+                                    <div class="input-validation-error">@Html.ValidationMessageFor(m => m.NovaSenha)</div>
+                                </div>
+                                <div class="form-group text-center pt-2">
+                                    <label for="ConfirmaNovaSenha" class="form-label text-muted">Confirme a nova senha de acesso</label>
+                                    @Html.PasswordFor(m => m.ConfirmaNovaSenha, new { @class = "form-control form-control-sm text-center", @autocomplete = "off", @required = "required", @style = "font-size:18px;" })
+                                    <div class="input-validation-error">@Html.ValidationMessageFor(m => m.ConfirmaNovaSenha)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <p class="text-muted"><i class="fa-solid fa-circle-info"></i> A senha deve possuir no mínimo 6 caracteres</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="offset-2 col-8">
+                                <button type="submit" class="btn btn-block btn-primary submit-btn mr-3"><i class="fa-solid fa-user-lock"></i> Atualizar senha</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $('#NovaSenha, #ConfirmaNovaSenha').blur(function () {
+            $('span.field-validation-error').each(function () {
+                $(this).html('');
+            })
+            $('input.input-validation-error').each(function () {
+                $(this).removeClass('input-validation-error');
+            })
+        });
+    </script>
+}

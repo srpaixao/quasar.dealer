@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Simplify.Quasar.Areas.AnomaliaApp.ViewModels.AnomaliaViewModel>
+@{
+    ViewBag.Title = "Anomalia";
+    ViewBag.Description = "Defeitos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .datatable_filter {
+        padding-bottom: 15px;
+    }
+
+    select.filter {
+        margin-right: 15px;
+        border: 1px solid #eee;
+    }
+
+    div.filter-option, a > span.text {
+        font-size: 13px !important;
+    }
+
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+
+
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+
+    <script src="~/Scripts/moment/moment.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            function bindForm(dialog) {
+                $('form', dialog).submit(function () {
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: $(this).serialize(),
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                                //Refresh
+                                location.reload();
+                            } else {
+                                $('#myModalContent').html(result);
+                                bindForm();
+                            }
+                        },
+                        error: function (data) {
+                            console.log('erro', data);
+                        }
+                    });
+                    return false;
+                });
+            }
+        });
+    </script>
+}
+

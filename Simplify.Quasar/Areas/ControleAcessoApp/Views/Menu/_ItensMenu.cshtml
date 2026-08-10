@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Simplify.Quasar.ViewModels.MenuViewModel>
+
+<aside class="main-sidebar" style="padding-top:50px;">
+    <section class="sidebar">
+        <ul class="sidebar-menu tree" data-widget="tree">
+
+            <li class="header text-center menu-sidebar">
+                <a href="@Url.Action("Index", "Home", new { area=""})"><i class="fa-solid fa-circle-arrow-left"></i> Página Inicial</a>
+            </li>
+
+            @foreach (var item in Model)
+            {
+                if (item._menu.Count == 0)
+                {
+                    <li>
+                        <a href="@Url.Action(item.Action, item.Controller, new { area=item.Area})"><i class="@item.Css"></i> <span>&nbsp;&nbsp;@item.Titulo</span></a>
+                    </li>
+                }
+                else
+                {
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="@item.Css"></i>
+                            <span>&nbsp;&nbsp;@item.Titulo</span>
+                            <span class="pull-right-container">
+                                <i class="fa-solid fa-caret-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            @foreach (var sub in item._menu)
+                            {
+                                <li>
+                                    <a href="@Url.Action(sub.Action, sub.Controller, new { area="ControleAcessoApp"})">
+                                        <i class="@sub.Css"></i><span>&nbsp;&nbsp;@sub.Titulo</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
+            }
+        </ul>
+
+    </section>
+</aside>
+@*}*@
+

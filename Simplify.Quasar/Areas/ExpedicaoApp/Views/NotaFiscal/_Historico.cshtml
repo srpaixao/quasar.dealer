@@ -1,0 +1,105 @@
+﻿@model IEnumerable<Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.HistoricoDocExpedicaoViewModel>
+@{
+    ViewBag.Title = "Expedição";
+    ViewBag.Description = "Histórico de Nota Fiscal";
+    Layout = null;
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    #tbHistorico {
+        margin-bottom: 0px;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+</style>
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="modal-header bg-blue-gradient">
+            <span style="font-size: 16px;">Histórico de Nota Fiscal</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label>Número</label>
+                        <p class="text-muted">@ViewBag.NumeroNF</p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-9">
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <p class="text-muted">@ViewBag.Cliente</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        <p class="text-muted">@ViewBag.Cidade / @ViewBag.Estado</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    @if (Model.Count() > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-condensed table-bordered table-hover" id="tbHistorico">
+                                <thead>
+                                    <tr>
+                                        <th>Evento</th>
+                                        <th>Data</th>
+                                        <th>Usuário</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@item.DescricaoHistorico @(item.Observacoes != null && item.Observacoes != string.Empty ? string.Concat(" (", item.Observacoes, ")") : string.Empty)</td>
+                                            <td>@item.DataHora</td>
+                                            <td>@item.Usuario</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <h5><i class="fa fa-fw fa-exclamation-triangle text-orange"></i> Não existe histórico registrado para esta nota fiscal!</h5>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}

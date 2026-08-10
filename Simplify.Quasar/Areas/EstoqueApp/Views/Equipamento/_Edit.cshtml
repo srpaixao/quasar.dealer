@@ -1,0 +1,101 @@
+﻿@model Simplify.Quasar.Areas.EstoqueApp.ViewModels.EquipamentoViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = null;
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-solid fa-pen-to-square fa-fw"></i>&nbsp;&nbsp;Modificar cadastro de equipamento</span>
+        </div>
+
+        @Html.HiddenFor(m => m.Id)
+
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Nome, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Tipo</label>
+                        @Html.TextBoxFor(m => m.Tipo, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Tipo, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        @Html.TextAreaFor(m => m.Descricao, new { @class = "form-control", @autocomplete = "off", @rows = "3", @maxlength = "500" })
+                        @Html.ValidationMessageFor(x => x.Descricao, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Observações</label>
+                        @Html.TextAreaFor(m => m.Observacoes, new { @class = "form-control", @autocomplete = "off", @rows = "3", @maxlength = "500" })
+                        @Html.ValidationMessageFor(x => x.Observacoes, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="pull-right">
+                        <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="card-text text-muted" style="margin-bottom:0px">
+                        <small><i>Criado por <b>@Model.CriadoPorNome</b> em @Model.CriadoEm</i></small>
+                        @Html.HiddenFor(m => m.CriadoPor)
+                        @Html.HiddenFor(m => m.CriadoPorNome)
+                        @Html.HiddenFor(m => m.CriadoEm)
+                    </p>
+                    @if (Model.ModificadoPor != null)
+                    {
+                        <p class="card-text text-muted">
+                            <small><i>Modificado por <b>@Model.ModificadoPorNome</b> em @Model.ModificadoEm</i></small>
+                            @Html.HiddenFor(m => m.ModificadoPor)
+                            @Html.HiddenFor(m => m.ModificadoPorNome)
+                            @Html.HiddenFor(m => m.ModificadoEm)
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+
+

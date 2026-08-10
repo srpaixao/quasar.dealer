@@ -1,0 +1,98 @@
+﻿@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.ImpressoraViewModel
+@{
+    ViewBag.Title = "Cadastrar Impressora";
+    Layout = null;
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-solid fa-print fa-lg fa-fw"></i>&nbsp;&nbsp;Cadastrar Impressora</span>
+        </div>
+
+        @Html.AntiForgeryToken()
+
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off" })
+                        <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.Nome)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label class="form-label">IP</label>
+                        @Html.TextBoxFor(m => m.IP, new { @class = "form-control text-center", @autocomplete = "off" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.IP)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label class="form-label">Porta</label>
+                        @Html.TextBoxFor(m => m.Porta, new { @class = "form-control text-center", @autocomplete = "off" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Porta)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Localização</label>
+                        @Html.TextBoxFor(m => m.Localizacao, new { @class = "form-control", @autocomplete = "off" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Localizacao)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">Fabricante</label>
+                        @Html.TextBoxFor(m => m.Fabricante, new { @class = "form-control text-center", @autocomplete = "off" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Fabricante)</div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">Modelo</label>
+                        @Html.TextBoxFor(m => m.Modelo, new { @class = "form-control text-center", @autocomplete = "off" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Modelo)</div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="modal-footer">
+            <div class="pull-right">
+                <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.input-validation-error').each(function () {
+            $(this).addClass('is-invalid')
+        }).on('focus', function () {
+            $(this).removeClass('is-invalid')
+        })
+    });
+
+</script>

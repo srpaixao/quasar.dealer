@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="d39b2e9bf2e54b8bb682c05ad8e4cbd5" Name="Diagram1" ZoomLevel="70">
+        <EntityTypeShape EntityType="Quasar_Model.Anomalia" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.AnomaliaItem" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.AppComponente" Width="1.5" PointX="0.75" PointY="1.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.AppConfig" Width="1.5" PointX="2.75" PointY="1.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.AppFuncao" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.AppLogErro" Width="1.5" PointX="0.75" PointY="2.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.AppMenu" Width="1.5" PointX="4.75" PointY="1.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.AppSQL" Width="1.5" PointX="2.75" PointY="2.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.DocExpedicao" Width="1.5" PointX="0.75" PointY="3" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Empresa" Width="1.5" PointX="6.75" PointY="1.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Equipamento" Width="1.5" PointX="2.75" PointY="3" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Estado" Width="1.5" PointX="6.75" PointY="2.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Estoque" Width="1.5" PointX="4.75" PointY="3" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Etiqueta" Width="1.5" PointX="6.75" PointY="3" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Fornecedor" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.HistoricoArmazenagem" Width="1.5" PointX="0.875" PointY="4.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.HistoricoDocExpedicao" Width="1.5" PointX="8.75" PointY="1.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.HistoricoRecebimento" Width="1.5" PointX="2.875" PointY="4.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Impressora" Width="1.5" PointX="8.75" PointY="2.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.LogImpressao" Width="1.5" PointX="8.75" PointY="3" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.LogImpressaoExpedicao" Width="1.5" PointX="6.875" PointY="4.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.LogZplGeneratedExpedicao" Width="1.5" PointX="8.875" PointY="4.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Material" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.NotaFiscal" Width="1.5" PointX="0.875" PointY="6.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.NotaFiscalItem" Width="1.5" PointX="10.75" PointY="1.5" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.OrigemNotaFiscal" Width="1.5" PointX="2.875" PointY="6.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Parada" Width="1.5" PointX="10.75" PointY="2.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.PerfilFuncao" Width="1.5" PointX="4.875" PointY="6.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.PerfilUsuario" Width="1.5" PointX="10.75" PointY="3" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Rota" Width="1.5" PointX="6.875" PointY="6.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Roteiro" Width="1.5" PointX="10.875" PointY="4.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusAnomalia" Width="1.5" PointX="8.875" PointY="6.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusCliente" Width="1.5" PointX="10.875" PointY="6.25" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusDocExpedicao" Width="1.5" PointX="2.875" PointY="3.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusEmbalagem" Width="1.5" PointX="0.875" PointY="7" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusEmpresa" Width="1.5" PointX="0.75" PointY="3.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusFornecedor" Width="1.5" PointX="2.875" PointY="7" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusNotaFiscal" Width="1.5" PointX="10.875" PointY="3.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusRota" Width="1.5" PointX="4.875" PointY="7" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusTransportadora" Width="1.5" PointX="4.875" PointY="5.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusVolume" Width="1.5" PointX="6.875" PointY="7" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoAnomalia" Width="1.5" PointX="0.875" PointY="5.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoDefeito" Width="1.5" PointX="8.875" PointY="7" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoEmpresa" Width="1.5" PointX="8.875" PointY="5.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoHistoricoExpedicao" Width="1.5" PointX="10.875" PointY="7" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoMovimentoExpedicao" Width="1.5" PointX="0.875" PointY="8.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoNotaFiscal" Width="1.5" PointX="4.875" PointY="3.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoRota" Width="1.5" PointX="0.875" PointY="7.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoTransportadora" Width="1.5" PointX="8.875" PointY="3.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoVolume" Width="1.5" PointX="2.875" PointY="7.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TransitoUploadColumns" Width="1.625" PointX="10.875" PointY="5.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Transportadora" Width="1.5" PointX="4.875" PointY="7.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Usuario" Width="1.5" PointX="6.875" PointY="5.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Veiculo" Width="1.5" PointX="6.875" PointY="7.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Volume" Width="1.5" PointX="2.875" PointY="5.375" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.EstoqueUpload_SERCON" Width="1.5" PointX="8.875" PointY="7.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.LocalDestino" Width="1.5" PointX="9" PointY="8.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.LocalOrigem" Width="1.5" PointX="10.875" PointY="7.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.Romaneio" Width="1.5" PointX="2.875" PointY="8.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusRomaneio" Width="1.5" PointX="5" PointY="8.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.StatusRetorno" Width="1.5" PointX="6.875" PointY="3.75" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.TipoDocumentoRetorno" Width="1.5" PointX="10.875" PointY="8.625" IsExpanded="false" />
+        <EntityTypeShape EntityType="Quasar_Model.RetornoInternoItem" Width="1.5" PointX="2.75" PointY="10.75" />
+        <EntityTypeShape EntityType="Quasar_Model.RetornoInterno" Width="1.5" PointX="5.375" PointY="10.75" />
+        <EntityTypeShape EntityType="Quasar_Model.Locacao" Width="1.5" PointX="7.375" PointY="10.75" />
+        <EntityTypeShape EntityType="Quasar_Model.Movimentacao" Width="1.5" PointX="9.375" PointY="10.75" />
+        <EntityTypeShape EntityType="Quasar_Model.MovimentacaoDestino" Width="1.5" PointX="11.375" PointY="10.75" />
+        <EntityTypeShape EntityType="Quasar_Model.Area" Width="1.5" PointX="13.375" PointY="0.75" />
+        <EntityTypeShape EntityType="Quasar_Model.Cliente" Width="1.5" PointX="13.375" PointY="5.75" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

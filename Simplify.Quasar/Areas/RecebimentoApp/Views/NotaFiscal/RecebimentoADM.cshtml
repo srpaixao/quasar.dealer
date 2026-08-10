@@ -1,0 +1,301 @@
+﻿@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Administrativo";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+        <small class="pull-right last-update"></small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            @*@if (ViewBag.Permissoes.Contains("[add]"))
+                {*@
+            <div class="row">
+                <div class="col-xs-12">
+                    <a href="#" id="confirmarNF" class="btn btn-warning hide" style="margin-bottom:10px"><i class="fa-regular fa-square-check"></i> Confirmar Recebimento</a>
+                </div>
+            </div>
+            @*}*@
+            <div class="row">
+                <div class="col-xs-12">
+                    <p id="processing">Loading...</p>
+                </div>
+            </div>
+            <div class="row" id="table-container">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover table-small" id="tbADM"></table>
+                    </div>
+                </div>
+            </div>
+            <div class="row hide" id="message-container">
+                <div class="col-xs-12">
+                    <h4><i class="fa-solid fa-circle-info fa-lg fa-fw text-aqua"></i><span class="text-muted"> Não existem Notas Fiscais pendentes de recebimento pelo ADM</span></h4>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal DANFE -->
+<div id="modalDanfe" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-gradient">
+                <span><i class="fa-regular fa-square-check fa-lg fa-fw"></i>&nbsp;Confirmar Recebimento de Nota Fiscal</span>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="form-label">Chave NFe</label>
+                            <input type="text" id="inputNFe" class="form-control" autocomplete="off" maxlength="44" placeholder="DANFE" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+
+    <script>
+
+        function UpdateDataTable() {
+
+            $('#processing').removeClass('hide');
+            $('#confirmarNF').addClass('hide');
+            $('#table-container').addClass('hide');
+            $('#message-container').addClass('hide');
+
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+            if ($.fn.DataTable.isDataTable('#tbADM')) {
+                $('#tbADM').DataTable().destroy();
+            }
+
+            $('#tbADM tbody').empty();
+            var action = '@Url.Action("GetDataADM", "NotaFiscal", new { area = "RecebimentoApp" })';
+            var url_detail = '@Url.Action("GetItens","NotaFiscal", new { area = "RecebimentoApp", notafiscal = "_nota"})';
+
+            var table = $('#tbADM').DataTable({
+                deferRender: true,
+                autoWidth: false,
+                pageLength: 25,
+                order: [],
+                ajax: {
+                    url: action,
+                    type: 'GET',
+                    dataType: 'json'
+                },
+                columns: [
+                            {
+                                data: 'Numero', title: 'Nota Fiscal', render: function (data, type, row) {
+                                    var id = row['Id'];
+                                    return '<a class="detail-nf" href=' + url_detail.replace('_nota', id) + '>' + data + '</a>';
+                                }
+                            },
+                            { data: 'NomeEmissor', title: 'Fornecedor' },
+                            { data: 'Emissor', title: 'CNPJ' },
+                            { data: 'StatusNF', title: 'Status' },
+                            {
+                                data: 'QtdItensNF', title: 'Linhas', render: function (data, type) {
+                                    if (data) {
+                                        return data.toLocaleString();
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                data: 'QtdItens', title: 'Itens', render: function (data, type) {
+                                    if (data) {
+                                        return data.toLocaleString();
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                data: 'QtdVolumes', title: 'Volumes', render: function (data, type) {
+                                    if (data) {
+                                        return data.toLocaleString();
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                data: 'CriadoEm', title: 'Data Cadastro', visible: false, render: function (data, type) {
+                                    if (data) {
+                                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                ],
+
+                drawCallback: function () {
+                    // console.log("drawCallback");
+                  //  console.log(table.data().count());
+                },
+                fnInitComplete: function () {
+                    // console.log('fnInitComplete')
+                    if (table.rows().count() > 0) {
+                        $('#confirmarNF').removeClass('hide');
+                        $('#table-container').removeClass('hide');
+                    } else {
+                        $('#message-container').removeClass('hide');
+                        $("#modalDanfe").modal('hide');
+                    }
+
+                    $('#processing').addClass('hide');
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item encontrado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            table.columns.adjust().draw(false);
+
+            $("#tbADM").on("click", "a.detail-nf", function (e) {
+                var url = $(this).attr('href');
+                $('#myModalContent').load(url, function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                });
+                return false;
+            });
+
+        }
+
+        $(document).ready(function () {
+
+            UpdateDataTable();
+
+            $('#confirmarNF').click(function () {
+                $("#modalDanfe").modal('show');
+            })
+
+            // Modal DANFE
+            $("#modalDanfe").on('show.bs.modal', function (e) {
+                $('#inputNFe').val('');
+            });
+
+            $("#modalDanfe").on('shown.bs.modal', function (e) {
+                //var target = $(e.relatedTarget).attr('id');
+                $('#inputNFe').focus();
+            });
+
+            $('#inputNFe').on('keyup', function (event) {
+                event.preventDefault();
+
+                var input = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+                    if (input.trim().length > 0) {
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            url: '@Url.Action("ConfirmarADM", "NotaFiscal", new { area = "RecebimentoApp" })',
+                            data: { danfe: input }
+                        }).done(function (response) {
+                            if (response.success) {
+                                UpdateDataTable();
+                            } else {
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-danger'>" + response.msg + "</h4>";
+                                swal({
+                                    title: 'Confirmar Recebimento de Nota Fiscal',
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            visible: true,
+                                            className: 'swal-btn-danger',
+                                            text: "Fechar"
+                                        }
+                                    }
+                                })
+                            }
+                        }).fail(function (xhr, status, error) {
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>" + errorMessage + "</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                            swal({
+                                title: "Confirmar Recebimento de Nota Fiscal",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            })
+                        })
+                    }
+                }
+            })
+
+        });
+    </script>
+}

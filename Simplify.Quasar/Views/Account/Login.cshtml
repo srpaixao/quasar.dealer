@@ -1,0 +1,135 @@
+﻿@model Simplify.Quasar.ViewModels.LoginViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Volkhov:ital,wght@1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <link href="~/Content/login/fonts/icomoon/style.css" rel="stylesheet" />
+    <link href="~/Content/login/css/owl.carousel.min.css" rel="stylesheet" />
+    <link href="~/Content/sweetalert.js.org/custom.css" rel="stylesheet" />
+
+    <!-- Bootstrap CSS -->
+    <link href="~/Content/login/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Style -->
+    <link href="~/Content/login/css/style.css" rel="stylesheet" />
+
+    <title>Login</title>
+
+    <style>
+        .quasar-title {
+            font-family: 'Volkhov', serif !important;
+            font-size: 48px;
+        }
+
+        .quasar-subtitle {
+            font-family: 'Volkhov', serif !important;
+            font-size: 24px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5">
+                    <img src="~/Content/login/images/login.svg" alt="Image" class="img-fluid">
+                </div>
+                <div class="col-md-6 contents" style="margin-top:0px !important">
+                    <div class="row justify-content-center">
+                        <div class="col-md-10">
+                            <div class="mb-6 text-center">
+                                <h1 class="quasar-title text-muted">Quasar Dealer</h1>
+                                <p class="text-muted quasar-subtitle mb-3">Warehouse Management System</p>
+                                <p class="text-muted mb-10">NOVA CHEVROLET</p>
+                                    @if (Simplify.Quasar.Custom.Util.IsTestEnvironment())
+                                    {
+                                        <p class="alert alert-warning">
+                                            The application is running in a test environment
+                                        </p>
+                                    }
+                            </div>
+
+                            @using (Html.BeginForm())
+                            {
+                                @Html.AntiForgeryToken()
+
+                                @Html.HiddenFor(m => m.Id)
+                                @Html.HiddenFor(m => m.SenhaExpirada)
+
+                                
+                                <div class="form-group mb-2">
+                                    <label for="filial"></label>
+                                    @Html.DropDownListFor(m => m.IdFilial, Model.FilialDDL, new { @class = "form-control" })
+                                </div>
+
+                                <div class="form-group first @(Model.Usuario != null ? "field--not-empty" : string.Empty)">
+                                    <label for="username">Usuário</label>
+                                    @Html.TextBoxFor(m => m.Usuario, new { @class = "form-control", @autocomplete = "off", @required = "required", @autofocus = "autofocus" })
+                                </div>
+                                <div class="text-danger user-error mb-2">@Html.ValidationMessageFor(m => m.Usuario)</div>
+
+                                <div class="form-group last mt-2 mb-4">
+                                    <label for="password">Senha</label>
+                                    @Html.PasswordFor(m => m.Senha, new { @class = "form-control", @autocomplete = "off", @required = "required" })
+                                </div>
+                                <div class="text-danger pwd-error mb-2">@Html.ValidationMessageFor(m => m.Senha)</div>
+
+                                <button type="submit" class="btn btn-block btn-primary mt-2"><i class="fa-solid fa-arrow-right-to-bracket"></i> Log In</button>
+                                <span class="senha-expirada" data-url="@Url.Action("AtualizarSenha", "Account", new { id = "_id"})"></span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <div class="row mt-3">
+                    <div class="col-md-12 copy">
+                        <p class="text-center">&copy; Copyright 2023 - Simplify IT Solutions.  All rights reserved.</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Modal  -->
+    <div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id="myModalContent">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Scripts/app/login/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/app/login/popper.min.js"></script>
+    <script src="~/Scripts/app/login/bootstrap.min.js"></script>
+    <script src="~/Scripts/sweetalert.js.org/sweetalert.min.js"></script>
+
+    <script src="https://kit.fontawesome.com/d4c8df1d3e.js" crossorigin="anonymous"></script>
+
+    @*<script src="~/Scripts/bootbox/bootbox.min.js"></script>
+        <script src="~/Scripts/bootbox/bootbox.locales.min.js"></script>*@
+
+
+    <script src="~/Scripts/app/login/main.js"></script>
+
+
+
+</body>
+
+</html>

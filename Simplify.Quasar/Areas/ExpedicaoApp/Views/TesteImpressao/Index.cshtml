@@ -1,0 +1,91 @@
+﻿
+@{
+    ViewBag.Title = "Expedição";
+    ViewBag.Description = "Teste Impressão";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+
+                    <form action="localhost" id="formulario" method="POST">
+
+                        <label>IP Servidor Impressão</label><input type="text" name="ipServidorImpressao" id="ipServidorImpressao"
+                                                                   value="127.0.0.1" /><br />
+                        <label>Porta Servidor de Impressão</label><input type="number" name="portaServidorImpressao"
+                                                                         id="portaServidorImpressao" value="8085" /><br />
+                        <label>IP impressora</label><input type="text" name="ipImpressora" id="ipImpressora" value="127.0.0.1"><br />
+                        <label>Porta impressora</label><input type="number" name="portaImpressora" id="portaImpressora"
+                                                              value="9100" /><br />
+                        <label>Comandos ZPL</label><br />
+                        <textarea name="comandosZPL" id="comandosZPL" rows="5" cols="50">^XA^FO50,50^BQ,2,10^FDMA,Teste de Impressao^FS^FO300,50^GB300,100,2^FS^FO310,80^A0N,50,50^FD^FS^XZ</textarea>
+                        <br /><br />
+                        <input type="button" id="winPost" name="winPost" value="Enviar por window.postMessage()" />
+                        <br /><br />
+                    </form>
+
+                </div>
+                <div class="col-xs-12 col-lg-6">
+                    <iframe src="" id="frameImpressao" height="130" width="200"></iframe>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function () {
+
+            $('#winPost').click(function () {
+
+                let ipServidorImpressao = document.getElementById("ipServidorImpressao").value;
+                let portaServidorImpressao = document.getElementById("portaServidorImpressao").value;
+                let comandosZPL = document.getElementById("comandosZPL").value;
+                let ipImpressora = document.getElementById("ipImpressora").value;
+                let portaImpressora = document.getElementById("portaImpressora").value;
+
+                //let address = "https://" + ipImpressora + ":" + portaImpressora;
+
+                console.log('ipServidorImpressao', ipServidorImpressao)
+                console.log('portaServidorImpressao', portaServidorImpressao)
+                console.log('comandosZPL', comandosZPL)
+                console.log('ipImpressora', ipImpressora)
+                console.log('portaImpressora', portaImpressora)
+
+                let iframeWin = document.getElementById("frameImpressao").contentWindow,
+                   // form = document.getElementById("formulario"),
+                    mensagem = JSON.stringify({
+                        ipServidorImpressao: ipServidorImpressao,
+                        portaServidorImpressao: portaServidorImpressao,
+                        ipImpressora: ipImpressora,
+                        portaImpressora: portaImpressora,
+                        comandosZPL: comandosZPL
+                    });
+
+                iframeWin.postMessage(mensagem, "*");
+                return false;
+
+            })
+        });
+    </script>
+}
+
+

@@ -1,0 +1,174 @@
+﻿
+@using System.Web.Optimization
+@using WebHelpers.Mvc5.Enum
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#eee"> <!-- Cor do tema -->
+    @*<title>Quasar.Dealer</title>*@
+    @Styles.Render("~/Bundles/css")
+
+    @*<link rel="stylesheet" href="styles.css">*@
+    <style>
+        .header-coletor {
+            text-align: center;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="header-coletor">Quasar.Dealer</h1>
+        <h5 class="header-coletor">Armazenagem de Peças</h5>
+    </header>
+
+    <main>
+
+        <div class="container-fluid">
+            @RenderBody()
+        </div>
+
+    </main>
+
+    <script src="https://kit.fontawesome.com/d4c8df1d3e.js" crossorigin="anonymous"></script>
+
+
+    <script src="@RouteJs.RouteJsHandler.HandlerUrl"></script>
+    <script src="@EnumHandler.HandlerUrl"></script>
+
+    @Scripts.Render("~/Bundles/jquery")
+    @Scripts.Render("~/Bundles/bootstrap")
+    @Scripts.Render("~/Bundles/js")
+    @*@Scripts.Render("~/Bundles/adminlte")*@
+
+
+    @RenderSection("ViewSpecificJavascript", required: false)
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*@using System.Web.Optimization
+    @using WebHelpers.Mvc5.Enum
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>
+            Quasar Dealer
+        </title>
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    </head>
+
+    <body class="hold-transition skin-purple sidebar-mini">
+        <div class="wrapper" style="height: auto; min-height: 100%;">
+            <header class="main-header">
+                <a href="#" class="logo" style="pointer-events:none;">
+                    <span class="logo-lg"><b>Quasar.</b>Dealer</span>
+                </a>
+                <nav class="navbar navbar-static-top" role="navigation">
+                    <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                        <span class="sr-only">Toggle navigation</span>
+                    </a>
+                    <div class="nav navbar-nav navbar-title hidden-xs">
+                        <span>NOVA CHEVROLET <small>&nbsp;&nbsp;&nbsp;@(Session["filialnome"] != null ? Session["filialnome"].ToString() : string.Empty)</small></span>
+                    </div>
+                    <div class="navbar-custom-menu">
+                        <ul class="nav navbar-nav">
+
+                            <li class="dropdown user user-menu">
+                                <a href="@Url.Action("Index","Home", new { area = "Admin"})" class="dropdown-toggle" data-toggle="dropdown">
+                                    <img src="~/Content/img/Avatar.PNG" class="user-image" alt="User Image">
+                                    <span class="hidden-xs">
+                                        @(Session["displayname"] != null ? Session["displayname"].ToString() : string.Empty)
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Logout","Account", new { area = ""})" title="Log out"><i class="fa fa-sign-out"></i> Logout</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </header>
+
+            @Html.Action("Index", "Menu")
+
+            <div class="content-wrapper">
+                @RenderBody()
+            </div>
+        </div>
+
+        <footer style="padding-top:5px;padding-bottom:5px">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <span class="hidden-xs">Powered by <a href="https://simplifyse.com.br" target="_blank">Simplifyse</a></span>
+                    </div>
+                    <div class="col-xs-6 hidden-xs">
+                        <small class="pull-right"><strong>Copyright © 2014-2019 <a href="https://adminlte.io">AdminLTE</a>.</strong> All rights reserved. <b>  Version</b> 2.4.13</small>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script src="https://kit.fontawesome.com/d4c8df1d3e.js" crossorigin="anonymous"></script>
+
+        <script src="@RouteJs.RouteJsHandler.HandlerUrl"></script>
+        <script src="@EnumHandler.HandlerUrl"></script>
+
+        @Scripts.Render("~/Bundles/jquery")
+        @Scripts.Render("~/Bundles/bootstrap")
+        @Scripts.Render("~/Bundles/js")
+        @Scripts.Render("~/Bundles/adminlte")
+
+        @RenderSection("ViewSpecificJavascript", required: false)
+        @RenderSection("scripts", required: false)
+
+        <script>
+            $(document).ready(function () {
+
+
+
+                var url = window.location;
+
+                $('ul.sidebar-menu a').filter(function () {
+                    return this.href == url;
+                }).parent().addClass('active');
+
+                $('ul.treeview-menu a').filter(function () {
+                    return this.href == url;
+                }).parentsUntil(".sidebar-menu > .treeview-menu").addClass('active')
+            })
+        </script>
+    </body>
+    </html>*@

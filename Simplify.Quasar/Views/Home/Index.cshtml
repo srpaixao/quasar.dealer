@@ -1,0 +1,159 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h4 {
+        font-weight:bold;
+        font-size:22px;
+    }
+
+    .small-box .inner {
+        padding-top: 20px;
+    }
+
+    a.small-box-footer {
+        font-weight: bold;
+    }
+
+</style>
+<div class="box box-default">
+
+    <div class="box-body">
+
+        <div class="row">
+
+            <div class="col-lg-3 col-xs-6">
+                <!-- small box -->
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <h3>@ViewBag.VolumesParaConferencia</h3>
+                        <p><br />Volumes para conferir</p>
+                    </div>
+
+                    <div class="icon">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                    </div>
+                    <a href="@Url.Action("Index","NotaFiscal", new { area = "RecebimentoApp" })" class="small-box-footer">Recebimento <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+                <!-- small box -->
+                <div class="small-box bg-green-gradient">
+                    <div class="inner">
+                        <h3>0</h3>
+                        <p><br />Itens para armazenar</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-cubes"></i>
+                    </div>
+                    <a href="@Url.Action("Index","Home", new { area = "EstoqueApp" })" class="small-box-footer">Estoque <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+                <!-- small box -->
+                <div class="small-box bg-blue">
+                    <div class="inner">
+                        <h3>0</h3>
+                        <p><br />Volumes para entregar</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-dolly"></i>
+                    </div>
+                    <a href="@Url.Action("Index","Home", new { area = "ExpedicaoApp" })" class="small-box-footer">Expedição <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+                <!-- small box -->
+                <div class="small-box bg-red">
+                    <div class="inner">
+                        <h3>0</h3>
+                        <p><br />Processos pendentes</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-exclamation-triangle"></i>
+                    </div>
+                    <a href="@Url.Action("Index","Home", new { area = "ConfiguracaoApp" })" class="small-box-footer">Configuração <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            
+            <!--<div class="col-lg-3 col-xs-6">-->
+                <!-- small box -->
+                <!--<div class="small-box bg-orange">
+                    <div class="inner">
+                        <h3>0</h3>
+                        <p><br />Usuários ativos</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+                    <a href="@Url.Action("Index","Home", new { area = "ControleAcessoApp" })" class="small-box-footer">Acessos <i class="fa fa-arrow-circle-right"></i></a>
+                </div>
+            </div>-->
+            
+            <!--<div class="col-lg-3 col-xs-6">-->
+            <!-- small box -->
+            <!--<div class="small-box bg-maroon-gradient">
+                <div class="inner">
+                    <h3>0</h3>
+                    <p><br />Processos pendentes</p>
+                </div>
+                <div class="icon">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+                <a href="@Url.Action("Index","Home", new { area = "GarantiaApp" })" class="small-box-footer">Garantia <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-xs-6">-->
+            <!-- small box -->
+            <!--<div class="small-box bg-blue">
+                <div class="inner">
+                    <h3>0</h3>
+                    <p><br />Itens para receber</p>
+                </div>
+                <div class="icon">
+                    <i class="fa-solid fa-truck-arrow-right fa-flip-horizontal"></i>
+                </div>
+                <a href="@Url.Action("Index","Home", new { area = "ComprasApp" })" class="small-box-footer">Compras <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-xs-6">-->
+            <!-- small box -->
+            <!--<div class="small-box bg-purple">
+                <div class="inner">
+                    <h3>0</h3>
+                    <p><br />Itens para separar</p>
+                </div>
+                <div class="icon">
+                    <i class="fa-solid fa-filter"></i>
+                </div>
+                <a href="#" class="small-box-footer">Separação <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>-->
+
+        </div>
+
+
+    </div>
+
+</div>
+
+@section Scripts {
+    
+    <script>
+        $(document).ready(function () {
+
+        })
+    </script>
+    }
+
+
+
+
+

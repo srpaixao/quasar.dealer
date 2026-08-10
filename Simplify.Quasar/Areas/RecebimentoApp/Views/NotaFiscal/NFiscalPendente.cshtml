@@ -1,0 +1,189 @@
+﻿@model IEnumerable<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.NFiscalPendenteViewModel>
+
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "NFiscal Pendentes";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@*<link href="~/Content/icheck/minimal/blue.css" rel="stylesheet" />*@
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+    .dt_filter > .form-group {
+        margin-right: 10px;
+    }
+
+    select.filter {
+        max-width: 300px !important;
+    }
+
+    .filtered {
+        border: 2px solid #00c0ef;
+        outline: 0;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+        <small class="pull-right last-update"></small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            <p id="loading"><i class="fa fa-lg fa-fw fa-spinner fa-pulse"></i> Obtendo dados...</p>
+            <div class="row hide">
+                <div class="col-xs-12">
+                    <div class="dt_filter form-inline"></div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-xs-12">
+                    <table class="table table-bordered table-striped table-hovered" id="tbNFiscalPendente" style="display:none;width:100%">
+                        <thead>
+                            <tr>
+                                <th>NFiscal Nr</th>
+                                <th>Status</th>
+                                <th>Origem</th>
+                                <th>Dt/Hr</th>
+                                <th>Usuário</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.NFiscal</td>
+                                    <td>@item.Status</td>
+                                    <td>@item.Origem</td>
+                                    <td>@item.CriadoEm</td>
+                                    <td>@item.Usuario</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+
+    <script>
+
+        function capitalize(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+        }
+
+        $(document).ready(function () {
+            var table = $('#tbNFiscalPendente').DataTable({
+                processing: false,
+                deferRender: true,
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item localizado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                },
+                drawCallback: function (settings) {
+                    console.log("Draw");
+                },
+                fnInitComplete: function () {
+
+                   this.api().columns([0, 1, 2, 3, 4]).every(function (th) {
+                        var column = this;
+                       var theadname = $("#tbNFiscalPendente th").eq([th]).text(); //used this specify table name and head
+
+                       $('<div class="form-group"><label>' + capitalize(theadname) + '</label><div class="NFiscalPendente-filter-group' + th + '"></div></div>')
+                         .appendTo('div.dt_filter');
+
+                     // column search (input:string, regex: bool, smart: bool, caseInsen: bool)
+
+                     var select = $('<select class="form-control filter"><option value="">- Todos -</option></select>')
+                         .appendTo('div.NFiscalPendente-filter-group' + th)
+                         .on('change', function () {
+                             var val = $(this).val();
+                             if (val) {
+                                 val = $.fn.dataTable.util.escapeRegex($(this).val());
+                             }
+                             column.search(val ? '^' + val + '$' : '', true, false, true).draw();
+                             if ($(this).prop('selectedIndex') == 0) {
+                                 $(this).removeClass('selected');
+                             } else {
+                                 $(this).addClass('selected');
+                             }
+                             $(this).blur();
+                         });
+
+                     column.cells('', column[0]).render('display').sort().unique().each(function (d, j) {
+                         // obter somente 1a parte do texto separado por <br>
+                         if (d.indexOf('<br>') > -1) {
+                             var texto = d.split('<br>');
+                             d = texto[0];
+                         }
+
+                         // remover <a> do texto
+                         var regX = /(<([^>]+)>)/ig;
+                         d = d.replace(regX, '').trim();
+                         select.append('<option value="' + d + '">' + d + '</option>')
+                     })
+                   })
+
+
+                    $('#loading').hide();
+                    $('#tbNFiscalPendente').show();
+                    console.log("Completed");
+                }
+            });
+
+            $('.dt_filter_NFiscalPendente').removeClass('hide');
+            $('#tbNFiscalPendente').show();
+            table.columns.adjust().draw();
+        });
+    </script>
+}

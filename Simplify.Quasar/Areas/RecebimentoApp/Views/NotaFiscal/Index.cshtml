@@ -1,0 +1,705 @@
+﻿@model IEnumerable<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.NotaFiscalViewModel>
+
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Notas Fiscais";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@*<link href="~/Content/icheck/minimal/blue.css" rel="stylesheet" />*@
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/jquery-filestyle/jquery-filestyle.min.css" rel="stylesheet" />
+<link href="~/Content/typeahead/typeaheadjs.css" rel="stylesheet" />
+
+<style>
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+    div.jfilestyle.jfilestyle-theme-quasar input {
+        border: none;
+        background: #eee;
+    }
+
+    div.jfilestyle.jfilestyle-theme-quasar label {
+        border: none;
+        background: #3c8dbc;
+        color: #fff;
+    }
+
+    .last-update {
+        font-size: 14px !important;
+        margin-top: 5px !important;
+        margin-right: 10px !important;
+    }
+
+    #scrollable-dropdown-menu .tt-menu {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+        <small class="pull-right last-update"></small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab_gm" data-toggle="tab" aria-expanded="false"><i class="fa fa-fw fa-car text-light-blue"></i> GM</a></li>
+                            <li class=""><a href="#tab_rede" data-toggle="tab" aria-expanded="true"><i class="fa fa-fw fa-truck text-light-blue"></i> Rede / Fornecedores</a></li>
+                            <li class=""><a href="#tab_transferencia" data-toggle="tab" aria-expanded="false"><i class="fa fa-fw fa-exchange text-light-blue"></i> Transferência</a></li>
+                            <li class=""><a href="#tab_devolucao" data-toggle="tab" aria-expanded="false"><i class="fa fa-fw fa-external-link text-light-blue"></i> Devolução</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="tab_gm">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <p id="processing">Loading...</p>
+                                    </div>
+                                </div>
+
+                                <div class="data-container hide">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-lg-8">
+                                            <div class="form-group">
+                                                <label class="text-muted">Importar arquivo de trânsito</label>
+                                                <div>
+                                                    <input type="file" id="uploadtransito" class="jfilestyle"
+                                                           data-theme="quasar"
+                                                           data-text="<i class='fa-solid fa-folder'></i> Selecionar"
+                                                           data-buttonBefore="true"
+                                                           data-inputSize="300px"
+                                                           data-placeholder="Nenhum arquivo selecionado">
+                                                    <button type="button" id="btn-importar-transito" class="btn btn-success hide" style="margin-left:5px">
+                                                        <i class="fa fa-fw fa-upload"></i> Importar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-lg-4">
+                                            <div class="form-group">
+                                                <label class="text-muted">Filtrar por material</label>
+                                                <small><a href="#" class="pull-right text-red hide" id="limpar-filtro"><i class="fa-regular fa-trash-can fa-fw text-red"></i> Remover filtro</a></small>
+                                                <div id="scrollable-dropdown-menu">
+                                                    <input type="text" class="form-control typeahead" id="input-material">
+                                                </div>
+                                                <div style="margin-top:5px">
+                                                    <span class="loading-suggestions" style="display:none;"><i class="fa fa-spinner fa-pulse fa-fw"></i> Pesquisando...</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <div class="table-responsive">
+                                                <table class="table table-condensed table-bordered table-hover table-small" id="tbGM">
+                                                    @*<thead>
+                                                        <tr>
+                                                            <th>Nota Fiscal</th>
+                                                            <th>Fornecedor</th>
+                                                            <th>Origem</th>
+                                                            <th>Status</th>
+                                                            <th>Peças</th>
+                                                            <th>Itens</th>
+                                                            <th>Volumes</th>
+                                                            <th>Última atualização</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>*@
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="tab_rede">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <a href="@Url.Action("Rede","NotaFiscal", new { area = "RecebimentoApp" })" class="btn btn-success"><i class="fa-regular fa-file-lines"></i> Cadastrar Nota Fiscal</a>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-condensed table-bordered table-hover table-small" id="tbRede">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nota Fiscal</th>
+                                                        <th>Fornecedor</th>
+                                                        <th>Status</th>
+                                                        <th>Linhas</th>
+                                                        <th>Itens</th>
+                                                        <th>Volumes</th>
+                                                        <th>Última atualização</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.Where(x => x.TipoId == 1)) // Rede/Fornecedores
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                <a href="#" class="showItensNF" data-id="@item.Id">@item.Numero</a>
+                                                            </td>
+                                                            <td>@item.NomeEmissor</td>
+                                                            <td>@item.StatusNF</td>
+                                                            <td>@item.QtdItensNF</td>
+                                                            <td>@item.QtdItens</td>
+                                                            <td>@item.QtdVolumes</td>
+                                                            <td>@item.ModificadoEm</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="tab_transferencia">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <a href="@Url.Action("Transferencia","NotaFiscal", new { area = "RecebimentoApp" })" class="btn btn-success"><i class="fa-regular fa-file-lines"></i> Cadastrar Nota Fiscal</a>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-condensed table-bordered table-hover table-small" id="tbTransferencia">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nota Fiscal</th>
+                                                        <th>Filial</th>
+                                                        <th>Status</th>
+                                                        <th>Linhas</th>
+                                                        <th>Itens</th>
+                                                        <th>Volumes</th>
+                                                        <th>Última atualização</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.Where(x => x.TipoId == 3)) // Transferência
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                <a href="#" class="showItensNF" data-id="@item.Id">@item.Numero</a>
+                                                            </td>
+                                                            <td>@item.NomeEmissor</td>
+                                                            <td>@item.StatusNF</td>
+                                                            <td>@item.QtdItensNF</td>
+                                                            <td>@item.QtdItens</td>
+                                                            <td>@item.QtdVolumes</td>
+                                                            <td>@item.ModificadoEm</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="tab_devolucao">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <a href="@Url.Action("Devolucao","NotaFiscal", new { area = "RecebimentoApp" })" class="btn btn-success"><i class="fa-regular fa-file-lines"></i> Cadastrar Nota Fiscal</a>
+                                        <a href="#" class="btn btn-success disabled"><i class="fa-regular fa-file-lines"></i> Cadastrar Nota Fiscal</a>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-condensed table-bordered table-hover table-small" id="tbDevolucao">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nota Fiscal</th>
+                                                        <th>Filial</th>
+                                                        <th>Status</th>
+                                                        <th>Linhas</th>
+                                                        <th>Itens</th>
+                                                        <th>Volumes</th>
+                                                        <th>Última atualização</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.Where(x => x.TipoId == 2)) // Devolução
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                <a href="#" class="showItensNF" data-id="@item.Id">@item.Numero</a>
+                                                            </td>
+                                                            <td>@item.NomeEmissor</td>
+                                                            <td>@item.StatusNF</td>
+                                                            <td>@item.QtdItensNF</td>
+                                                            <td>@item.QtdItens</td>
+                                                            <td>@item.QtdVolumes</td>
+                                                            <td>@item.ModificadoEm</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+    <script src="~/Scripts/jquery-filestyle/jquery-filestyle.min.js"></script>
+
+    <script src="~/Scripts/typeahead/typeahead.bundle.min.js"></script>
+
+    <script>
+
+        function LoadDataTableTransito(filtro) {
+
+            $('#processing').removeClass('hide');
+            $('.data-container').addClass('hide');
+
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+            if ($.fn.DataTable.isDataTable('#tbGM')) {
+                $('#tbGM').DataTable().destroy();
+            }
+
+            $('#tbGM tbody').empty();
+            var action = '@Url.Action("GetDataTransito", "NotaFiscal", new { area = "RecebimentoApp", material = "_material" })';
+            var url_detail = '@Url.Action("GetItens","NotaFiscal", new { area = "RecebimentoApp", notafiscal = "_nota"})';
+
+            var table = $('#tbGM').DataTable({
+                deferRender: true,
+                autoWidth: false,
+                pageLength: 25,
+                order: [],
+                ajax: {
+                    url: action.replace('_material', filtro),
+                    type: 'GET',
+                    dataType: 'json'
+                },
+                columns: [
+                            {
+                                data: 'NotaFiscalNr', title: 'Nota Fiscal', render: function (data, type, row) {
+                                    var id = row['NotaFiscalId'];
+                                    return '<a class="detail-nf" href=' + url_detail.replace('_nota', id) + '>' + data + '</a>';
+                                }
+                            },
+                            { data: 'Fornecedor', title: 'Fornecedor' },
+                            { data: 'Origem', title: 'Origem' },
+                            { data: 'Status', title: 'Status' },
+                            {
+                                data: 'QtdItensNF', title: 'Linhas', visible: false, render: function (data, type) {
+                                    if (data) {
+                                        return data.toLocaleString();
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                data: 'QtdItens', title: 'Itens', render: function (data, type) {
+                                    if (data) {
+                                        return data.toLocaleString();
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                data: 'QtdVolumes', title: 'Volumes', render: function (data, type) {
+                                    if (data) {
+                                        return data.toLocaleString();
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                data: 'ModificadoEm', title: 'Atualizado em', visible: false, render: function (data, type) {
+                                    if (data) {
+                                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                ],
+
+                drawCallback: function () {
+                    // console.log("drawCallback");
+                },
+                fnInitComplete: function () {
+                    // console.log('fnInitComplete')
+                    $('#processing').addClass('hide');
+                    $('.data-container').removeClass('hide');
+
+                    var maxData = table.column(7).data().sort().reverse()[0];
+                    if (maxData) {
+                        $('.last-update').html('<i class="fa fa-clock-o fa-fw"></i> Última atualização: ' + moment(maxData).format('DD/MM/YYYY HH:mm:ss'));
+                    }
+
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item encontrado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            table.columns.adjust().draw(false);
+
+            $("#tbGM").on("click", "a.detail-nf", function (e) {
+                var url = $(this).attr('href');
+                $('#myModalContent').load(url, function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                });
+                return false;
+            });
+
+        }
+
+        $(document).ready(function () {
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if ($(e.target).attr('href') == '#tab_gm') {
+                    $('.last-update').show();
+                } else {
+                    $('.last-update').hide();
+                }
+            });
+
+            $('.showItensNF').on('click', function (e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                var url = '@Url.Action("GetItens", "NotaFiscal", new { area = "RecebimentoApp", notafiscal = "_id" })';
+                $('#myModalContent').load(url.replace("_id", id), function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                });
+                return false;
+            });
+
+
+
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+            LoadDataTableTransito('');
+
+            $('#input-material').on('blur', function () {
+                var input = $('#input-material').val().trim();
+                if (input.length === 0) {
+                    $('.typeahead').typeahead('val', '');
+                    $('#limpar-filtro').addClass('hide');
+                    LoadDataTableTransito('');
+                }
+            })
+
+            $('#limpar-filtro').on('click', function () {
+                $(this).addClass('hide');
+                $('.typeahead').typeahead('val', '');
+                LoadDataTableTransito('');
+            })
+
+            // Instantiate the Bloodhound suggestion engine
+            var action = '@Url.Action("MaterialLookup", "Material", new { area="EstoqueApp", query = "_query"})';
+            var materiais = new Bloodhound({
+                datumTokenizer: function (datum) {
+                    return Bloodhound.tokenizers.whitespace(datum.value);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                limit: 10,
+                remote: {
+                    wildcard: '%QUERY',
+                    url: action.replace('_query', '%QUERY'),
+                    transform: function (response) {
+                        return $.map(response.results, function (material) {
+                            return {
+                                key: material.Codigo,
+                                value: material.Descricao
+                            };
+                        });
+                    }
+                }
+            });
+
+            // Instantiate the Typeahead UI
+            $('#scrollable-dropdown-menu .typeahead').typeahead(null, {
+                display: 'value',
+                source: materiais,
+                limit: 20
+            }).on("typeahead:selected", function (obj, selectedItem) {
+                $('.loading-suggestions').hide();
+                $('#limpar-filtro').removeClass('hide');
+                LoadDataTableTransito(selectedItem.key);
+            }).on('typeahead:asyncrequest', function (e) {
+                //console.log('asyncrequest')
+            }).on('typeahead:asynccancel typeahead:asyncreceive', function (e) {
+                //console.log('asynccancel')
+                $('.loading-suggestions').show();
+            });
+
+            var tbRede = $('#tbRede').DataTable({
+                processing: false,
+                deferRender: true,
+                pageLength: 25,
+                drawCallback: function (settings) {
+                    //console.log("Draw tbRede");
+                },
+                fnInitComplete: function () {
+                    $("#loading").hide();
+                    //console.log("fnInitComplete tbRede");
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item localizado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            var tbDevolucao = $('#tbDevolucao').DataTable({
+                processing: false,
+                deferRender: true,
+                pageLength: 25,
+                drawCallback: function (settings) {
+                    //console.log("Draw tbDevolucao");
+                },
+                fnInitComplete: function () {
+                    $("#loading").hide();
+                    //console.log("fnInitComplete tbDevolucao");
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item localizado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            var tbTransferencia = $('#tbTransferencia').DataTable({
+                processing: false,
+                deferRender: true,
+                pageLength: 25,
+                drawCallback: function (settings) {
+                    //console.log("Draw tbTransferencia");
+                },
+                fnInitComplete: function () {
+                    $("#loading").hide();
+                    //console.log("fnInitComplete tbTransferencia");
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item localizado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            $('#uploadtransito').on('change', function (ev) {
+                if ($(this).get(0).files.length === 0) {
+                    $('#btn-importar-transito').addClass('hide');
+                    $('#check-transito').addClass('hide');
+                } else {
+                    $('#btn-importar-transito').removeClass('hide');
+                    $('#check-transito').removeClass('hide');
+                }
+            });
+
+            $('#btn-importar-transito').click(function (e) {
+                e.preventDefault();
+
+                if ($("#uploadtransito").val() != '') {
+                    var msg = 'Confirma a importação do arquivo ?';
+
+                    swal({
+                        title: "Atualizar trânsito GM",
+                        text: "Confirma a importação do arquivo ?",
+                        buttons: {
+                            cancel: {
+                                text: "Não",
+                                className: "swal-btn-danger",
+                                closeModal: true,
+                                visible: true,
+                            },
+                            confirm: {
+                                text: "Sim",
+                                className: "swal-btn-success",
+                                closeModal: true,
+                                visible: true
+                            }
+                        }
+                    }).then((confirm) => {
+                        if (confirm) {
+                            $('#btn-importar-transito').html("<i class='fa fa-fw fa-pulse fa-spinner'></i> Importando arquivo...");
+
+                            var fileUpload = $("#uploadtransito").get(0);
+                            var files = fileUpload.files;
+                            var form = new FormData();
+                            form.append("Arquivo", files[0]);
+
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("UploadFileTransito", "NotaFiscal", new { area = "RecebimentoApp" })',
+                                contentType: false,
+                                processData: false,
+                                data: form,
+                            }).done(function (response) {
+                                $('#btn-importar-transito').html("<i class='fa fa-fw fa-upload'></i> Importar");
+                                if (response.erro == false) {
+
+                                    setTimeout(function () {
+                                        LoadDataTableTransito('');
+
+                                        var div = document.createElement("div");
+                                        div.innerHTML = "<h4 class='swal-text-success'>Arquivo de trânsito importado com sucesso!</h4>";
+
+                                        swal({
+                                            title: "Atualizar trânsito GM",
+                                            content: div,
+                                            buttons: {
+                                                confirm: {
+                                                    className: "swal-btn-info"
+                                                }
+                                            }
+                                        })
+
+                                    }, 300);
+                                } else {
+                                    var div = document.createElement("div");
+                                    div.innerHTML = "<h4 class='swal-text-error'>Não foi possível importar o arquivo selecionado!</h4><p class='swal-text-error-detail'>" + response.mensagem + "</p>";
+                                    swal({
+                                        title: "Atualizar trânsito GM",
+                                        content: div,
+                                        buttons: {
+                                            confirm: {
+                                                visible: false
+                                            },
+                                            cancel: {
+                                                text: "Fechar",
+                                                className: "swal-btn-danger",
+                                                closeModal: true,
+                                                visible: true
+                                            }
+                                        }
+                                    })
+                                }
+                            }).fail(function (jqXHR, textStatus, errorThrown) {
+                                $('#btn-importar-transito').html("<i class='fa fa-fw fa-upload'></i> Importar");
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-error'>Não foi possível importar o arquivo selecionado!</h4><p class='swal-text-error-detail'>" + jqXHR + "</p>";
+                                swal({
+                                    title: "Atualizar trânsito GM",
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            visible: false
+                                        },
+                                        cancel: {
+                                            text: "Fechar",
+                                            className: "swal-btn-danger",
+                                            closeModal: true,
+                                            visible: true
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,129 @@
+﻿@model Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.UsuarioViewModel
+@{
+    ViewBag.Title = "Create Usuario";
+    Layout = null;
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-solid fa-user-plus fa-lg fa-fw"></i>&nbsp;&nbsp;Cadastrar Usuário</span>
+        </div>
+
+        @Html.AntiForgeryToken()
+
+<div class="modal-body">
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Login</label>
+                @Html.TextBoxFor(m => m.Login, new { @class = "form-control upper", @autocomplete = "off" })
+                <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.Login)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="form-label">Nome completo</label>
+                @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off" })
+                <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Nome)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Empresa</label>
+                @Html.DropDownListFor(m => m.EmpresaId, Model.EmpresaDDL, new { @class = "form-control" })
+                <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.EmpresaId)</div>
+            </div>
+        </div>
+        @*<div class="row">
+            <div class="col-12 col-lg-5">
+                <div class="form-group">
+                    <label class="form-label">Função</label>
+                    @Html.DropDownListFor(m => m.FuncaoId, Model.FuncaoDDL, "-- Selecione --", new { @class = "form-control" })
+                    <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.FuncaoId)</div>
+                </div>
+            </div>
+        </div>*@
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Perfil de Acesso</label>
+                @Html.DropDownListFor(m => m.PerfilId, Model.PerfilDDL, "-- Selecione --", new { @class = "form-control" })
+                <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.PerfilId)</div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-8">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                @Html.TextBoxFor(m => m.Email, new { type = "email", @class = "form-control", @autocomplete = "off" })
+                <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Email)</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-lg-4">
+            <div class="form-group">
+                <label class="form-label">Telefone</label>
+                @Html.TextBoxFor(m => m.Telefone, new { @class = "form-control", @autocomplete = "off" })
+                <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Telefone)</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+        <div class="modal-footer">
+            <div class="pull-right">
+                <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+<script src="~/Scripts/inputmask/jquery.inputmask.bundle.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('.input-validation-error').each(function () {
+            $(this).addClass('is-invalid')
+        }).on('focus', function () {
+            $(this).removeClass('is-invalid')
+        })
+
+        $('#Telefone').inputmask("(99) 99999-9999");
+
+        @*$('#Empresa_Id').change(function () {
+            var url = '@Url.Action("GetAreas", "Area", new { empresaId = "_empresa"})';
+            url = url.replace("_empresa", $(this).val());
+
+            var $ddl = $('#Area_Id');
+            $.getJSON(url, function (result) {
+                $ddl.empty();
+                $.each(result, function (i, item) {
+                    $ddl.append($("<option>").text(item.Text).val(item.Value));
+                });
+            });
+        }).change();*@
+    });
+
+</script>

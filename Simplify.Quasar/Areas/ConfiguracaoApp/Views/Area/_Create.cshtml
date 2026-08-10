@@ -1,0 +1,88 @@
+﻿@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.AreaViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = null;
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-regular fa-square-plus fa-fw"></i>&nbsp;&nbsp;Cadastrar Área</span>
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Nome, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        @Html.TextAreaFor(m => m.Descricao, new { @class = "form-control", @autocomplete = "off", @rows = "3", @maxlength = "500" })
+                        @Html.ValidationMessageFor(x => x.Descricao, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>                      
+
+            <div class="row">
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="text-nowrap">Qtde Armazenagens</label>
+                        @Html.TextBoxFor(m => m.QtdeArmazenagem, new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.QtdeArmazenagem)</div>
+                    </div>
+                </div>
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="text-nowrap">Qtde Separação</label>
+                        @Html.TextBoxFor(m => m.QtdeSeparacao, new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.QtdeSeparacao)</div>
+                    </div>
+                </div>
+                <div class="col-xs-4">
+                    <div class="form-group">
+                        <label class="text-nowrap">Tipo</label>
+                        @Html.TextBoxFor(m => m.Tipo, new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Tipo)</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-xs-12 col-lg-6">
+            <div class="checkbox">
+                <label style="padding-left:0px !important">@Html.CheckBoxFor(x => x.Etiqueta)<b>&nbsp;&nbsp;&nbsp;Conferir Item/Quantidade</b></label>
+            </div>
+        </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="pull-right">
+                <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+            </div>
+        </div>
+
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+
+

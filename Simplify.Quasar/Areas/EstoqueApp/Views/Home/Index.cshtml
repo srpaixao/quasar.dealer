@@ -1,0 +1,483 @@
+﻿@*@model IEnumerable<Simplify.Quasar.Areas.EstoqueApp.ViewModels.EstoqueViewModel>*@
+
+@{
+    ViewBag.Title = "Estoque";
+    ViewBag.Description = "Itens";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/icheck/flat/red.css" rel="stylesheet" />
+<link href="~/Content/typeahead/typeaheadjs.css" rel="stylesheet" />
+
+<style>
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    .select2-selection.select2-selection--single {
+        padding-left: 0px !important;
+    }
+
+    /*    .dataTables_processing {
+        display: none !important;
+    }*/
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+        <small class="pull-right last-update"></small>        
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row processing">
+                <div class="col-xs-12">
+                    <p><i class="fa fa-fw fa-spinner fa-spin"></i> Loading...</p>
+                </div>
+            </div>
+
+            <div class="row datatable hide">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover table-small" id="tbEstoque" style="width:100%"></table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalLocacao" data-backdrop="static" tabindex="-1" aria-labelledby="modalLocacao" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="modalLocacaoContent">
+                <div class="modal-header bg-blue-gradient">
+                    <span><i class="fa-brands fa-buromobelexperte fa-fw fa-lg"></i>&nbsp;&nbsp;Definir Locação</span>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="modal-item-id" />
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="">Item</label>
+                                <p class="text-muted" id="modal-item"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <div id="scrollable-dropdown-menu">
+                                    <input type="text" class="form-control typeahead" id="input-locacao" name="input-locacao" placeholder="Locação" required>
+                                </div>
+                                <div style="margin-top:5px">
+                                    <span class="loading-suggestions" style="display:none;"><i class="fa fa-spinner fa-pulse fa-fw"></i> Pesquisando...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row hide" id="divLocacao">
+                        <div class="col-xs-12 col-lg-3">
+                            <div class="form-group">
+                                <label>Código</label>
+                                <p class="text-muted" id="codigo-locacao"></p>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-3">
+                            <div class="form-group">
+                                <label>Tipo</label>
+                                <p class="text-muted" id="tipo-locacao"></p>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-3">
+                            <div class="form-group">
+                                <label>Área</label>
+                                <p class="text-muted" id="area-locacao"></p>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-3">
+                            <div class="form-group">
+                                <label>Equipamento</label>
+                                <p class="text-muted" id="equip-locacao"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="pull-right">
+                                <button type="button" id="btnConfirmarLocacao" class="btn btn-success hide"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+    <script src="~/Scripts/DataTables/plugins/dataRender/datetime.js"></script>
+    <script src="~/Scripts/typeahead/typeahead.bundle.min.js"></script>
+
+    <script>
+
+        function LoadDataTable() {
+
+            $('div.processing').removeClass('hide');
+            $('div.upload').addClass('hide');
+            $('div.datatable').addClass('hide');
+
+            if ($.fn.DataTable.isDataTable('#tbEstoque')) {
+                $('#tbEstoque').DataTable().destroy();
+            }
+
+            $('#tbEstoque tbody').empty();
+
+            var table = $('#tbEstoque').DataTable({
+                //deferRender: true,
+                //autoWidth: false,
+                serverSide: true,
+                processing: true,
+                pageLength: 25,
+                ajax: {
+                    url: '@Url.Action("GetDataEstoque", "Home", new { area = "EstoqueApp" })',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: function (d) {
+                        return JSON.stringify(d);
+
+                    }
+                },
+                columns: [
+                    {
+                        data: 'ItemNr',
+                        title: 'Item'
+                    },
+                    {
+                        data: 'Descricao',
+                        title: 'Descrição'
+                    },
+                    {
+                        data: 'Locacao',
+                        title: 'Locação',
+                        render: function (data, type, row) {
+                            if (data.trim() == '') {
+                                var id = row['Id'];
+                                return '<a href="#" class="edit-locacao" data-id="' + id + '" style="color:orange">*** Não definida ***</a>';
+                            } else {
+                                let strLocacao = data.replace(/\s+/g, '');
+                                return strLocacao;
+                            }
+                        }
+                    },
+                    {
+                        data: 'Saldo',
+                        title: 'Saldo',
+                        render: function (data, type, row) {
+                            if (data) {
+                                return data.toLocaleString();
+                            } else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        data: 'Indisponivel',
+                        title: 'Indisponível',
+                        render: function (data, type, row) {
+                            if (data) {
+                                return data.toLocaleString();
+                            } else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        data: 'PedidoPendente',
+                        title: 'Em Pedido',
+                        render: function (data, type, row) {
+                            if (data) {
+                                return data.toLocaleString();
+                            } else {
+                                return data;
+                            }
+                        }
+                    },
+                    //{
+                    //    data: 'Range',
+                    //    title: 'Range',
+                    //    visible: false,
+                    //},
+                    //{
+                    //    data: 'ModificadoEm',
+                    //    title: 'Atualizado em',
+                    //    visible: false,
+                    //    render: function (data, type, row) {
+                    //        return data;
+                    //    }
+                    //}
+                ],
+                drawCallback: function () {
+                    //console.log("drawCallback");
+                },
+                fnInitComplete: function () {
+                    var locacoes = table.column(2).data().toArray();
+                    if (jQuery.inArray('', locacoes) > -1) {
+                        $(table.column(2).header()).html('Locação <i class="fa fa-fw fa-exclamation-triangle text-orange"></i>');
+                    }
+
+                    $('div.processing').addClass('hide');
+                    $('div.upload').removeClass('hide');
+                    $('div.datatable').removeClass('hide');
+
+                    //console.log('fnInitComplete')
+                },
+                language: {
+                    processing: '<i class="fa fa-spin fa-spinner fa-fw"></i> Processando....',
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item encontrado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            //table.on('processing.dt', function (e, settings, processing) {
+            //    if (processing) {
+            //        $('div.processing').removeClass('hide');
+            //    } else {
+            //        $('div.processing').addClass('hide');
+            //    }
+            //});
+
+            // Editar locação
+            $("#tbEstoque").on("click", "a.edit-locacao", function (e) {
+                var id = $(this).attr('data-id');
+                var codigo = $(this).closest('tr').find('td:eq(0)').text().trim();
+                var descricao = $(this).closest('tr').find('td:eq(1)').text().trim();
+                $('#modal-item-id').val(id);
+                $('#modal-item').text(codigo + ' - ' + descricao);
+                $('#modalLocacao').modal('show');
+            });
+
+            table.columns.adjust().draw(false);
+
+        }
+
+        function bindForm(dialog) {
+            $('form', dialog).submit(function () {
+                $.ajax({
+                    url: this.action,
+                    type: this.method,
+                    data: $(this).serialize(),
+                    success: function (result) {
+                        if (result.success) {
+                            $('#myModal').modal('hide');
+                        } else {
+                            $('#myModalContent').html(result);
+                            bindForm();
+                        }
+                    },
+                    error: function (data) {
+                        console.log('erro', data);
+                    }
+                });
+                return false;
+            });
+        }
+
+        $(document).ready(function () {
+
+            const lookup_url = '@Url.Action("GetLocacoesDisponiveis", "Locacao", new { area="EstoqueApp", query = "_query"})';
+
+            LoadDataTable();
+
+            $('input').iCheck({
+                checkboxClass: 'icheckbox_flat-red'
+            });
+
+            // Configurar filtro de locações
+            $("a.config").click(function () {
+                var url = $(this).attr('data-url');
+                if (url) {
+                    $('#myModalContent').load(url, function () {
+                        $('#myModal').modal({
+                            backdrop: 'static',
+                            keyboard: true
+                        }, 'show');
+                        bindForm(this);
+                    });
+                    return false;
+                }
+            });
+
+            $('#myModal').on('shown.bs.modal', function () {
+                $('#Valor').focus();
+            })
+
+            // Selecionar locação
+            // Instantiate the Bloodhound suggestion engine
+            var locacoes = new Bloodhound({
+                datumTokenizer: function (datum) {
+                    return Bloodhound.tokenizers.whitespace(datum.value);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                limit: 10,
+                remote: {
+                    wildcard: '%QUERY',
+                    url: lookup_url.replace('_query', '%QUERY'),
+                    transform: function (response) {
+                        return $.map(response.results, function (locacao) {
+                            return {
+                                key: locacao.codigo,
+                                value: locacao.codigo,
+                                tipo: locacao.tipo,
+                                area: locacao.area,
+                                equipamento: locacao.equipamento,
+                            };
+                        });
+                    }
+                }
+            });
+
+            // Instantiate the Typeahead UI
+            $('#scrollable-dropdown-menu .typeahead').typeahead(null, {
+                display: 'value',
+                source: locacoes,
+                minLength: 3,
+                limit: 15
+            }).on("typeahead:selected", function (obj, selectedItem) {
+                $('#codigo-locacao').text(selectedItem.key);
+                $('#tipo-locacao').text(selectedItem.tipo);
+                $('#area-locacao').text(selectedItem.area);
+                $('#equip-locacao').text(selectedItem.equipamento);
+                $('.typeahead').typeahead('val', '');
+                $('#divLocacao').removeClass('hide');
+                $('#btnConfirmarLocacao').removeClass('hide');
+            }).on('typeahead:asyncrequest', function (e) {
+                $('#divLocacao').addClass('hide');
+                $('#btnConfirmarLocacao').addClass('hide');
+                $('.loading-suggestions').show();
+                $('#codigo-locacao').text('');
+                $('#tipo-locacao').text('');
+                $('#area-locacao').text('');
+                $('#equip-locacao').text('');
+            }).on('typeahead:asynccancel typeahead:asyncreceive', function (e) {
+                $('.loading-suggestions').hide();
+            });
+
+            $('#input-locacao').on('blur', function () {
+                var input = $('#input-locacao').val().trim();
+                $('#input-locacao').val(input);
+                if (input.length === 0) {
+                    $('#divLocacao').addClass('hide');
+                    $('#btnConfirmarLocacao').addClass('hide');
+                    $('#codigo-locacao').text('');
+                    $('#tipo-locacao').text('');
+                    $('#area-locacao').text('');
+                    $('#equip-locacao').text('');
+                    $('.typeahead').typeahead('val', '');
+                }
+            })
+
+            $("#modalLocacao").on('show.bs.modal', function () {
+                $('#divLocacao').addClass('hide');
+                $('#btnConfirmarLocacao').addClass('hide');
+                $('.loading-suggestions').hide();
+                $('#codigo-locacao').text('');
+                $('#tipo-locacao').text('');
+                $('#area-locacao').text('');
+                $('#equip-locacao').text('');
+                $('#input-locacao').val('');
+            });
+
+            $('#btnConfirmarLocacao').click(function () {
+                var itemId = $('#modal-item-id').val();
+                var codigolocacao = $('#codigo-locacao').text().trim();
+
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '@Url.Action("DefinirLocacaoItem", "Home", new { area="EstoqueApp"})',
+                    data: { id: itemId, locacao: codigolocacao  }
+                }).done(function (response) {
+                    if (response.success) {
+                        LoadDataTable();
+                        $('#modalLocacao').modal('hide');
+                    } else {
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro na atualização do item!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                        swal({
+                            title: "Definir Locação",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    }
+                }).fail(function (xhr, status, error) {
+                    var div = document.createElement("div");
+                    div.innerHTML = "<h4 class='swal-text-error'>" + errorMessage + "</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                    swal({
+                        title: "Definir Locacão",
+                        content: div,
+                        buttons: {
+                            confirm: {
+                                visible: false
+                            },
+                            cancel: {
+                                text: "Fechar",
+                                className: "swal-btn-danger",
+                                closeModal: true,
+                                visible: true
+                            }
+                        }
+                    })
+                })
+            })
+        });
+
+    </script>
+}

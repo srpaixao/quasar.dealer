@@ -1,0 +1,617 @@
+﻿@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Cadastrar Retorno Interno";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .datatable_filter {
+        padding-bottom: 15px;
+    }
+
+    select.filter {
+        margin-right: 15px;
+        border: 1px solid #eee;
+    }
+
+    div.filter-option, a > span.text {
+        font-size: 13px !important;
+    }
+
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    #tbItensRetorno {
+        table-layout: fixed;
+    }
+
+        #tbItensRetorno tr > td > input {
+            height: 28px !important;
+        }
+
+    div.padding-r0 {
+        padding-right: 0px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row" id="input-doc">
+                <div class="col-xs-12 col-lg-2">
+                    <label class="form-label">Nr Documento</label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lg fa-barcode"></i></span>
+                        <input type="text" id="NrDocumento" class="form-control" placeholder="Documento" maxlength="44" style="font-size:14px; font-weight: bold; width: 100%;" autofocus>
+                        <input type="hidden" id="input-doc" />
+                    </div>
+                </div>
+                <div class="input-itemDoc" style="display:none">
+                    <div class="col-xs-12 col-lg-2">
+                        <div class="form-group">
+                            <label class="form-label">Tipo</label>
+                            @Html.DropDownList("TipoDocumentoDDL", ViewBag.TipoDocumentoDDL as SelectList, new { @id = "TipoDocumentoId", @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-lg-2">
+                        <div class="form-group">
+                            <label class="form-label">Origem</label>
+                            @Html.DropDownList("OrigemDDL", ViewBag.OrigemDDL as SelectList, new { @id = "LocalOrigemId", @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-2">
+                        <div class="form-group">
+                            <label class="form-label">Destino</label>
+                            @Html.DropDownList("DestinoDDL", ViewBag.DestinoDDL as SelectList, new { @id = "LocalDestinoId", @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label">Responsável</label>
+                            <input type="text" id="Responsavel" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-itemDoc" style="display:none">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="form-label">Observações</label>
+                            <input type="text" id="Observacoes" class="form-control" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-lg-3">
+                        <div class="form-group">
+                            <label>Item</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-lg fa-barcode"></i></span>
+                                <input type="text" id="itemDocumento" class="form-control text-center" placeholder="Código" style="font-size:14px; font-weight: bold">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-9">
+                        <div class="form-group pull-right">
+                            <label style="visibility:hidden">x</label>
+                            <div>
+                                <a href="#" class="btn btn-success" id="btnSalvar" style="display:none;"><i class="fa-solid fa-save"></i> Salvar</a>
+                                <a href="#" class="btn btn-danger" id="btnReiniciar" style="display:none;margin-left:5px"><i class="fa fa-undo"></i> Reiniciar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row form-group" id="itens-documento" style="display:none;">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover table-small" id="tbItensRetorno">
+                            <thead>
+                                <tr>
+                                    <th class="bg-blue-gradient" style="width:5%">Item</th>
+                                    <th class="bg-blue-gradient" style="width:15%">Código do Material</th>
+                                    <th class="bg-blue-gradient" style="width:60%">Descrição do material</th>
+                                    <th class="hide" style="width:20%">Locação</th>
+                                    <th class="bg-blue-gradient" style="width:10%">Quantidade</th>
+                                    <th class="bg-blue-gradient" style="width:5%"></th>
+                                    <th class="hide"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        function Renumerar() {
+            var rows = $("#tbItensRetorno tbody tr").length;
+            var row = 1;
+            $("#tbItensRetorno tbody tr").each(function () {
+                $(this).find('td:eq(0)').text(row + '/' + rows);
+                row++;
+            })
+        }
+
+        $(document).ready(function () {
+
+            // Leitura da NrDocumento
+            $('#NrDocumento').on('keyup', function (event) {
+                event.preventDefault();
+
+                var input = $(this).val();
+
+                if (event.keyCode === 13) {
+                    //console.log('input', input)
+
+                    //$(this).val('');
+
+                    //let isnum = /^\d+$/.test(input);
+                    //if (!isnum) {
+                    //    return;
+                    //}
+
+                    // Verifica se o documento já foi processado anteriormente
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: '@Url.Action("ValidarDocumento", "RetornoInterno", new { area = "RecebimentoApp"})',
+                        data: { nrdocumento: input }
+                    }).done(function (response) {
+                        if (response.success == true) {
+                            if (response.data) {
+
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-warning'>Documento já cadastrado!</h4>";
+
+                                swal({
+                                    title: "Cadastro de Retorno Interno",
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            className: "swal-btn-info"
+                                        }
+                                    }
+                                })
+
+                                return;
+
+                            } else {
+                                $('.input-itemDoc').show();
+
+                                if (response.data) {
+                                    $('#itemDocumento').focus();
+                                }
+                                $('#input-doc').val(input); // salva documento para envio no POST
+                            }
+                        } else {
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Não foi possível acessar o cadastro de documentos!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                            swal({
+                                title: "Cadastro de Retorno Interno",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            })
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.error;
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Não foi possível acessar o cadastro de documentos!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                        swal({
+                            title: "Cadastro de Nota Fiscal Transferência",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    })
+
+                }
+            })
+
+            $('#tbItensRetorno > tbody').on('click', 'a', function (e) {
+                e.preventDefault();
+
+                swal({
+                    title: "Cadastro de Retorno Interno",
+                    text: "Confirma a exclusão do item ?",
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true,
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then((confirm) => {
+                    if (confirm) {
+                        $(this).closest('tr').remove();
+                        Renumerar();
+                        if ($('#tbItensRetorno > tbody > tr').length < 1) {
+                            $('#itens-documento').hide();
+                            $('#btnSalvar').hide();
+                            $('#btnReiniciar').hide();
+                            $('#itemDocumento').focus();
+                        }
+                    }
+                });
+            })
+
+            // Leitura do item
+            $('#itemDocumento').on('keyup', function (event) {
+                event.preventDefault();
+
+                var itemDoc = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+
+                    // limitar quantidade de caracteres do item ??  só aceitar números ??
+                    //let isnum = /^\d+$/.test(itemDoc);
+                    //if (!isnum || itemDoc.length != 8) {
+                    //    return;
+                    //}
+
+                    var found = false;
+                    $("#tbItensRetorno tr").each(function () {
+                        var item = $(this).find('td:eq(1)').text().trim();
+                        if (item == itemDoc) {
+                            found = true;
+                            return false;
+                        }
+                    })
+
+                    if (found) {
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-warning'>O material " + itemDoc + " já foi informado!</h4>";
+
+                        swal({
+                            title: "Cadastro de Retorno Interno",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    className: "swal-btn-info"
+                                }
+                            }
+                        }).then(() => {
+                           setTimeout(function () {
+                                $('#itemDocumento').focus();
+                           }, 100)
+                        });
+
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: '@Url.Action("GetMaterial", "Material", new { area = "EstoqueApp"})',
+                        data: { codigo: itemDoc }
+                    }).done(function (response) {
+                        //console.log(response)
+                        if (response.success == true) {
+                            if (response.data) {
+                                $('#tbItensRetorno > tbody').append(
+                                    '<tr>' +
+                                        '<td class="text-muted" style="font-size:14px"></td>' +
+                                        '<td>' + itemDoc + '</td>' +
+                                        '<td class="text-left">' + response.data.Descricao + '</td>' +
+                                        '<td class="text-left hide"><span style="margin-left:12px">' + response.data.Locacao + '</span></td>' +
+                                        '<td><input type="text" class="form-control text-center integer" value="1"></input></td>' +
+                                        '<td><a href="#"><i class="fa fa-lg fa-fw fa-trash-o text-red"></a></td>' +
+                                        '<td class="hide"></td>' +
+                                    '</tr>');
+
+                                Renumerar();
+
+                                setTimeout(function () {
+                                    $('#tbItensRetorno tr:last input:last').focus();
+                                }, 100)
+
+                                $('#itens-documento').show();
+                                $('#btnReiniciar').show();
+                                $('#btnSalvar').show();
+
+                            } else {
+
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-warning'>Material não cadastrado!</h4>";
+                                swal({
+                                    title: "Cadastro de Retorno Interno",
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            className: "swal-btn-info"
+                                        }
+                                    }
+                                }).then(() => {
+                                   setTimeout(function () {
+                                        $('#itemDocumento').focus();
+                                   }, 100)
+                                });
+                            }
+
+                        } else {
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao acessar o cadastro de Materiais!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                            swal({
+                                title: "Cadastro de Retorno Interno",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            })
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.error;
+                        var errorMessage = xhr.status + ': ' + xhr.error;
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao acessar o cadastro de Materiais!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                        swal({
+                            title: "Cadastro de Retorno Interno",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    })
+                }
+            })
+
+            // Reiniciar
+            $('#btnReiniciar').click(function () {
+                swal({
+                    title: "Cadastro de Retorno Interno",
+                    text: "Deseja cancelar a entrada do documento ?",
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true,
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then((confirm) => {
+                    if (confirm) {
+                        $('#tbItensRetorno > tbody').empty();
+                        $('#input-doc').val('');
+                        $('#btnSalvar').hide();
+                        $('#btnReiniciar').hide();
+                        $('#itens-documento').hide();
+                        $('.input-itemDoc').hide();
+                        $('#input-doc').show();
+                        $('#danfe').focus();
+                    }
+                });
+            })
+
+            $('#btnSalvar').click(function () {
+                var msg = '';
+
+                // Validar tabela
+                $('#tbItensRetorno tbody tr').each(function () {
+
+                    // Descrição do item
+                    //if ($(this).find('td:eq(2) input').length) {
+                    //    var value = $(this).find('td:eq(2) input').val();
+                    //    if (value == null || value.trim() == '') {
+                    //        msg = 'Informe a descrição do item!';
+                    //        input = $(this).find('td:eq(2) input');
+                    //        return false;
+                    //    }
+                    //}
+
+                    // Locação
+                    //var value = $(this).find('td:eq(6)').text();
+                    //if (value == null || value.trim() == '') {
+                    //    msg = 'Informe a locação do item!';
+                    //    input = $(this).find('td:eq(3) input');
+                    //    return false;
+                    //}
+
+                    // Quantidade
+                    var qtd = $(this).find('td:eq(4) input').val();
+                    if (qtd == null || qtd.trim() == '' || Number(qtd) == 0) {
+                        msg = 'Informe a quantidade do item!';
+                        input = $(this).find('td:eq(4) input');
+                        return false;
+                    }
+                })
+
+                if (msg != '') {
+                    var div = document.createElement("div");
+                    div.innerHTML = "<h4 class='swal-text-warning'>" + msg + "</h4>";
+
+                    swal({
+                        title: "Cadastro de Retorno Interno",
+                        content: div,
+                        buttons: {
+                            confirm: {
+                                className: "swal-btn-info"
+                            }
+                        }
+                    }).then(function () {
+                        $(input).get(0).focus();
+                    });
+
+                    return;
+                }
+
+                swal({
+                    title: "Cadastro de Retorno Interno",
+                    text: "Confirma o registro do Documento ?",
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true,
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then((confirm) => {
+                    if (confirm) {
+                        let docRetorno = {
+                            NrDocumento: $('#input-doc').val(),
+                            TipoDocumentoRetornoId: $('#TipoDocumentoId').val(),
+                            LocalOrigemId: $('#LocalOrigemId').val(),
+                            LocalDestinoId: $('#LocalDestinoId').val(),
+                            Responsavel: $('#Responsavel').val(),
+                            Observacoes: $('#Observacoes').val(),
+                            _itens: []
+                        };
+
+                        $('#tbItensRetorno tbody tr').each(function () {
+                            var item = {};
+
+                            item.ItemNr = $(this).find('td:eq(1)').text().trim();
+
+                            if ($(this).find('td:eq(2) input').length) {
+                                item.Descricao = $(this).find('td:eq(2) input').val();
+                            } else {
+                                item.Descricao = $(this).find('td:eq(2)').text().trim();
+                            }
+
+                            //item.Locacao = $(this).find('td:eq(6)').text().trim();
+                            item.Quantidade = $(this).find('td:eq(4) input').val();
+                            docRetorno._itens.push(item);
+                        });
+
+                        $.ajax({
+                            url: '@Url.Action("Create", "RetornoInterno", new { area = "RecebimentoApp"})',
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: 'application/json',
+                            data: JSON.stringify(docRetorno),
+                        }).done(function (response) {
+                            //console.log(response)
+                        }).fail(function (xhr, status, error) {
+                            var errorMessage = xhr.status + ': ' + xhr.error;
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao gravar o documento!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                            swal({
+                                title: "Cadastro de Retorno Interno",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            })
+                        })
+
+                        $('#tbItensRetorno > tbody').empty();
+                        $('#btnSalvar').hide();
+                        $('#btnReiniciar').hide();
+                        $('#itens-documento').hide();
+
+                        $('.input-itemDoc').hide();
+                        $('#input-doc').show();
+                        $('#NrDocumento').focus();
+
+                        swal({
+                            title: "Cadastro de Retorno Interno",
+                            text: "Documento cadastrado com sucesso!",
+                            buttons: false,
+                            timer: 1500,
+                        }).then(() => {
+                            var url = '@Url.Action("Index","RetornoInterno", new { area = "RecebimentoApp"})'
+                            window.location.href = url; 
+                        })
+                    }
+                });
+
+            })
+
+        });
+    </script>
+}

@@ -1,0 +1,462 @@
+﻿@model Simplify.Quasar.Areas.AnomaliaApp.ViewModels.AnomaliaViewModel
+
+@{
+    ViewBag.Title = "Anomalia";
+    ViewBag.Description = "Novo Processo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    th, td {
+        font-weight: normal;
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+        th.titulo {
+            font-weight: bold;
+            background-color: #eee;
+            border: 3px solid #fff !important;
+        }
+
+    .modal-title {
+        color: #333;
+    }
+
+    #btnPesquisarItem {
+        margin-top: 25px;
+    }
+
+    selectDiv {
+        width: 30px;
+        overflow: hidden;
+    }
+
+    .selectBox {
+        width: 30px;
+    }
+
+    td[contenteditable] {
+        outline: none;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label>Fornecedor</label>
+                        <select class="form-control">
+                            <option value="1">GM</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label>Formulário</label>
+                        <select id="ddlFormulario" class="form-control">
+                            <option value="1">Anomalias</option>
+                            <option value="2">Danificados</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-anomalias">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table class="table table-condensed table-bordered" style="font-size: 11px;" id="tbAnomalia">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2"></th>
+                                    <th rowspan="2">Item</th>
+                                    <th rowspan="2">Pedido</th>
+                                    <th rowspan="2">Despacho</th>
+                                    <th colspan="4" class="titulo">Peça Recebida</th>
+                                    <th colspan="4" class="titulo">Nota Fiscal</th>
+                                    <th colspan="6" class="titulo">Anomalia</th>
+                                </tr>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Qtd</th>
+                                    <th>Dt Recebimento</th>
+                                    <th>Número</th>
+                                    <th>Dt Emissão</th>
+                                    <th>Volume</th>
+                                    <th>Origem</th>
+                                    <th>Tipo</th>
+                                    <th>Item Recebido</th>
+                                    <th>Qtd Recebida</th>
+                                    <th>Qtd Reclamada</th>
+                                    <th>Observações</th>
+                                    <th>Fotos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model._itensAnomalia.Count(); i++)
+                                {
+
+                        @*<td class="notafiscal">'+ value.NotaFiscal + '</td>
+\                        <td class="origem">'+ value.Origem + '</td>
+\                        <td class="item">'+ value.NumeroItem + '</td>
+\                        <td class="descricao">'+ value.DescricaoItem + '</td>
+\                        <td class="volume">'+ value.NumeroVolume + '</td>
+\                        <td class="qtd">'+ value.Qtd + '</td>
+\                        <td class="pedido">'+ value.NumeroPedido + '</td>
+\                        <td class="notafiscalid hide">'+ value.NotaFiscalId + '</td>
+\                        <td class="dtemissao hide">'+ value.DataEmissao + '</td>*@
+
+
+                        <tr>
+                            <td><i class="fa fas fa-fw fa-lg fa-trash-o text-red"></i></td>
+                            <td><a href="#itemModal" data-id="@(i + 1)" data-toggle="modal" data-backdrop="static" class="badge bg-blue open-modal">@(i + 1)</a></td>
+                            <td class="pedido"></td>
+                            <td class="despacho"></td>
+                            <td class="item"></td>
+                            <td class="descricao"></td>
+                            <td class="qtd"></td>
+                            <td class="dtrecebimento"></td>
+                            <td class="notafiscal"></td>
+                            <td class="dtemissao"></td>
+                            <td class="volume"></td>
+                            <td class="origem"></td>
+                            <td class="tipo">
+                                <div class="selectDiv hide">
+                                    <select class="selectBox">
+                                        <option value="A">A - Anomalia 1</option>
+                                        <option value="B">B - Anomalia 2</option>
+                                        <option value="C">C - Anomalia 3</option>
+                                        <option value="D">D - Anomalia 4</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td class="itemrecebido" tabindex="0"></td>
+                            <td class="qtdrecebida"></td>
+                            <td class="qtdreclamada"></td>
+                            <td class="observacoes"></td>
+                            <td class="fotos"><i class="fas fa-fw fa-lg fa-camera text-blue hide"></i></td>
+                        </tr>
+                    }
+                                </tbody>
+                            </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-danificados" style="display:none;">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table class="table table-condensed table-bordered table-striped" style="font-size: 11px;" id="tbDanificados">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2"></th>
+                                    <th rowspan="2">Item</th>
+                                    <th rowspan="2">Pedido</th>
+                                    <th rowspan="2">Despacho</th>
+                                    <th colspan="4" class="titulo">Peça Recebida</th>
+                                    <th colspan="4" class="titulo">Nota Fiscal</th>
+                                    <th colspan="8" class="titulo">Defeito</th>
+                                </tr>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Qtde</th>
+                                    <th>Dt Recebimento</th>
+                                    <th>Número</th>
+                                    <th>Dt Emissão</th>
+                                    <th>Volume</th>
+                                    <th>Origem</th>
+                                    <th>Tipo</th>
+                                    <th>Item Recebido</th>
+                                    <th>Qtd Recebida</th>
+                                    <th>Qtd Reclamada</th>
+                                    <th>Cond. Embalagem</th>
+                                    <th>Observações</th>
+                                    <th>Instalado?</th>
+                                    <th>Fotos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model._itensDanificado.Count(); i++)
+                                {
+                                    <tr>
+                                        <td><i class="fa fas fa-fw fa-lg fa-trash-o text-red"></i></td>
+                                        <td><a href="#itemModal" data-id="@(i + 1)" data-toggle="modal" data-backdrop="static" class="badge bg-blue open-modal">@(i + 1)</a></td>
+                                        <td class="pedido"></td>
+                                        <td class="despacho"></td>
+                                        <td class="item"></td>
+                                        <td class="descricao"></td>
+                                        <td class="qtd"></td>
+                                        <td class="dtrecebimento"></td>
+                                        <td class="notafiscal"></td>
+                                        <td class="dtemissao"></td>
+                                        <td class="volume"></td>
+                                        <td class="origem"></td>
+                                        <td class="tipo"></td>
+                                        <td class="itemrecebido"></td>
+                                        <td class="qtdrecebida"></td>
+                                        <td class="qtdreclamada"></td>
+                                        <td class="condicaoemb"></td>
+                                        <td class="observacoes"></td>
+                                        <td class="instalado"><div class="hide"><input type="checkbox" /></div></td>
+                                        <td class="fotos"><i class="fas fa-fw fa-lg fa-camera text-blue hide"></i></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal -->
+<div class="modal fade" id="itemModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Adicionar item <span class="current-item"></span>/<span class="max-item"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12 col-lg-2">
+                        <div class="form-group">
+                            <label>Nota Fiscal</label>
+                            <input type="text" class="form-control text-center" id="search-nota" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-2">
+                        <div class="form-group">
+                            <label>Volume</label>
+                            <input type="text" class="form-control text-center" id="search-volume" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-2">
+                        <div class="form-group">
+                            <label>Item</label>
+                            <input type="text" class="form-control text-center" id="search-item" />
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-3">
+                        <button type="button" id="btnPesquisarItem" class="btn btn-primary"><i class="fas fa-search"></i> Pesquisar</button>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-responsive">
+                            <table id="tbItens" class="table table-condensed table-bordered table-hover" style="font-size:13px;">
+                                <thead>
+                                    <tr>
+                                        <th>Nro Nota Fiscal</th>
+                                        <th>Origem</th>
+                                        <th>Código do Item</th>
+                                        <th>Descrição</th>
+                                        <th>Nro Volume</th>
+                                        <th>Quantidade</th>
+                                        <th>Nro Pedido</th>
+                                        <th class="hide">Id Item NF</th>
+                                        <th class="hide">DataEmissao</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fas fa-fw fa-lg fa-times"></i> Fechar</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            // Formulario
+            $('#ddlFormulario').change(function () {
+                $('.form-anomalias').toggle();
+                $('.form-danificados').toggle();
+            })
+
+            $('input[type="checkbox"]').iCheck({
+                checkboxClass: "icheckbox_flat-green",
+                radioClass: "iradio_flat-green"
+            });
+
+            $('a.open-modal').on('click', function () {
+                $('span.current-item').text($(this).data('id'));
+            })
+
+            $("#itemModal").on('show.bs.modal', function () {
+                $('#tbItens tbody').empty();
+
+                if ($('#ddlFormulario').val() == '1') {
+                    $('span.max-item').text('5');
+                } else {
+                    $('span.max-item').text('10');
+                }
+
+                $('#search-nota').val('');
+                $('#search-volume').val('');
+                $('#search-item').val('');
+
+                setTimeout(function () {
+                    $('#search-nota').focus();
+                },200)
+               
+            });
+
+            $('#btnPesquisarItem').on('click', function () {
+                var _nota = $('#search-nota').val().trim();
+                var _volume = $('#search-volume').val().trim();
+                var _item = $('#search-item').val().trim();
+
+                if (_nota == '' && _volume == '' && _item == '') {
+                    return;
+                }
+
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: '@Url.Action("GetNotaFiscal", "Processo", new { area = "AnomaliaApp"})',
+                    data: { nota: _nota, volume: _volume, item: _item }
+                }).done(function (response) {
+                    if (response.success) {
+                        console.log(response.data);
+
+                        $.each(response.data, function (key, value) {
+                            $('#tbItens tbody').append('<tr class="item-nf">\
+										<td class="notafiscal">'+ value.NotaFiscal + '</td>\
+                                        <td class="origem">'+ value.Origem + '</td>\
+										<td class="item">'+ value.NumeroItem + '</td>\
+										<td class="descricao">'+ value.DescricaoItem + '</td>\
+                                        <td class="volume">'+ value.NumeroVolume + '</td>\
+                                        <td class="qtd">'+ value.Qtd + '</td>\
+                                        <td class="pedido">'+ value.NumeroPedido + '</td>\
+                                        <td class="notafiscalid hide">'+ value.NotaFiscalId + '</td>\
+                                        <td class="dtemissao hide">'+ value.DataEmissao + '</td>\
+										</tr > ');
+                        })
+
+                        $('tr.item-nf').on('click', function () {
+                            //console.log($(this))
+                            //console.log('Nota Fiscal', $(this).find('td:eq(0)').text())
+                            //console.log('Origem', $(this).find('td:eq(1)').text())
+                            //console.log('Nro item', $(this).find('td:eq(2)').text())
+                            //console.log('Desc item', $(this).find('td:eq(3)').text())
+                            //console.log('Volume', $(this).find('td:eq(4)').text())
+                            //console.log('Qtd', $(this).find('td:eq(5)').text())
+                            //console.log('Pedido', $(this).find('td:eq(6)').text())
+                            //console.log('Nota Fiscal Id', $(this).find('td:eq(7)').text())
+                            //console.log('Data Emissao', $(this).find('td:eq(8)').text())
+
+                            var tr_index = Number($('span.current-item').text());
+                            tr_index--;
+
+
+                            if ($('.form-anomalias').is(':visible')) {
+                                row = $('#tbAnomalia tbody').find('tr').eq(tr_index);
+                                if (row) {
+                                    row.find('td.pedido').text($(this).find('td.pedido').text());
+                                    row.find('td.item').text($(this).find('td.item').text());
+                                    row.find('td.descricao').text($(this).find('td.descricao').text());
+                                    row.find('td.qtd').text($(this).find('td.qtd').text());
+                                    row.find('td.dtrecebimento').text('');
+
+                                    row.find('td.notafiscal').text($(this).find('td.notafiscal').text());
+                                    row.find('td.dtemissao').text(moment($(this).find('td.dtemissao').text()).format('DD.MM.YYYY'));
+                                    row.find('td.volume').text($(this).find('td.volume').text());
+                                    row.find('td.origem').text($(this).find('td.origem').text());
+
+                                    row.find('td.tipo').find('div').removeClass('hide');
+
+                                    row.find('td.itemrecebido').attr("contenteditable", true);
+                                    row.find('td.qtdrecebida').attr("contenteditable", true);
+                                    row.find('td.qtdreclamada').attr("contenteditable", true);
+                                    row.find('td.observacoes').attr("contenteditable", true);
+
+                                    row.find('td.fotos').find('i').removeClass('hide');
+
+                                    setTimeout(function () {
+                                        var td = row.find('td.itemrecebido');
+                                        td.focus();
+                                    },500)
+                                }
+                            } else {
+                                if ($('.form-danificados').is(':visible')) {
+                                    row = $('#tbDanificados').find('tr').eq(tr_index);
+                                }
+                            }
+
+                            $("#itemModal").modal('hide');
+
+                        })
+
+                    } else {
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>" + response.msg + "</h4>";
+                        swal({
+                            title: "Cadastro de Anomalias",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    }
+                }).fail(function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.error;
+                    var div = document.createElement("div");
+                    div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao acessar o banco de dados!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                    swal({
+                        title: "Lançamento de Notas Fiscais de Expedição",
+                        content: div,
+                        buttons: {
+                            confirm: {
+                                visible: false
+                            },
+                            cancel: {
+                                text: "Fechar",
+                                className: "swal-btn-danger",
+                                closeModal: true,
+                                visible: true
+                            }
+                        }
+                    })
+                })
+
+            })
+
+            
+
+        })
+    </script>
+
+}
+

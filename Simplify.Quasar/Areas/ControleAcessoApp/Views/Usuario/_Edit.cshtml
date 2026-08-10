@@ -1,0 +1,208 @@
+﻿@model Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.UsuarioViewModel
+@{
+    ViewBag.Title = "Edit Usuario";
+    Layout = null;
+}
+
+@*<style>
+            .chk-area {
+            font-weight: normal !important;
+            margin: 5px !important;
+        }
+    </style>*@
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-solid fa-user-pen fa-lg fa-fw"></i>&nbsp;&nbsp;Modificar cadastro de usuário</span>
+        </div>
+
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.Id)
+
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Login</label>
+                        @Html.TextBoxFor(m => m.Login, new { @class = "form-control upper", @autocomplete = "off" })
+                        <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.Login)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Nome completo</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Nome)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Empresa</label>
+                        @Html.DropDownListFor(m => m.EmpresaId, Model.EmpresaDDL, new { @class = "form-control" })
+                        <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.EmpresaId)</div>
+                    </div>
+                </div>
+
+                @*<div class="col-12 col-lg-5">
+                    <div class="form-group">
+                        <label class="form-label">Função</label>
+                        @Html.DropDownListFor(m => m.FuncaoId, Model.FuncaoDDL, "-- Selecione --", new { @class = "form-control" })
+                        <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.FuncaoId)</div>
+                    </div>
+                </div>*@
+
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-8">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        @Html.TextBoxFor(m => m.Email, new { type = "email", @class = "form-control", @autocomplete = "off" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Email)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        @Html.TextBoxFor(m => m.Telefone, new { @class = "form-control", @autocomplete = "off" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Telefone)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Perfil de Acesso</label>
+                        @Html.DropDownListFor(m => m.PerfilId, Model.PerfilDDL, "-- Selecione --", new { @class = "form-control" })
+                        <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.PerfilId)</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label" style="visibility:hidden">x</label>
+                        <div class="checkbox">
+                            <label style="padding-left:0px !important">@Html.CheckBoxFor(x => x.AcessoBloqueado)<b>&nbsp;&nbsp;&nbsp;Acesso Bloqueado</b></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="checkbox">
+                        <label style="padding-left:0px !important">@Html.CheckBoxFor(x => x.SenhaExpirada)<b>&nbsp;&nbsp;&nbsp;Senha Expirada</b></label>
+                    </div>
+                    <div style="padding-top:10px">
+                        <a hef="#" id="gerarSenha" class="btn btn-warning"><i class="fa-solid fa-user-lock"></i> Gerar nova senha de acesso</a>
+                        <span class="waiting hide"><i class="fa fa-spin fa-spinner"></i></span>
+                        <span class="pull-right" syule="padding-top:8px">
+                            <a href="#" id="excluirSenha" class="text-danger hide"><i class="fa fa-trash-o"></i></a>
+                            <span class="newpwd bg-success hide" style="padding:10px">Senha de acesso: <b id="novasenha"></b></span>
+                        </span>
+                    </div>
+                    @Html.HiddenFor(m => m.SenhaGerada)
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="pull-right">
+                        <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="card-text text-muted" style="margin-bottom:0px">
+                        <small><i>Criado por <b>@Model.CriadoPorNome</b> em @Model.CriadoEm</i></small>
+                        @Html.HiddenFor(m => m.CriadoPor)
+                        @Html.HiddenFor(m => m.CriadoPorNome)
+                        @Html.HiddenFor(m => m.CriadoEm)
+                    </p>
+                    @if (Model.ModificadoPor != null)
+                    {
+                        <p class="card-text text-muted">
+                            <small><i>Modificado por <b>@Model.ModificadoPorNome</b> em @Model.ModificadoEm</i></small>
+                            @Html.HiddenFor(m => m.ModificadoPor)
+                            @Html.HiddenFor(m => m.ModificadoPorNome)
+                            @Html.HiddenFor(m => m.ModificadoEm)
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+<script src="~/Scripts/inputmask/jquery.inputmask.bundle.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('.input-validation-error').each(function () {
+            $(this).addClass('is-invalid')
+        }).on('focus', function () {
+            $(this).removeClass('is-invalid')
+        })
+
+        $('#Telefone').inputmask("(99) 99999-9999");
+
+        $('#SenhaExpirada').iCheck({
+            checkboxClass: 'icheckbox_flat-red'
+        });
+
+        $('#AcessoBloqueado').iCheck({
+            checkboxClass: 'icheckbox_flat-red'
+        });
+
+        $('#gerarSenha').click(function (e) {
+            e.preventDefault;
+
+            $('span.newpwd').addClass('hide');
+            $('#novasenha').html('');
+            $('span.waiting').removeClass('hide');
+            $('#excluirSenha').addClass('hide');
+
+            setTimeout(function () {
+                var rd = Math.floor(Math.random() * 1000000) + 1;
+                $('#novasenha').html(rd);
+                $('#SenhaGerada').val(rd);
+                $('span.waiting').addClass('hide');
+                $('span.newpwd').removeClass('hide');
+                $('#excluirSenha').removeClass('hide')
+            }, 500)
+
+            $('#excluirSenha').click(function () {
+                $(this).addClass('hide');
+                $('span.newpwd').addClass('hide');
+                $('span.waiting').addClass('hide');
+                $('#novasenha').html('');
+                $('#SenhaGerada').val('');
+            })
+        })
+
+    });
+
+</script>
+

@@ -1,0 +1,264 @@
+﻿@*@model IEnumerable<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.HistoricoViewModel>*@
+
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Histórico";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@*<link href="~/Content/icheck/minimal/blue.css" rel="stylesheet" />*@
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+    .dt_filter > .form-group {
+        margin-right: 10px;
+    }
+
+    select.filter {
+        max-width: 300px !important;
+    }
+
+    .filtered {
+        border: 2px solid #00c0ef;
+        outline: 0;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+        <small class="pull-right last-update"></small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            <div class="row processing">
+                <div class="col-xs-12">
+                    <p><i class="fa fa-fw fa-spinner fa-spin"></i> Loading...</p>
+                </div>
+            </div>
+
+            <div class="row filter hide">
+                <div class="col-xs-12">
+                    <div class="dt_filter form-inline"></div>
+                </div>
+            </div>
+            <br />
+            <div class="row datatable hide">
+                <div class="col-xs-12">
+                    <table class="table table-condensed table-bordered table-hover table-small" id="tbHistorico" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th>Descrição</th>
+                                <th>Curva</th>
+                                <th>Locação</th>
+                                <th>Volume Nr</th>
+                                <th>Qtde</th>
+                                <th>Dt/Hr</th>
+                                <th>Usuário</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+
+
+    <script>
+
+        function capitalize(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+        }
+
+        $(document).ready(function () {
+
+            //$.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+            $('div.processing').removeClass('hide');
+
+            var table = $('#tbHistorico').DataTable({
+                //deferRender: true,
+                //autoWidth: false,
+                serverSide: true,
+                processing: true,
+                pageLength: 25,
+                ajax: {
+                    url: '@Url.Action("GetDataHistorico", "NotaFiscal", new { area = "RecebimentoApp" })',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: function (d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'CodMaterial',
+                        title: 'Material'
+                    },
+                    {
+                        data: 'DescMaterial',
+                        title: 'Descrição'
+                    },
+                    {
+                        data: 'Curva',
+                        title: 'Curva'
+                    },
+                    {
+                        data: 'CodLocacao',
+                        title: 'Locação'
+                    },
+                    {
+                        data: 'NroVolume',
+                        title: 'Volume'
+                    },
+                    {
+                        data: 'Quantidade',
+                        title: 'Quantidade',
+                        render: function (data, type, row) {
+                            if (data) {
+                                return data.toLocaleString();
+                            } else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        data: 'DataHora',
+                        title: 'Data / Hora',
+                        render: function (data, type, row) {
+                            if (data) {
+                                var timestamp = parseInt(data.replace(/\/Date\((\d+)\)\//, '$1'));
+                                var date = new Date(timestamp);
+
+                                // Formatar a data e a hora
+                                var formattedDate = date.toLocaleDateString('pt-BR');
+                                var formattedTime = date.toLocaleTimeString('pt-BR');
+                                return formattedDate + ' ' + formattedTime;
+                            } else {
+                                return data;
+                            }
+                        }
+                    },
+                    {
+                        data: 'Usuario',
+                        title: 'Usuário'
+                    },
+                ],
+                drawCallback: function () {
+                    //console.log("drawCallback");
+                },
+                fnInitComplete: function () {
+
+                    this.api().columns([0, 2, 3, 6, 7]).every(function (th) {
+                        var column = this;
+                        var theadname = $("#tbHistorico th").eq([th]).text(); //used this specify table name and head
+
+                        $('<div class="form-group"><label>' + capitalize(theadname) + '</label><div class="historico-filter-group' + th + '"></div></div>')
+                            .appendTo('div.dt_filter');
+
+                        // column search (input:string, regex: bool, smart: bool, caseInsen: bool)
+
+                        var select = $('<select class="form-control filter"><option value="">- Todos -</option></select>')
+                            .appendTo('div.historico-filter-group' + th)
+                            .on('change', function () {
+                                var val = $(this).val();
+                                if (val) {
+                                    val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                }
+                                column.search(val ? '^' + val + '$' : '', true, false, true).draw();
+                                if ($(this).prop('selectedIndex') == 0) {
+                                    $(this).removeClass('selected');
+                                } else {
+                                    $(this).addClass('selected');
+                                }
+                                $(this).blur();
+                            });
+
+                        column.cells('', column[0]).render('display').sort().unique().each(function (d, j) {
+                            // obter somente 1a parte do texto separado por <br>
+                            if (d.indexOf('<br>') > -1) {
+                                var texto = d.split('<br>');
+                                d = texto[0];
+                            }
+
+                            // remover <a> do texto
+                            var regX = /(<([^>]+)>)/ig;
+                            d = d.replace(regX, '').trim();
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                        })
+                    })
+
+                    $('div.processing').addClass('hide');
+                    //$('div.filter').removeClass('hide');
+                    $('div.datatable').removeClass('hide');
+
+                    //console.log('fnInitComplete')
+                },
+                language: {
+                    processing: '<i class="fa fa-spin fa-spinner fa-fw"></i> Processando....',
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item encontrado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            //table.on('processing.dt', function (e, settings, processing) {
+            //    if (processing) {
+            //        $('div.processing').removeClass('hide');
+            //    } else {
+            //        $('div.processing').addClass('hide');
+            //    }
+            //});
+
+            table.columns.adjust().draw();
+        });
+    </script>
+}

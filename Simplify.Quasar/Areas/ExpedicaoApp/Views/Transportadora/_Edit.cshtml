@@ -1,0 +1,238 @@
+﻿@model Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.TransportadoraViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = null;
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.Id)
+
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-regular fa-pen-to-square fa-fw"></i>&nbsp;&nbsp;Modificar cadastro de Transportadora</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label class="form-label">CNPJ</label>
+                        @Html.TextBoxFor(m => m.CNPJ, new { @class = "form-control text-center", @autocomplete = "off" })
+                        @Html.ValidationMessageFor(x => x.CNPJ, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Razão Social</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Nome, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Nome Fantasia</label>
+                        @Html.TextBoxFor(m => m.Nome_Fantasia, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Nome_Fantasia, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-6 col-lg-3">
+                    <div class="form-group">
+                        <label>CEP</label>
+                        @Html.TextBoxFor(m => m.Endereco_CEP, new { @class = "form-control text-center", @maxlength = "8", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-7">
+                    <div class="form-group">
+                        <label>Logradouro</label>
+                        @Html.TextBoxFor(m => m.Endereco_Logradouro, new { @class = "form-control", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="col-xs-6 col-lg-2">
+                    <div class="form-group">
+                        <label>Número</label>
+                        @Html.TextBoxFor(m => m.Endereco_Numero, new { @class = "form-control text-center", @autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+            <div id="msg-cep" style="display:none;">
+                <i class="fa fa-fw fa-exclamation-triangle text-orange"></i> CEP não localizado
+            </div>
+
+            <div class="row">
+                <div class="col-xs-6 col-lg-6">
+                    <div class="form-group">
+                        <label>Complemento</label>
+                        @Html.TextBoxFor(m => m.Endereco_Complemento, new { @class = "form-control", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label>Bairro</label>
+                        @Html.TextBoxFor(m => m.Endereco_Bairro, new { @class = "form-control", @autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-8">
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        @Html.TextBoxFor(m => m.Endereco_Cidade, new { @class = "form-control", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label>Estado</label>
+                        @Html.DropDownListFor(m => m.Endereco_UF, Model.EstadoDDL, "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Observações</label>
+                        @Html.TextAreaFor(m => m.Observacoes, new { @class = "form-control", @autocomplete = "off", @rows = "2", @maxlength = "500" })
+                        @Html.ValidationMessageFor(x => x.Observacoes, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-4" style="display: none">
+                    <div class="form-group">
+                        <label>Status Nota Fiscal</label>
+                        @Html.DropDownListFor(m => m.StatusNotaFiscal, Model.StatusDDL, "", new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2" style="display: none">
+                </div>
+                <div class="col-xs-12 col-lg-6">
+                    <div class="checkbox">
+                        <label style="padding-left:0px !important">@Html.CheckBoxFor(x => x.EmitirEtiqueta)<b>&nbsp;&nbsp;&nbsp;Emitir etiqueta por volume</b></label>
+                    </div>
+                    <div class="checkbox" style="margin-top:5px">
+                        <label style="padding-left:0px !important">@Html.CheckBoxFor(x => x.EmitirRoteiro)<b>&nbsp;&nbsp;&nbsp;Emitir roteiro de entrega</b></label>
+                    </div>
+                    <div class="checkbox" style="margin-top:5px">
+                        <label style="padding-left:0px !important">@Html.CheckBoxFor(x => x.Finalizar)<b>&nbsp;&nbsp;&nbsp;Processar como Finalizado</b></label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="pull-right">
+                        <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="card-text text-muted" style="margin-bottom:0px">
+                        <small><i>Criado por <b>@Model.CriadoPorNome</b> em @Model.CriadoEm</i></small>
+                        @Html.HiddenFor(m => m.CriadoPor)
+                        @Html.HiddenFor(m => m.CriadoPorNome)
+                        @Html.HiddenFor(m => m.CriadoEm)
+                    </p>
+                    @if (Model.ModificadoPor != null)
+                    {
+                        <p class="card-text text-muted">
+                            <small><i>Modificado por <b>@Model.ModificadoPorNome</b> em @Model.ModificadoEm</i></small>
+                            @Html.HiddenFor(m => m.ModificadoPor)
+                            @Html.HiddenFor(m => m.ModificadoPorNome)
+                            @Html.HiddenFor(m => m.ModificadoEm)
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+<script>
+    $('.input-validation-error').parents('.form-group').addClass('has-error');
+
+    $('.form-control').on('change', function () {
+        $(this).parent().removeClass('has-error');
+        $(this).next().html('');
+    });
+
+    // inputmask está definido no bundles
+    $('#CNPJ').inputmask({
+        mask: ['99.999.999/9999-99'],
+        keepStatic: true
+    });
+
+    $('input[type="checkbox"], input[type="radio"]').iCheck({
+        checkboxClass: "icheckbox_flat-green",
+        radioClass: "iradio_flat-green"
+    });
+
+    //check e uncheck se um dos dois forem checkados
+    $('#EmitirRoteiro').on('ifChecked', function () {
+        $('#Finalizar').iCheck('uncheck');
+    });
+
+    $('#Finalizar').on('ifChecked', function () {
+        $('#EmitirRoteiro').iCheck('uncheck');
+    });
+
+    // Acessar API CEP - Coleta
+    $("#Endereco_CEP").blur(function () {
+        if ($(this).val()) {
+            $('#msg-cep').hide();
+
+            $("#Endereco_Logradouro").val('');
+            $("#Endereco_Numero").val('');
+            $("#Endereco_Complemento").val('');
+            $("#Endereco_Bairro").val('');
+            $("#Endereco_Cidade").val('');
+            $('#EstadoUF').val('');
+
+            var cep = $(this).val();
+            cep = cep.replace('.', '').replace('-', '');
+            if (cep.length == 8) {
+                $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
+                    if (!("erro" in dados)) {
+                        $("#Endereco_Logradouro").val(dados.logradouro);
+                        $("#Endereco_Numero").val('');
+                        $("#Endereco_Complemento").val('');
+                        $("#Endereco_Bairro").val(dados.bairro);
+                        $("#Endereco_Cidade").val(dados.localidade);
+                        $('#EstadoUF').val(dados.uf);
+                        $('#Endereco_Numero').focus();
+                    } else {
+                        $('#msg-cep').show();
+                        $('#Endereco_Logradouro').focus();
+                    }
+                });
+            }
+        }
+    });
+
+</script>
+

@@ -1,0 +1,486 @@
+﻿@model IEnumerable<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.VolumeViewModel>
+
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Descarregamento GM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .disabled-box {
+        opacity: 0.6;
+    }
+
+        .disabled-box:hover {
+            opacity: 1;
+        }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label>Área de Recebimento</label>
+                        @Html.DropDownList("AreaDDL", ViewBag.AreaDDL as SelectList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-lg-3 col-xs-6">
+                    <div class="small-box bg-purple">
+                        <div class="inner">
+                            <h3 id="count-total">0</h3>
+                            <p class="info-box-text">Total</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-cubes"></i>
+                        </div>
+                        <a href="#" class="small-box-footer filter-datatable" data-status="0">Detalhes <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-xs-6">
+                    <div class="small-box bg-orange disabled-box">
+                        <div class="inner">
+                            <h3 id="count-pendente">0</h3>
+                            <p class="info-box-text">Pendentes</p>                            
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-exclamation-triangle"></i>
+                        </div>
+                        <a href="#" class="small-box-footer filter-datatable" data-status="1">Detalhes <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-xs-6">
+                    <div class="small-box bg-green disabled-box">
+                        <div class="inner">
+                            <h3 id="count-conferido">0</h3>
+                            <p class="info-box-text">Confirmado</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-circle-check"></i>
+                        </div>
+                        <a href="#" class="small-box-footer filter-datatable" data-status="2">Detalhes <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-xs-6">
+                    <div class="small-box bg-red disabled-box">
+                        <div class="inner">
+                            <h3 id="count-incorreto">0</h3>
+                            <p class="info-box-text">Incorretos</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fa fa-rectangle-xmark"></i>
+                        </div>
+                        <a href="#" class="small-box-footer filter-datatable" data-status="3">Detalhes <i class="fa fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lg fa-barcode"></i></span>
+                        <input type="text" id="danfe" class="form-control" placeholder="DANFE" maxlength="44" style="font-size:14px; font-weight: bold; width: 100%;">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-1">
+                    <a href="#" class="btn btn-success" id="btnReiniciar"><i class="fa fa-undo"></i> Reiniciar</a>
+                </div>
+            </div>
+
+            <hr />
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover table-small" id="tbVolume">                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+@section Scripts {
+
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+
+    <script>
+
+        function LoadDataTable(status) {
+            //console.log("LoadDataTable",status)
+
+            var area = $('#AreaDDL').val();
+
+            if ($.fn.DataTable.isDataTable('#tbVolume')) {
+                $('#tbVolume').DataTable().destroy();
+            }
+
+            $('#tbVolume tbody').empty();
+            dtVolume = $('#tbVolume').DataTable({
+                deferRender: true,
+                autoWidth: true,
+                processing: true,
+                pageLength: 25,
+                ajax: {
+                    url: '@Url.Action("GetDataVolumeDANFE", "NotaFiscal", new { area = "RecebimentoApp" })',
+                    data: { statusId: status, areaId: area },
+                    type: 'GET',
+                    dataType: 'json',
+                    dataSrc: function (json) {
+                        //console.log("Mensagem aqui dentro",json)
+                        // $('#count-total').text(json.data.length ?? 0);
+                        $('#count-total').text(json.data.filter(item => item.StatusId != 3).length);
+                        $('#count-pendente').text(json.data.filter(item => item.StatusId === 1).length);
+                        $('#count-conferido').text(json.data.filter(item => item.StatusId === 2).length);
+                        $('#count-incorreto').text(json.data.filter(item => item.StatusId === 3).length);
+                        return json.data;
+                    }
+                },
+                columns: [
+                    ///*{ data: 'StatusId', title: 'StatusId' },*/
+                    //{ data: 'Area', title: 'Área' },
+                    { data: 'VolumeNr', title: 'Volume' },
+                    { data: 'NotaFiscalNr', title: 'Notas Fiscais' },
+                    {
+                        data: 'QtdeItens', title: 'Itens', render: function (data, type, row, meta) {
+                            if (data == 0) {
+                                return '';
+                            }
+                            else {
+                                return data
+                            };
+                        }
+                    },
+                    { data: 'StatusNome', title: 'Status' },
+                    {
+                        data: 'CriadoEm', title: 'Criado em', render: function (data, type) {
+                            if (data) {
+                                return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                            } else {
+                                return data;
+                            }
+                        }
+                    }
+                ],
+                columnDefs: [{
+                    targets: [3],
+                    render: function (data, type, row) {
+                        if (data == 'Pendente') {
+                            return '<i class="fa fa-lg fa-fw fa-exclamation-triangle text-orange text-bold"></i><span class="text-orange text-bold"> ' + data + '</span>';
+                        }
+                        if (data == 'Conferido') {
+                            return '<i class="fa fa-lg fa-fw fa-check text-green text-bold"></i><span class="text-green text-bold"> ' + data + '</span>';
+                        }
+                        if (data == 'Incorreto') {
+                            return '<i class="fa fa-lg fa-fw fa-times text-red text-bold"></i><span class="text-red text-bold"> ' + data + '</span>';
+                        }
+                        return data;
+                    }
+                }],
+                drawCallback: function () {
+                    // console.log("drawCallback");
+                },
+                fnInitComplete: function () {
+                    // console.log(""fnInitComplete")
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ volumes por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum volume localizado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ volumes",
+                    infoEmpty: "Exibindo 0 de 0 volumes",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            dtVolume.columns.adjust().draw(false);
+
+        }
+
+        $(document).ready(function () {
+
+            var dtVolume = null;
+
+            $('#AreaDDL').change(() => {
+                LoadDataTable(0);
+            }).change();
+
+            $('a.filter-datatable').click(function (e) {
+                e.preventDefault();
+                var status = $(this).data('status');
+                LoadDataTable(status);
+
+                $('div.small-box').each(function () {
+                    $(this).addClass('disabled-box');
+                })
+
+                $(this).closest('div.small-box').removeClass('disabled-box');
+            });
+
+            // Leitura da DANFE
+            $('#danfe').on('keyup', function (event) {
+                event.preventDefault();
+                var area = $('#AreaDDL').val();
+
+                var input = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+
+                    let isnum = /^\d+$/.test(input);
+                    if (!isnum || input.length != 44) {
+                        alert("DANFE em formato incorreto!");
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '@Url.Action("AddVolume", "NotaFiscal")',
+                        data: { danfe: input, areaid: area }
+                    }).done(function (response) {
+                        //console.log(response)
+                        $('#danfe').focus();
+                        if (response.erro == false) {
+                            LoadDataTable(0);
+                            $('#count-pendente').text(response.pendentes);
+                            $('#count-total').text(response.total);
+                            $('#teste').text(response.msg);
+                            //console.log("count pendente", $('#count-pendente').text())
+                            //console.log("count total", $('#count-total').text())
+                            
+                        } else {
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Não foi possível adicionar o volume!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                            swal({
+                                title: "Conferência de Volumes",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            }).then(() => {
+                                 $('#danfe').focus();
+                            })
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.error;
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Não foi possível adicionar o volume!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                        swal({
+                            title: "Conferência de Volumes",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    })
+                }
+
+            })
+
+            // Leitura do volume
+            $('#volume').on('keyup', function (event) {
+                event.preventDefault();
+
+                var input = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+
+                    let isnum = /^\d+$/.test(input);
+                    // if (!isnum || input.length != 8 || input.length != 10) {
+                    //if (input.length != 8) {
+                    //    return;
+                    //}
+
+                    var areaid = $("#AreaDDL").val();
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '@Url.Action("UpdateVolume", "NotaFiscal")',
+                        //url: '@Url.Action("UpdateVolumeNotaFiscalItem", "NotaFiscalItem")',
+                        data: { volume: input }
+                    }).done(function (response) {
+                        $('#volume').focus();
+                        if (response.erro == false) {
+                            LoadDataTable(1);
+                            $('#count-total').text(response.total);
+                            $('#count-pendente').text(response.pendentes);
+                            $('#count-conferido').text(response.conferidos);
+                            $('#count-incorreto').text(response.incorretos);
+                            //console.log("Passou")
+                        } else {
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro na leitura do volume!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                            swal({
+                                title: "Conferência de Volumes",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            })
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro na leitura do volume!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                        swal({
+                            title: "Conferência de Volumes",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    })
+
+                }
+
+            })
+
+            $('#btnReiniciar').click(function () {
+
+                var div = document.createElement("div");
+                div.innerHTML = "Confirma a operação ?<br><br><p><i class='fa fa-lg fa-exclamation-triangle text-orange'></i> ATENÇÂO: Todos os dados serão apagados!</p>";
+
+                swal({
+                    title: "Reiniciar conferência de volumes",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true,
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then((confirm) => {
+                    if (confirm) {
+
+                        var area = $('#AreaDDL').val();
+
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            data: { areaId: area },
+                            url: '@Url.Action("ReiniciarVolume", "NotaFiscal")',
+                        }).done(function (response) {
+                            if (response.erro == false) {
+                                $('#count-pendente').text(0);
+                                $('#count-conferido').text(0);
+                                $('#count-incorreto').text(0);
+                                $('#count-total').text(0);
+                                //console.lo("Passou2")
+                                LoadDataTable(0);
+                              } else {
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao reiniciar a operação!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                                swal({
+                                    title: "Conferência de Volumes",
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            visible: false
+                                        },
+                                        cancel: {
+                                            text: "Fechar",
+                                            className: "swal-btn-danger",
+                                            closeModal: true,
+                                            visible: true
+                                        }
+                                    }
+                                })
+                            }
+                        }).fail(function (xhr, status, error) {
+                            var errorMessage = xhr.status + ': ' + xhr.statusText
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Não foi possível reiniciar a operação!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                            swal({
+                                title: "Conferência de Volumes",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            })
+                        })
+                    }
+                });
+            })
+        });
+    </script>
+
+}

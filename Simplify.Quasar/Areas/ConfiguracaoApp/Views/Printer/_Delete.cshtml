@@ -1,0 +1,41 @@
+﻿@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.ImpressoraViewModel
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-solid fa-print fa-lg fa-fw"></i>&nbsp;&nbsp;Excluir cadastro de impressora</span>
+        </div>
+
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.Id)
+
+        <div class="modal-body">
+            <p class="confirm">Confirma a exclusão da impressora <b>@Model.Nome ?</b></p>
+        </div>
+
+        <div class="modal-footer border-0">
+            <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Sim</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Não</button>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+
+<script>
+
+    $(document).ready(function () {
+
+    });
+
+</script>

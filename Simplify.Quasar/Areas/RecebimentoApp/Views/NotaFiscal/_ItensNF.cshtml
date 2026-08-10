@@ -1,0 +1,125 @@
+﻿@model Simplify.Quasar.Areas.RecebimentoApp.ViewModels.NotaFiscalViewModel
+
+<div class="modal-header bg-blue-gradient">
+    <span>Nota Fiscal</span>
+</div>
+
+<div class="modal-body">
+    <div class="row">
+        <div class="col-xs-12 col-lg-4">
+            <div class="form-group">
+                <label>Número</label>
+                <p class="text-muted">@Model.Numero</p>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 @(Model.OrigemNF != string.Empty ? "col-lg-4" : "col-lg-8")">
+            <div class="form-group">
+                <label>Fornecedor</label>
+                <p class="text-muted">@Model.Emissor @Model.NomeEmissor</p>
+            </div>
+        </div>
+        @if (Model.OrigemNF != string.Empty)
+        {
+            <div class="col-xs-12 col-lg-4">
+                <div class="form-group">
+                    <label>Origem</label>
+                    <p class="text-muted">@Model.OrigemNF</p>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-lg-4">
+            <div class="form-group">
+                <label>Tipo</label>
+                <p class="text-muted">@Model.TipoNF</p>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-lg-4">
+            <div class="form-group">
+                <label>Status</label>
+                <p class="text-muted">@Model.StatusNF</p>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-lg-4">
+            <div class="form-group">
+                <label>Recebimento ADM</label>
+                @if (Model.RecebidoAdmEm == null)
+                {
+                    <div><i class="fa-solid fa-exclamation-triangle fa-fw text-orange"></i> <span class="text-muted"> Pendente</span></div>
+                }
+                else
+                {
+                    <div><span class="text-muted">@Model.RecebidoAdmEm</span></div>
+                }              
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered table-hover table-small" id="tbItemNF">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Descrição</th>
+                            <th>Quantidade</th>
+                            <th>Volume</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model._itens)
+                        {
+                            <tr>
+                                <td>@item.ItemNr</td>
+                                <td>@item.ItemDesc</td>
+                                <td>@item.Quantidade.ToString("N0")</td>
+                                <td>@item.Volume</td>
+                                <td>@item.Status</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal-footer">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="pull-right">
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 text-left">
+            <p class="card-text text-muted" style="margin-bottom:0px">
+                <small><i>Criado por <b>@Model.CriadoPorNome</b> em @Model.CriadoEm</i></small>
+                @Html.HiddenFor(m => m.CriadoPor)
+                @Html.HiddenFor(m => m.CriadoPorNome)
+                @Html.HiddenFor(m => m.CriadoEm)
+            </p>
+            @if (Model.ModificadoPor != null)
+            {
+                <p class="card-text text-muted">
+                    <small><i>Modificado por <b>@Model.ModificadoPorNome</b> em @Model.ModificadoEm</i></small>
+                    @Html.HiddenFor(m => m.ModificadoPor)
+                    @Html.HiddenFor(m => m.ModificadoPorNome)
+                    @Html.HiddenFor(m => m.ModificadoEm)
+                </p>
+            }
+        </div>
+    </div>
+
+</div>
+
+

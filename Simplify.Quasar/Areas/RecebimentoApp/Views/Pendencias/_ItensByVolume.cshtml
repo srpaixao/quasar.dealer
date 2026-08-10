@@ -1,0 +1,137 @@
+﻿@model IEnumerable<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.ItensByVolumeViewModel>
+
+@{
+    ViewBag.Title = "Itens Volume";
+    Layout = null;
+}
+<link href="~/Content/icheck/flat/blue.css" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+
+        $('input').iCheck({
+            checkboxClass: 'icheckbox_flat-blue'
+        }).on('ifChanged', function (event) {
+            var id = $(this).data('id');
+            var isChecked = $(this).is(':checked');
+            $.ajax({
+                url: '@Url.Action("AtualizarStatus", "Pendencias")',
+                type: 'POST',
+                data: {
+                    id: id,
+                    conferido: isChecked
+                },
+                success: function (response) {
+                    console.log(response);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        });
+
+
+        $('#tbItensByVolume').DataTable({
+            deferRender: true,
+            autoWidth: false,
+            processing: true,
+            pageLength: 25,
+            columnDefs: [
+                { orderable: false, targets: -1 }
+            ],
+            language: {
+                processing: "Carregando dados...",
+                lengthMenu: "Exibir _MENU_ itens por página",
+                search: "Procurar:",
+                zeroRecords: "Nenhum item encontrado",
+                info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                infoEmpty: "Exibindo 0 de 0 itens",
+                infoFiltered: "",
+                thousands: ".",
+                decimal: ",",
+                paginate: {
+                    first: "Primeira",
+                    last: "Última",
+                    next: "Próxima",
+                    previous: "Anterior"
+                }
+            },
+            //footerCallback: function (row, data, start, end, display) {
+            //    var api = this.api();
+            //    var total = api.column(2, { page: 'all' }).data().reduce(function (a, b) {
+            //        return parseInt(a) + parseInt(b);
+            //    }, 0);
+            //    console.log('Qtd total:', total);
+            //}
+        });
+
+    })
+
+
+</script>
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-solid fa-pen-to-square fa-fw"></i>&nbsp;&nbsp;VOLUME <b>@ViewBag.Volume</b></span>
+        </div>
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <table class="table table-condensed table-bordered table-hover" style="width:100%" id="tbItensByVolume">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Descrição</th>
+                                <th>Quantidade</th>
+                                <th>Nota Fiscal</th>
+                                <th>Status</th>
+                                <th>Conferido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.ItemNr</td>
+                                    <td>@item.ItemDescricao</td>
+                                    <td>@item.Quantidade</td>
+                                    <td>@item.NumeroNF</td>
+                                    <td>@item.StatusNome</td>
+                                    <td><input type="checkbox" 
+                                               data-id="@item.NfItemId"
+                                               @(item.StatusId > 3 ? "checked" : string.Empty) 
+                                               @(item.HabilitarCheckbox ? string.Empty : "disabled") />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+
+
+

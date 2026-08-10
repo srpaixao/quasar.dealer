@@ -1,0 +1,240 @@
+﻿@model IEnumerable<Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.ImpressoraViewModel>
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Impressoras";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .datatable_filter {
+        padding-bottom: 15px;
+    }
+
+    select.filter {
+        margin-right: 15px;
+        border: 1px solid #eee;
+    }
+
+    div.filter-option, a > span.text {
+        font-size: 13px !important;
+    }
+
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            @*@if (ViewBag.Permissoes.Contains("[add]"))
+                {*@
+            <div class="row">
+                <div class="col-xs-12">
+                    <a href="#" data-url="@Url.Action("Create", "Printer", new { area = "ConfiguracaoApp"})" class="btn btn-primary create"> <i class="fa-solid fa-print fa-fw"></i> Nova</a>
+                </div>
+            </div>
+            @*}*@
+            <br />
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover table-small" id="tbPrinter">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>IP</th>
+                                    <th>Porta</th>
+                                    <th>Localização</th>
+                                    <th>Fabricante</th>
+                                    <th>Modelo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @*<a href="#" class="@(ViewBag.Permissoes.Contains("[update]") ? "edit" : "" )" data-id="@item.Id"><b>@item.Login</b></a>*@
+                                            <a href="#" class="edit" data-id="@item.Id"><b>@item.Nome</b></a>
+                                        </td>
+                                        <td>@item.IP</td>
+                                        <td>@item.Porta</td>
+                                        <td>@item.Localizacao</td>
+                                        <td>@item.Fabricante</td>
+                                        <td>@item.Modelo</td>
+                                        <td>
+                                            @*@if (ViewBag.Permissoes.Contains("[delete]"))
+                                                {*@
+                                            <a href="#" class="delete" title="Excluir" data-id="@item.Id"><i class="fa-regular fa-trash-can fa-lg fa-fw text-red"></i></a>
+                                            @*}*@
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+
+    <script src="~/Scripts/moment/moment.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $('#tbPrinter').DataTable({
+                processing: true,
+                deferRender: true,
+                pageLength: 25,
+                columnDefs: [
+                    { orderable: false, targets: -1 }
+                ],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum registro localizado",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            $.ajaxSetup({ cache: false });
+
+            $("a.create").click(function () {
+                var url = $(this).attr('data-url');
+                if (url) {
+                    $('#myModalContent').load(url, function () {
+                        $('#myModal').modal({
+                            backdrop: 'static',
+                            keyboard: true
+                        }, 'show');
+                        bindForm(this);
+                    });
+                    return false;
+                }
+
+            });
+
+            $("#tbPrinter").on("click", "a.edit", function (e) {
+                var id = $(this).attr("data-id");
+                var url = '@Url.Action("Edit", "Printer", new { area="ConfiguracaoApp", id = "_id" })';
+                $('#myModalContent').load(url.replace("_id", id), function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+
+            $("#tbPrinter").on("click", "a.delete", function (e) {
+                var printerId = $(this).attr("data-id");
+                var printer = $(this).closest('tr').find('td:eq(0)').text().trim();
+
+                var div = document.createElement("div");
+                div.innerHTML = "<span>Confirma a exclusão da imrpessora <b>" + printer + "</b> ?</span>";
+                swal({
+                    title: "Cadastro de Impressoras",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true,
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then((confirm) => {
+                    if (confirm) {
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            url: '@Url.Action("Delete", "Printer", new { area = "ConfiguracaoApp"})',
+                            data: { id: printerId },
+                        success: function (data) {
+                            location.reload();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            console.log('erro');
+                        }
+                    })
+                    }
+                });
+            });
+
+            function bindForm(dialog) {
+                $('form', dialog).submit(function () {
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: $(this).serialize(),
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                                //Refresh
+                                location.reload();
+                            } else {
+                                $('#myModalContent').html(result);
+                                bindForm();
+                            }
+                        },
+                        error: function (data) {
+                            console.log('erro', data);
+                        }
+                    });
+                    return false;
+                });
+            }
+        });
+    </script>
+}
+

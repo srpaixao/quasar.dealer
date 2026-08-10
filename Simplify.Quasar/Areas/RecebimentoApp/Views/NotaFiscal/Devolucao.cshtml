@@ -1,0 +1,623 @@
+﻿
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Notas Fiscais Devolução";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .datatable_filter {
+        padding-bottom: 15px;
+    }
+
+    select.filter {
+        margin-right: 15px;
+        border: 1px solid #eee;
+    }
+
+    div.filter-option, a > span.text {
+        font-size: 13px !important;
+    }
+
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+
+            <div class="row form-group" id="input-danfe">
+                <div class="col-xs-12 col-lg-5">
+                    <div class="input-group" style="margin-top:15px">
+                        <span class="input-group-addon"><i class="fa fa-lg fa-barcode"></i></span>
+                        <input type="text" id="danfe" class="form-control" placeholder="DANFE" maxlength="44" style="font-size:14px; font-weight: bold; width: 100%;" autofocus>
+                        <input type="hidden" id="input-danfe" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="box-body" style="border: solid 1px lightslategray">
+                <div class="row">
+                    <div class="col-xs-12 col-lg-4">
+                        <div class="form-group">
+                            <label>CNPJ Cliente</label>
+                            <input type="text" class="form-control" placeholder="CNPJ Cliente...">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-5">
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <input type="text" class="form-control" placeholder="Cliente...">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-3">
+                        <div class="form-group">
+                            <label>NFiscal Cliente</label>
+                            <input type="text" class="form-control" placeholder="NFiscal Cliente...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-lg-4">
+                        <div class="form-group">
+                            <label>Seguradora</label>
+                            <input type="text" class="form-control" placeholder="Seguradora...">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-5">
+                        <div class="form-group">
+                            <label>OFicina</label>
+                            <input type="text" class="form-control" placeholder="OFicina...">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-3">
+                        <div class="form-group">
+                            <label>NFiscal Devolução</label>
+                            <input type="text" class="form-control" placeholder="NFiscal Devolução...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label>Observações</label>
+                            <input type="text" class="form-control" placeholder="Observações...">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row" id="input-itemNF" style="display:none">
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label>Fornecedor</label>
+                        <p class="text-muted" id="nome-fornecedor"></p>
+                        <a href="#" id="urlCadastrarFornecedor" style="display:none">Cadastrar</a>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label>CNPJ</label>
+                        <p class="text-muted" id="cnpj-fornecedor"></p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group  text-center">
+                        <label>Nota Fiscal</label>
+                        <p class="text-muted" id="nro-notafiscal"></p>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2">
+                    <div class="input-group" style="margin-top:15px">
+                        <span class="input-group-addon"><i class="fa fa-lg fa-barcode"></i></span>
+                        <input type="text" id="itemNotaFiscal" class="form-control" placeholder="Item" style="font-size:14px; font-weight: bold">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-1" style="margin-top:15px">
+                    <a href="#" class="btn btn-info" id="btnReiniciar"><i class="fa fa-undo"></i> Reiniciar</a>
+                </div>
+            </div>
+
+            <div class="row form-group" id="itens-nf" style="display:none;">
+                <div class="col-xs-12">
+                    <br />
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover table-small" id="tbItensNF">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Descrição</th>
+                                    <th>Locação</th>
+                                    <th>Quantidade</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <hr />
+                <div class="col-xs-12">
+                    <button type="button" class="btn btn-success" id="btnSalvar" style="display:none;"><i class="fa fa-check"></i> Gravar Nota Fiscal</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function () {
+
+            // Leitura da DANFE
+            // UF 2
+            // AAMM 4
+            // CNPJ 14
+            // Modelo 2
+            // Serie 3
+            // NF 9
+            // Forma emissão 1
+            // Codigo Numerico 8
+            // Digito 1
+            $('#danfe').on('keyup', function (event) {
+                event.preventDefault();
+
+                $('#nro-notafiscal').text('');
+                $('#nome-fornecedor').text('');
+                $('#cnpj-fornecedor').text('');
+                $('#urlCadastrarFornecedor').hide();
+
+                var input = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+
+                    let isnum = /^\d+$/.test(input);
+                    if (!isnum || input.length != 44) {
+                        return;
+                    }
+
+                    // Verifica se a DANFE já foi processada anteriormente
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: '@Url.Action("GetNotaFiscalByDanfe", "NotaFiscal", new { area = "RecebimentoApp"})',
+                        data: { danfe: input }
+                    }).done(function (response) {
+                        if (response.success == true) {
+                            if (response.data) {
+                                bootbox.alert({
+                                    size: 'small',
+                                    closeButton: false,
+                                    title: 'Cadastro de Nota Fiscal de Devolução',
+                                    message: 'Nota Fiscal já cadastrada !',
+                                    buttons: {
+                                        ok: {
+                                            label: '<i class="fa fa-check"></i> OK',
+                                            className: 'btn-success'
+                                        }
+                                    },
+                                })
+                                return;
+                            } else {
+
+                                $('#input-danfe').val(input); // salva danfe para envio no POST
+
+                                // Obter dados do fornecedor
+                                var cnpj = input.substring(6, 20);
+
+                                $.ajax({
+                                    type: 'GET',
+                                    dataType: 'json',
+                                    url: '@Url.Action("GetInfo", "Fornecedor", new { area = "ConfiguracaoApp"})',
+                                    data: { cnpj: cnpj }
+                                }).done(function (response) {
+                                    //console.log(response.data)
+                                    if (response.success == true) {
+                                        if (response.data) {
+                                            $('#nome-fornecedor').text(response.data.Nome);
+                                        } else {
+                                            $('#urlCadastrarFornecedor').show();
+                                        }
+                                        $('#input-danfe').hide();
+                                        $('#nro-notafiscal').text(input.substring(23, 31));
+                                        $('#cnpj-fornecedor').text(cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, "\$1.\$2.\$3\/\$4\-\$5"));
+                                        $('#input-itemNF').show();
+                                        $('#itemNotaFiscal').focus();
+                                    } else {
+                                        bootbox.alert({
+                                            title: 'Cadastro de Nota Fiscal de Devolução',
+                                            message: response.msg,
+                                            buttons: {
+                                                ok: {
+                                                    label: '<i class="fa fa-times"></i> Fechar',
+                                                    className: 'btn-danger'
+                                                }
+                                            },
+                                        })
+                                    }
+                                }).fail(function (xhr, status, error) {
+                                    var errorMessage = xhr.status + ': ' + xhr.error;
+                                    bootbox.alert({
+                                        closeButton: false,
+                                        title: 'Cadastro de Nota Fiscal de Devolução',
+                                        message: errorMessage,
+                                        buttons: {
+                                            ok: {
+                                                label: '<i class="fa fa-check"></i> Fechar',
+                                                className: 'btn-danger'
+                                            }
+                                        },
+                                    })
+                                })
+                            }
+                        } else {
+                            bootbox.alert({
+                                title: 'Cadastro de Nota Fiscal de Devolução',
+                                message: response.msg,
+                                buttons: {
+                                    ok: {
+                                        label: '<i class="fa fa-times"></i> Fechar',
+                                        className: 'btn-danger'
+                                    }
+                                },
+                            })
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.error;
+                        bootbox.alert({
+                            closeButton: false,
+                            title: 'Cadastro de Nota Fiscal de Devolução',
+                            message: errorMessage,
+                            buttons: {
+                                ok: {
+                                    label: '<i class="fa fa-check"></i> Fechar',
+                                    className: 'btn-danger'
+                                }
+                            },
+                        })
+                    })
+
+                    // Obter dados do fornecedor
+                    var cnpj = input.substring(6, 20);
+                }
+            })
+
+            $('#tbItensNF > tbody').on('click', 'a', function (e) {
+                e.preventDefault();
+                $(this).closest('tr').remove();
+                if ($('#tbItensNF > tbody > tr').length < 1) {
+                    $('#itens-nf').hide();
+                    $('#btnSalvar').hide();
+                    $('#itemNotaFiscal').focus();
+                }
+            })
+
+            // Leitura do item
+            $('#itemNotaFiscal').on('keyup', function (event) {
+                event.preventDefault();
+
+                var input = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+
+                    // limitar quantidade de caracteres do item ??  só aceitar números ??
+                    //let isnum = /^\d+$/.test(input);
+                    //if (!isnum || input.length != 8) {
+                    //    return;
+                    //}
+
+                    var found = false;
+                    $("#tbItensNF tr").each(function () {
+                        var item = $(this).find('td:eq(0)').text().trim();
+                        if (item == input) {
+                            found = true;
+                            return false;
+                        }
+                    })
+
+                    if (found) {
+                        bootbox.alert({
+                            size: 'small',
+                            closeButton: false,
+                            title: 'Cadastro de Nota Fiscal de Devolução',
+                            message: 'O item ' + input + ' já foi informado!',
+                            buttons: {
+                                ok: {
+                                    label: '<i class="fa fa-check"></i> OK',
+                                    className: 'btn-success'
+                                }
+                            },
+                        })
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        url: '@Url.Action("GetInfoByItem", "Inventario", new { area = "EstoqueApp"})',
+                        data: { item: input }
+                    }).done(function (response) {
+                        //console.log(response.data)
+                        if (response.success == true) {
+                            if (response.data) {
+                                $('#tbItensNF > tbody').append(
+                                    '<tr>' +
+                                        '<td>' + input + '</td>' +
+                                        '<td>' + response.data.Descricao + '</td>' +
+                                        '<td>' + response.data.Locacao + '</td>' +
+                                        '<td class="col-xs-12 col-lg-1"><input type="number" min="1" class="form-control text-center"></input></td>' +
+                                        '<td><a href="#"><i class="fa fa-lg fa-fw fa-trash-o text-red"></a></td>' +
+                                    '</tr>');
+
+                                setTimeout(function () {
+                                    $('#tbItensNF tr:last input:last').focus();
+                                }, 100)
+
+                            } else {
+                                $('#tbItensNF > tbody').append(
+                                    '<tr>' +
+                                        '<td>' + input + '</td>' +
+                                        '<td><input type="text" class="form-control text-center"></td>' +
+                                        //'<td>*** Item não cadastrado***</td>' +
+                                        '<td><input type="text" class="form-control text-center"></input></td>' +
+                                        '<td class="col-xs-12 col-lg-1"><input type="number" min="1" class="form-control text-center"></input></td>' +
+                                        '<td><a href="#"><i class="fa fa-lg fa-fw fa-trash-o text-red"></a></td>' +
+                                    '</tr>');
+
+                                setTimeout(function () {
+                                    $('#tbItensNF tr:last input:first').focus();
+                                }, 100)
+
+                            }
+                            $('#itens-nf').show();
+                            $('#btnSalvar').show();
+                        } else {
+                            bootbox.alert({
+                                title: 'Cadastro de Nota Fiscal de Devolução',
+                                message: response.msg,
+                                buttons: {
+                                    ok: {
+                                        label: '<i class="fa fa-times"></i> Fechar',
+                                        className: 'btn-danger'
+                                    }
+                                },
+                            })
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.error;
+                        bootbox.alert({
+                            closeButton: false,
+                            title: 'Cadastro de Nota Fiscal Devolução',
+                            message: errorMessage,
+                            buttons: {
+                                ok: {
+                                    label: '<i class="fa fa-check"></i> Fechar',
+                                    className: 'btn-danger'
+                                }
+                            },
+                        })
+                    })
+                }
+            })
+
+            // Reiniciar
+            $('#btnReiniciar').click(function () {
+                var msg = 'Deseja cancelar a entrada da Nota Fiscal ?';
+                bootbox.confirm({
+                    size: 'small',
+                    closeButton: false,
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Sim',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Não',
+                            className: 'btn-danger'
+                        }
+                    },
+                    title: "Cadastro de Nota Fiscal de Devolução",
+                    message: msg,
+                    callback: function (result) {
+                        if (result == true) {
+                            $('#tbItensNF > tbody').empty();
+                            $('#input-danfe').val('');
+                            $('#btnSalvar').hide();
+                            $('#itens-nf').hide();
+
+                            $('#input-itemNF').hide();
+                            $('#input-danfe').show();
+                            $('#danfe').focus();
+                        }
+                    }
+                })
+            })
+
+            $('#btnSalvar').click(function () {
+
+                // Validar tabela
+                var input = null;
+                var msg = '';
+
+                $('#tbItensNF tbody tr').each(function () {
+
+                    // Descrição do item
+                    if ($(this).find('td:eq(1) input').length) {
+                        var value = $(this).find('td:eq(1) input').val();
+                        if (value == null || value.trim() == '') {
+                            msg = 'Informe a descrição do item!';
+                            //$(this).find('td:eq(1) input').get(0).focus();
+                            input = $(this).find('td:eq(1) input');
+                            return false;
+                        }
+                    }
+
+                    // Locação
+                    if ($(this).find('td:eq(2) input').length) {
+                        var value = $(this).find('td:eq(2) input').val();
+                        if (value == null || value.trim() == '') {
+                            msg = 'Informe a locação do item!';
+                            //$(this).find('td:eq(2) input').get(0).focus();
+                            input = $(this).find('td:eq(2) input');
+                            return false;
+                        }
+                    }
+
+                    // Quantidade
+                    var qtd = $(this).find('td:eq(3) input').val();
+                    if (qtd == null || qtd.trim() == '') {
+                        msg = 'Informe a quantidade do item!';
+                        //$(this).find('td:eq(3) input').get(0).focus();
+                        input = $(this).find('td:eq(3) input');
+                        return false;
+                    }
+                })
+
+                if (msg != '') {
+                    bootbox.alert({
+                        size: 'small',
+                        closeButton: false,
+                        title: 'Cadastro de Nota Fiscal de Devolução',
+                        message: msg,
+                        buttons: {
+                            ok: {
+                                label: '<i class="fa fa-check"></i> OK',
+                                className: 'btn-success'
+                            }
+                        }
+                    }).on('hidden.bs.modal', function () {
+                        $(input).get(0).focus();
+                    });
+
+                    return;
+                }
+
+                msg = 'Confirmar a entrada da Nota Fiscal ?';
+                bootbox.confirm({
+                    size: 'small',
+                    closeButton: false,
+                    buttons: {
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Sim',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Não',
+                            className: 'btn-danger'
+                        }
+                    },
+                    title: "Cadastro de Nota Fiscal de Devolução",
+                    message: msg,
+                    callback: function (result) {
+                        if (result == true) {
+                            var notafiscal = [];
+                            $('#tbItensNF tbody tr').each(function () {
+                                var item = {};
+
+                                item.Fornecedor = $('#cnpj-fornecedor').text().trim().trim().replace(/\D/g, '');
+                                item.NumeroNF = $('#nro-notafiscal').text();
+                                item.Danfe = $('#input-danfe').val();
+
+                                item.ItemNr = $(this).find('td:eq(0)').text().trim();
+
+                                if ($(this).find('td:eq(1) input').length) {
+                                    item.Descricao = $(this).find('td:eq(1) input').val();
+                                } else {
+                                    item.Descricao = $(this).find('td:eq(1)').text().trim();
+                                }
+                                //item.Descricao = $(this).find('td:eq(1)').text().trim();
+
+                                if ($(this).find('td:eq(2) input').length) {
+                                    item.Locacao = $(this).find('td:eq(2) input').val();
+                                } else {
+                                    item.Locacao = $(this).find('td:eq(2)').text().trim();
+                                }
+
+                                item.Quantidade = $(this).find('td:eq(3) input').val();
+                                notafiscal.push(item);
+                            });
+
+                            console.log(notafiscal);
+
+                            $.ajax({
+                                url: '@Url.Action("Devolucao", "NotaFiscal", new { area = "RecebimentoApp"})',
+                                type: 'POST',
+                                dataType: 'json',
+                                contentType: 'application/json',
+                                data: JSON.stringify(notafiscal),
+                            }).done(function (response) {
+                                console.log(response)
+                            }).fail(function (xhr, status, error) {
+                                var errorMessage = xhr.status + ': ' + xhr.error;
+                                bootbox.alert({
+                                    closeButton: false,
+                                    title: 'Cadastro de Nota Fiscal de Devolução',
+                                    message: errorMessage,
+                                    buttons: {
+                                        ok: {
+                                            label: '<i class="fa fa-check"></i> Fechar',
+                                            className: 'btn-danger'
+                                        }
+                                    },
+                                })
+                            })
+
+                            $('#tbItensNF > tbody').empty();
+                            $('#btnSalvar').hide();
+                            $('#itens-nf').hide();
+
+                            $('#input-itemNF').hide();
+                            $('#input-danfe').show();
+                            $('#danfe').focus();
+
+                            var msg = 'Nota Fiscal cadastrada com sucesso. Deseja imprimir as etiquetas ?';
+                            bootbox.confirm({
+                                closeButton: false,
+                                buttons: {
+                                    confirm: {
+                                        label: '<i class="fa fa-check"></i> Sim',
+                                        className: 'btn-success'
+                                    },
+                                    cancel: {
+                                        label: '<i class="fa fa-times"></i> Não',
+                                        className: 'btn-danger'
+                                    }
+                                },
+                                title: "Cadastro de Nota Fiscal de Devolução",
+                                message: msg,
+                                callback: function (result) {
+                                    if (result == true) {
+                                        console.log('imprimir etiquetas')
+                                    }
+                                }
+                            })
+
+                        }
+                    }
+                })
+            })
+
+        });
+    </script>
+}

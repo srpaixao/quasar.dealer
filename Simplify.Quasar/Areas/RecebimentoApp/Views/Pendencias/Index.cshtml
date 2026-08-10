@@ -1,0 +1,458 @@
+﻿@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Pendências";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/DataTables/checkbox/dataTables.checkboxes.css" rel="stylesheet" />
+<link href="~/Content/icheck/minimal/blue.css" rel="stylesheet" />
+
+<style>
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    .btn-current, .btn-current:active, .btn-current:hover, .btn-current:focus {
+        border: 2px solid #3c8dbc;
+        background-color: #fff;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+        th.dt-checkboxes-select-all {
+            text-align: center !important;
+        }
+
+    table.dataTable.table-condensed > thead > tr > th:first-child {
+        padding-right: 5px;
+    }
+
+    .last-update {
+        font-size: 14px !important;
+        margin-top: 5px !important;
+        margin-right: 10px !important;
+    }
+
+    #scrollable-dropdown-menu .tt-menu {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .form-control.filter {
+        margin-left: 5px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab_notas" data-toggle="tab" aria-expanded="true"><i class="far fa-file-alt fa-fw text-light-blue"></i> Notas Fiscais</a></li>
+                            <li><a href="#tab_volumes" data-toggle="tab" aria-expanded="false"><i class="fa fa-fw fa-cubes text-light-blue"></i> Volumes</a></li>
+                            <li><a href="#tab_itens" data-toggle="tab" aria-expanded="false"><i class="fa-solid fa-list-check fa-fw text-light-blue"></i> Itens</a></li>
+                        </ul>
+                        <div class="tab-content">
+
+                            <div class="tab-pane active" id="tab_notas">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="data-container">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-condensed table-bordered table-hover table-small" id="tbNotaFiscal"></table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="tab_volumes">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="data-container">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-condensed table-bordered table-hover table-small" id="tbVolume"></table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="tab_itens">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="data-container">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-condensed table-bordered table-hover table-small" id="tbItem"></table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+    <script src="~/Scripts/DataTables/plugins/checkboxes/dataTables.checkboxes.min.js"></script>
+
+    <script>
+
+        function GetData(tableId) {
+            //console.log(tableId);
+
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+            if ($.fn.DataTable.isDataTable(tableId)) {
+                $(tableId).DataTable().destroy();
+            }
+
+            var tableBody = $(tableId + ' tbody');
+            tableBody.empty();
+
+            if (tableId === '#tbNotaFiscal') {
+                var dt_table = $(tableId).DataTable({
+                    deferRender: true,
+                    autoWidth: false,
+                    processing: true,
+                    pageLength: 25,
+                    order: [],
+                    ajax: {
+                        url: '@Url.Action("GetNotasFiscais", "Pendencias", new {area="RecebimentoApp"})',
+                        type: 'GET',
+                        dataType: 'json'
+                    },
+                    columns: [
+                        { data: 'NFiscal', title: 'NFiscal Nr' },
+                        { data: 'Status', title: 'Status' },
+                        { data: 'Origem', title: 'Origem' },
+                        {
+                            data: 'DtHr', title: 'Data/Hora', render: function (data, type) {
+                                if (data) {
+                                    return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        { data: 'Usuario', title: 'Usuário' }
+                    ],
+
+                    drawCallback: function () {
+                        //console.log("drawCallback");
+                    },
+                    fnInitComplete: function () {
+                        //console.log('fnInitComplete')
+                    },
+                    language: {
+                        processing: "Carregando dados...",
+                        lengthMenu: "Exibir _MENU_ notas por página",
+                        search: "Procurar:",
+                        zeroRecords: "Nenhuma nota encontrada",
+                        info: "Exibindo _START_ de _END_ de um total de _TOTAL_ notas",
+                        infoEmpty: "Exibindo 0 de 0 notas",
+                        infoFiltered: "",
+                        thousands: ".",
+                        decimal: ",",
+                        paginate: {
+                            first: "Primeira",
+                            last: "Última",
+                            next: "Próxima",
+                            previous: "Anterior"
+                        }
+                    }
+                });
+            }
+
+            if (tableId === '#tbVolume') {
+                var dt_table = $(tableId).DataTable({
+                    deferRender: true,
+                    autoWidth: false,
+                    processing: true,
+                    pageLength: 25,
+                    order: [],
+                    ajax: {
+                        url: '@Url.Action("GetVolumes", "Pendencias", new {area="RecebimentoApp"})',
+                        type: 'GET',
+                        dataType: 'json'
+                    },
+                    columns: [
+                        {
+                            data: 'Volume',
+                            title: 'Volume Nr',
+                            render: function (data, type, row, meta) {
+                                return '<a href="#" onclick="handleItemClick(\'' + row.Volume + '\')">' + data + '</a>';
+                            },
+                        },
+                        {
+                            data: 'NFiscal',
+                            title: 'Notas Fiscais',
+                            //render: function (data, type, row, meta) {
+                            //    return data ? data.replace(',', '<br>') : '';
+                            //}
+                        },
+                        {
+                            data: 'ItemNrCount',
+                            title: 'Qtde de Itens',
+                            visible: false,
+                            //render: function (data, type, row, meta) {
+                            //    return '<span>' + data + ' <i class="fa fa-fw fa-list text-blue" title="' + row.ItemNr + '"></i></span>';
+                            //}
+                        },
+                        {
+                            data: 'Quantidade',
+                            title: 'Quantidade Total',
+                            visible: false,
+                            //render: function (data, type, row, meta) {
+                            //    return data ? data.replace(',', '<br>') : '';
+                            //}
+                        },
+                        {
+                            data: 'CriadoEm', title: 'Data/Hora', render: function (data, type) {
+                                if (data) {
+                                    return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            data: 'Usuario',
+                            title: 'Usuário'
+                        },
+                    ],
+
+                    drawCallback: function () {
+                        //console.log("drawCallback");
+                    },
+                    fnInitComplete: function () {
+                        //console.log('fnInitComplete')
+                    },
+                    language: {
+                        processing: "Carregando dados...",
+                        lengthMenu: "Exibir _MENU_ volumes por página",
+                        search: "Procurar:",
+                        zeroRecords: "Nenhum volume encontrado",
+                        info: "Exibindo _START_ de _END_ de um total de _TOTAL_ volumes",
+                        infoEmpty: "Exibindo 0 de 0 volumes",
+                        infoFiltered: "",
+                        thousands: ".",
+                        decimal: ",",
+                        paginate: {
+                            first: "Primeira",
+                            last: "Última",
+                            next: "Próxima",
+                            previous: "Anterior"
+                        }
+                    }
+                });
+            }
+
+            if (tableId === '#tbItem') {
+                var dt_table = $(tableId).DataTable({
+                    deferRender: true,
+                    autoWidth: false,
+                    processing: true,
+                    pageLength: 25,
+                    order: [],
+                    ajax: {
+                        url: '@Url.Action("GetItens","Pendencias", new {area="RecebimentoApp"})',
+                        type: 'GET',
+                        dataType: 'json'
+                    },
+                    columns: [
+                        {
+                            data: 'ItemNr',
+                            title: 'Item Nr',
+                        },
+                        {
+                            data: 'Descricao',
+                            title: 'Descrição'
+                        },
+                        {
+                            data: 'Locacao',
+                            title: 'Locação'
+                        },
+                        {
+                            data: 'Status',
+                            title: 'Status'
+                        },
+                        {
+                            data: 'VolumeNr',
+                            title: 'Volume Nr',
+                        },
+                        {
+                            data: 'Quantidade',
+                            title: 'Quantidade',
+                            visible: false,
+                            render: function (data, type) {
+                                if (data) {
+                                    return data.toLocaleString();
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            data: 'DtHr',
+                            title: 'Data/Hora',
+                            render: function (data, type) {
+                                if (data) {
+                                    return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                                } else {
+                                    return data;
+                                }
+                            }
+                        },
+                        {
+                            data: 'Usuario',
+                            title: 'Usuário'
+                        },
+                    ],
+
+                    drawCallback: function () {
+                        //console.log("drawCallback");
+                    },
+                    fnInitComplete: function () {
+                        //console.log('fnInitComplete')
+                    },
+                    language: {
+                        processing: "Carregando dados...",
+                        lengthMenu: "Exibir _MENU_ itens por página",
+                        search: "Procurar:",
+                        zeroRecords: "Nenhum item encontrado",
+                        info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                        infoEmpty: "Exibindo 0 de 0 itens",
+                        infoFiltered: "",
+                        thousands: ".",
+                        decimal: ",",
+                        paginate: {
+                            first: "Primeira",
+                            last: "Última",
+                            next: "Próxima",
+                            previous: "Anterior"
+                        }
+                    }
+                });
+            }
+            if (dt_table) {
+                dt_table.columns.adjust().draw(false);
+            }
+        }
+
+        function handleItemClick(volume) {
+            console.log(volume);
+            var url = '@Html.Raw(Url.Action("GetItensByVolume", "Pendencias", new { area = "RecebimentoApp", volume = "_volume" }))';
+            url = url.replace("_volume", volume);
+            $('#myModalContent').load(url, function () {
+                $('#myModal').modal({
+                    backdrop: 'static',
+                    keyboard: true
+                }, 'show');
+                bindForm(this);
+            });
+            return false;
+        }
+
+        function bindForm(dialog) {
+            $('form', dialog).submit(function () {
+                $.ajax({
+                    url: this.action,
+                    type: this.method,
+                    data: $(this).serialize(),
+                    success: function (result) {
+                        if (result.success) {
+                            $('#myModal').modal('hide');
+                            //Refresh
+                            location.reload();
+                        } else {
+                            $('#myModalContent').html(result);
+                            bindForm();
+                        }
+                    },
+                    error: function (data) {
+                        console.log('erro', data);
+                    }
+                });
+                return false;
+            });
+        }
+
+        $(document).ready(function () {
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var targetTab = $(e.target).attr('href');
+                var url = $(e.target).data('url');
+
+                var tableId;
+
+                if (targetTab === "#tab_itens") {
+                    tableId = "#tbItem";
+                } else if (targetTab === "#tab_notas") {
+                    tableId = "#tbNotaFiscal";
+                } else if (targetTab === "#tab_volumes") {
+                    tableId = "#tbVolume";
+                }
+
+                GetData(tableId, url);
+            });
+
+            var activeTab = $('a[data-toggle="tab"].active');
+            if (activeTab.length === 0) {
+                activeTab = $('a[data-toggle="tab"]').first();
+            }
+            activeTab.trigger('shown.bs.tab');
+
+        });
+    </script>
+}
+
+
+
+

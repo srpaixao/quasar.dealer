@@ -1,0 +1,241 @@
+﻿@{
+    ViewBag.Title = "Estoque";
+    ViewBag.Description = "Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/jquery-filestyle/jquery-filestyle.min.css" rel="stylesheet" />
+
+<style>
+    div.jfilestyle.jfilestyle-theme-quasar input {
+        border: none;
+        background: #eee;
+    }
+
+    div.jfilestyle.jfilestyle-theme-quasar label {
+        border: none;
+        background: #3c8dbc;
+        color: #fff;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="text-muted">Importar arquivo de atualização</label>
+                    <div>
+                        <input type="file" id="uploadestoque" class="jfilestyle"
+                               data-theme="quasar"
+                               data-text="<i class='fa-solid fa-folder'></i> Selecionar"
+                               data-buttonBefore="true"
+                               data-inputSize="300px"
+                               data-placeholder="Nenhum arquivo selecionado">
+                        <button type="button" id="btn-importar-estoque" class="btn btn-success hide" style="margin-left:5px">
+                            <i class="fa fa-fw fa-upload"></i> Importar
+                        </button>
+                        <span id="msg-upload"></span>
+                        <a href="#" data-url="@Url.Action("ConfigUpload","Upload", new { area="EstoqueApp"})" class="pull-right config" style="margin-right:10px"><i class="fa fa-fw fa-gear"></i> Configurar Upload</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row processing hide">
+                <div class="col-xs-12">
+                    <p><i class="fa fa-fw fa-spinner fa-spin"></i> Loading...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="~/Scripts/jquery-filestyle/jquery-filestyle.min.js"></script>
+
+    <script>
+
+        function bindForm(dialog) {
+            $('form', dialog).submit(function () {
+                $.ajax({
+                    url: this.action,
+                    type: this.method,
+                    data: $(this).serialize(),
+                    success: function (result) {
+                        if (result.success) {
+                            $('#myModal').modal('hide');
+                        } else {
+                            $('#myModalContent').html(result);
+                            bindForm();
+                        }
+                    },
+                    error: function (data) {
+                        console.log('erro', data);
+                    }
+                });
+                return false;
+            });
+        }
+
+        $(document).ready(function () {
+
+            $('#uploadestoque').on('change', function (ev) {
+                if ($(this).get(0).files.length === 0) {
+                    $('#btn-importar-estoque').addClass('hide');
+                    $('#check-estoque').addClass('hide');
+                } else {
+                    $('#btn-importar-estoque').removeClass('hide');
+                    $('#check-estoque').removeClass('hide');
+                    //var filename = $(this).val().replace(/.*(\/|\\)/, '');
+                    //console.log(filename)
+                }
+            });
+
+            $('#btn-importar-estoque').click(function (e) {
+                e.preventDefault();
+
+                if ($("#uploadestoque").val() != '') {
+                    var msg = 'Confirma a importação do arquivo ?';
+
+                    swal({
+                        title: "Atualizar estoque",
+                        text: "Confirma a importação do arquivo ?",
+                        buttons: {
+                            cancel: {
+                                text: "Não",
+                                className: "swal-btn-danger",
+                                closeModal: true,
+                                visible: true,
+                            },
+                            confirm: {
+                                text: "Sim",
+                                className: "swal-btn-success",
+                                closeModal: true,
+                                visible: true
+                            }
+                        }
+                    }).then((confirm) => {
+                        if (confirm) {
+                            $('#btn-importar-estoque').html("<i class='fa fa-fw fa-pulse fa-spinner'></i> Importando arquivo...");
+
+                            var fileUpload = $("#uploadestoque").get(0);
+                            var files = fileUpload.files;
+
+                            var form = new FormData();
+
+                            //Add files
+                            //for (var i = 0; i < files.length; i++) {
+                            //    form.append("Arquivo", files[i]);
+                            //}
+
+                            form.append("Arquivo", files[0]);
+
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("UploadFileEstoque", "Upload", new { area = "EstoqueApp" })',
+                                contentType: false,
+                                processData: false,
+                                data: form,
+                            }).done(function (response) {
+                                $('#btn-importar-estoque').html("<i class='fa fa-fw fa-upload'></i> Importar");
+                                if (response.erro == false) {
+
+                                    setTimeout(function () {
+                                        var div = document.createElement("div");
+                                        div.innerHTML = "<h4 class='swal-text-success'>Arquivo de estoque importado com sucesso!</h4>";
+                                        swal({
+                                            title: "Atualizar estoque",
+                                            content: div,
+                                            buttons: {
+                                                confirm: {
+                                                    className: "swal-btn-info"
+                                                }
+                                            }
+                                        })
+
+                                    }, 300);
+                                } else {
+                                    var div = document.createElement("div");
+                                    div.innerHTML = "<h4 class='swal-text-error'>Não foi possível importar o arquivo selecionado!</h4><p class='swal-text-error-detail'>" + response.mensagem + "</p>";
+                                    swal({
+                                        title: "Atualizar estoque",
+                                        content: div,
+                                        buttons: {
+                                            confirm: {
+                                                visible: false
+                                            },
+                                            cancel: {
+                                                text: "Fechar",
+                                                className: "swal-btn-danger",
+                                                closeModal: true,
+                                                visible: true
+                                            }
+                                        }
+                                    })
+                                }
+                            }).fail(function (jqXHR, textStatus, errorThrown) {
+                                console.log(jqXHR, textStatus, errorThrown)
+                                $('#btn-importar-estoque').html("<i class='fa fa-fw fa-upload'></i> Importar");
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-error'>Não foi possível importar o arquivo selecionado!</h4><p class='swal-text-error-detail'>" + jqXHR + "</p>";
+                                swal({
+                                    title: "Atualizar estoque",
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            visible: false
+                                        },
+                                        cancel: {
+                                            text: "Fechar",
+                                            className: "swal-btn-danger",
+                                            closeModal: true,
+                                            visible: true
+                                        }
+                                    }
+                                })
+                            })
+                        }
+                    });
+                }
+            });
+
+            $("a.config").click(function () {
+                var url = $(this).attr('data-url');
+                if (url) {
+                    $('#myModalContent').load(url, function () {
+                        $('#myModal').modal({
+                            backdrop: 'static',
+                            keyboard: true
+                        }, 'show');
+                        bindForm(this);
+                    });
+                    return false;
+                }
+            });
+
+            $('#myModal').on('shown.bs.modal', function () {
+                $('#Valor').focus();
+            })
+
+        });
+
+    </script>
+}

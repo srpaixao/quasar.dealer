@@ -1,0 +1,1174 @@
+﻿@model Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.NotaFiscalViewModel
+
+@{
+    ViewBag.Title = "Expedição";
+    ViewBag.Description = "Notas Fiscais";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/DataTables/checkbox/dataTables.checkboxes.css" rel="stylesheet" />
+<link href="~/Content/icheck/minimal/blue.css" rel="stylesheet" />
+
+<style>
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    .btn-current, .btn-current:active, .btn-current:hover, .btn-current:focus {
+        border: 2px solid #3c8dbc;
+        background-color: #fff;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+        th.dt-checkboxes-select-all {
+            text-align: center !important;
+        }
+
+    table.dataTable.table-condensed > thead > tr > th:first-child {
+        padding-right: 5px;
+    }
+
+    .last-update {
+        font-size: 14px !important;
+        margin-top: 5px !important;
+        margin-right: 10px !important;
+    }
+
+    #scrollable-dropdown-menu .tt-menu {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .form-control.filter {
+        margin-left: 5px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <button type="button" class="btn btn-default btnMovimento" data-movto="0">Aguardando Lançamento <span class="label label-warning">@(Model.TotalAguardandoLancamento > 0 ? Model.TotalAguardandoLancamento.ToString() : string.Empty)</span></button>
+                    <button type="button" class="btn btn-default btnMovimento" data-movto="6">Em Espera <span class="label label-warning">@(Model.TotalEmEspera > 0 ? Model.TotalEmEspera.ToString() : string.Empty)</span></button>
+                    <button type="button" class="btn btn-default btnMovimento" data-movto="99">Aguardando Roteiro <span class="label label-warning">@(Model.TotalRoteiro > 0 ? Model.TotalRoteiro.ToString() : string.Empty)</span></button>
+                    <button type="button" class="btn btn-default btnMovimento" data-movto="7">Em Trânsito <span class="label label-warning">@(Model.TotalEmTransito > 0 ? Model.TotalEmTransito.ToString() : string.Empty)</span></button>
+                    <button type="button" class="btn btn-default btnMovimento" data-movto="5">Finalizado <span class="label label-warning">@(Model.TotalFinalizado > 0 ? Model.TotalFinalizado.ToString() : string.Empty)</span></button>
+                    <div class="btn-group pull-right">
+                        <button type="button" id="btnProcessarNotasFiscais" class="btn btn-success hide" style="margin-left:5px"><i class="fa-regular fw-lg fa-fw fa-object-ungroup"></i> Processar Notas Fiscais <span id="qtdNotasFicais"></span></button>
+                        <button type="button" id="btnImprimirRoteiros" class="btn btn-success hide" style="margin-left:5px"><i class="fa fw-lg fa-fw fa-map-o"></i> Imprimir Roteiro <span id="qtdRoteiros"></span></button>
+                        <button type="button" id="btnFinalizarLancamentos" class="btn btn-success hide" style="margin-left:5px;"><i class="fa-solid fa-fw fa-clipboard-check"></i> Finalizar Lançamentos</button>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <p id="processing">Loading...</p>
+            <div class="data-container hide">
+                <div class="row" style="margin-bottom:10px;">
+                    <div class="col-xs-12">
+                        <div class="form-inline">
+                            <div class="datatable_filter pull-left"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-responsive">
+                            <table class="table table-condensed table-bordered table-hover table-small" id="tbNotaFiscal"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal  -->
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal  -->
+<div class="modal fade" id="danfeModal" data-backdrop="static" tabindex="-1" aria-labelledby="danfeModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-gradient">
+                <span><i class="fa-solid fa-fw fa-clipboard-check"></i>&nbsp;&nbsp;Finalizar Lançamento de Nota Fiscal</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="notaId-confirm" />
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label style="visibility:hidden">Nota Fiscal</label>
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-lg fa-file-text-o"></i></span>
+                                <input type="text" id="danfe-confirm" class="form-control" placeholder="Número ou DANFE da Nota Fiscal de envio" maxlength="44" style="width: 100%;">
+                                <input type="hidden" id="input-danfe-confirm" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+ @*Modal de confirmar aviso de para não mudar a página até acabar a impressão
+<div class="modal fade" id="modalConfirm" data-backdrop="static" tabindex="-1" aria-labelledby="modalConfirm" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-gradient">
+                <span id="textConfirm"><i class="fas fa-exclamation-circle" style="color:red"></i> ATENÇÃO</span>
+            </div>
+            <div class="modal-body">                
+                <div class="checkbox">
+                    <p>Não fechar, atualizar (F5) ou mudar de página até as impressões serem finalizadas!</p>
+                    <input type="checkbox" id="checkboxDontShowAgain"> Não mostrar de novo!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-success" data-dismiss="modal" id="btnConfirmAlert"> Confirmar</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Cancelar</button>
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>*@
+
+<!-- Modal impressão  -->
+<div class="modal fade" id="printModal" data-backdrop="static" tabindex="-1" aria-labelledby="printModal" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-gradient">
+                <span id="textImprimir"><i class="fa-solid fa-print fa-fw"></i>&nbsp;&nbsp;Imprimir Etiquetas de Expedição</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="notaId" />
+                <input type="hidden" id="ip" />
+                <input type="hidden" id="porta" />
+                <input type="hidden" id="zpl-etiqueta" value="@Model.ZPL_Etiqueta" />
+                <input type="hidden" id="ps-ip" value="@Model.PrinterServerIP" />
+                <input type="hidden" id="ps-port" value="@Model.PrinterServerPort" />
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label>Quantidade de etiquetas</label>
+                            <p id="qtd-etiquetas-imprimir" class="text-muted"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="row-printer">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label>Impressora</label>
+                            @Html.DropDownList("ImpressoraDDL", ViewBag.ImpressoraDDL as SelectList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row hide">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label>Iframe</label>
+                            <div>
+                                <iframe src="" name="dummyframe" id="dummyframe" height="130" width="200"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-success" data-dismiss="modal" id="btnConfirmaImpressaoEtiquetas"><i class="fa fa-fw fa-print"></i> Imprimir</button>
+                    @*<button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Cancelar</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+    <script src="~/Scripts/DataTables/plugins/checkboxes/dataTables.checkboxes.min.js"></script>
+
+
+    <script>
+        let ps_ip = $('#ps-ip').val();
+        let ps_port = $('#ps-port').val();
+        let table = null;
+        //let arr_etiquetas = [];
+        let isFunctionRunning = false;
+        let currentUser;
+
+        //console.log('Print Server => IP:', ps_ip, ' Porta:', ps_port);
+
+        function LoadData(movto) {
+
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: '@Url.Action("GetUser", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                success: function (response) {
+                    if (response.success) {
+                        currentUser = response.user;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.statusText;
+                    alert(errorMessage)
+                }
+            })
+            //console.log('Obter NFs => movto:', movto)
+            $('.btnMovimento').each(function () {
+                $(this).removeClass('btn-current');
+                if ($(this).data('movto') == movto) {
+                    $(this).addClass('btn-current');
+                }
+            })
+
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+            $('#processing').removeClass('hide');
+            $('.data-container').addClass('hide');
+
+            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+            if ($.fn.DataTable.isDataTable('#tbNotaFiscal')) {
+                $('#tbNotaFiscal').DataTable().destroy();
+            }
+
+            $('#tbNotaFiscal tbody').empty();
+
+            if (movto == 0) {
+                var colDefs = [{ 'targets': [-1], 'orderable': false }];
+            } else {
+                if (movto == 99) {
+                    var colDefs = [{ 'targets': [-1, 0], 'orderable': false }, {
+                        'targets': 0,
+                        'checkboxes': {
+                            'selectRow': true,
+                            'selectCallback': function (nodes, selected) {
+                                $('input[type="checkbox"]', nodes).iCheck('update');
+                                EnableDisablePrintRoteiro();
+                            },
+                            'selectAllCallback': function (nodes, selected, indeterminate) {
+                                $('input[type="checkbox"]', nodes).iCheck('update');
+                            },
+                        }
+                    }
+                    ];
+                } else {
+                    var colDefs = [{ 'targets': [-1, 0], 'orderable': false }, {
+                        'targets': 0,
+                        'checkboxes': {
+                            'selectRow': true,
+                            'selectCallback': function (nodes, selected) {
+                                $('input[type="checkbox"]', nodes).iCheck('update');
+                                EnableDisableProcessarNotasFiscais();
+                            },
+                            'selectAllCallback': function (nodes, selected, indeterminate) {
+                                $('input[type="checkbox"]', nodes).iCheck('update');
+                            }
+                        }
+                    }];
+                }
+            }
+
+
+            var action = '@Url.Action("GetData", "NotaFiscal", new { movimento = "_movimento", area = "ExpedicaoApp" })';
+
+            table = $('#tbNotaFiscal').DataTable({
+                deferRender: true,
+                autoWidth: false,
+                pageLength: 25,
+                order: [],
+                ajax: {
+                    url: action.replace("_movimento", movto),
+                    type: 'GET',
+                    dataType: 'json'
+                },
+                columns: [
+                            { data: 'Id' },
+                            {
+                                data: 'Numero', title: 'Nota Fiscal', render: function (data, type, row) {
+                                    var id = row['Id'];
+                                    if (movto != 0) {
+                                        return '<a href="#" class="historico" data-id="' + id + '">' + data + '</a>';
+                                    }
+                                    else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            {
+                                data: 'DataEmissao', title: 'Data de Emissão', visible: false, render: function (data, type) {
+                                    if (data) {
+                                        return moment(data).local().format('DD/MM/YYYY HH:mm:ss');
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                           { data: 'CodigoCliente', title: 'Cliente' },
+                           { data: 'NomeCliente', title: 'Cliente' },
+                           //{ data: 'LocalEntrega', title: 'Cidade' },
+                           { data:  'Cidade', title: 'Cidade',
+                               render: function (data, type, row, meta) {
+                                     return row.Cidade + "/" + row.Estado;
+                                }
+                           },
+                           { data: 'NomeTransportadora', title: 'Transportadora' },
+                           { data: 'QtdVolumes', title: 'Volumes' },
+                           { data: 'NomeTipoMovimento', title: 'Operação' },
+                           { data: 'StatusNF', title: 'Status' },
+                           { data: 'ModificadoPor', title: 'Usuário' },
+                           //{
+                           //    data: 'ModificadoEm', title: 'Última atualização', visible: true, render: function (data, type) {
+                           //        if (data) {
+                           //            return moment(data).format('DD/MM/YYYY HH:mm:ss');
+                           //        } else {
+                           //            return data;
+                           //        }
+                           //    }
+                           //},
+                        {
+                            data: null, name: "btnActions", render: function (data, type, row) {
+                                   if (movto == 0) {
+                                       return null;
+                                   }
+                                   if (movto == 5 || movto == 7 || movto == 99) {
+                                       if (data.QtdVolumes != null) {
+                                           var btngroup = '<div class="btn-group">' +
+                                               /*'<a href="#" class="btn btn-xs btn-default btn-print" data-id="' + row.Id + '"><i class="fa fa-lg fa-print text-blue"></i></a>' +*/ //EXCLUIR APÓS ARRUMAR A IMPRESSÃO
+                                               '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
+                                               '</div>';
+                                       }
+                                       else {
+                                           var btngroup = '<div class="btn-group">' +
+                                               '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
+                                               '</div>';
+                                       }
+                                        return btngroup;
+                                   }
+                                   if (movto == 6) {
+                                       if (data.QtdVolumes != null) {
+                                           var btngroup = '<div class="btn-group">' +
+                                               /*'<a href="#" class="btn btn-xs btn-default btn-print" data-id="' + row.Id + '"><i class="fa fa-lg fa-print text-blue"></i></a>' +*/
+                                               '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
+                                               '</div>';
+                                       }
+                                       else {
+                                           var btngroup = '<div class="btn-group">' +
+                                               '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
+                                               '</div>';
+                                       }
+                                       return btngroup;
+                                   }
+                               }
+                           },
+                ],
+                columnDefs: colDefs,
+                drawCallback: function () {
+                    if (movto != 0) {
+                        $('input[type="checkbox"]').iCheck({
+                            checkboxClass: 'icheckbox_flat-blue'
+                        });
+                    }
+                },
+                fnInitComplete: function () {
+                    $('div.datatable_filter').empty();
+
+                    if (movto != 0) {
+                        this.api().columns([6, 8, 10]).every(function (th) {
+
+                            var column = this;
+                            var theadname = $("#tbNotaFiscal th").eq([th - 1]).text(); //used this specify table name and head
+
+                            var select = $('<select class="form-control filter" id="filter' + theadname + '"> <option value="">' + theadname + '</option></select > ')
+                                .appendTo('div.datatable_filter')
+                                .on('change', function () {
+                                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                    column
+                                        .search(val ? '^' + val + '$' : '', true, false)
+                                        .draw();
+
+                                    if ($(this).prop('selectedIndex') == 0) {
+                                        $(this).removeClass('selected');
+                                    } else {
+                                        $(this).addClass('selected');
+                                    }
+                                    $(this).blur();
+
+                                });
+
+                            column.cells('', column[0]).render('display').sort().unique().each(function (d, j) {
+                                var regX = /(<([^>]+)>)/ig; // remove o texto se a coluna for uma tag anchor
+                                d = d.replace(regX, '').trim();
+                                select.append('<option value="' + d + '">' + d + '</option>')
+                                if (d == currentUser) {
+                                    $('#filterUsuário').val(currentUser).change();
+                                }
+                            });
+                        });
+                        //$('#rowButton').show();
+                    }
+
+                    $('#processing').addClass('hide');
+                    $('.data-container').removeClass('hide');
+
+                    var rowCount = table.rows().count();
+
+                    // Exibir / ocultar colunas
+                    //if (movto == 99) {
+                    //    table.columns([8]).visible(false); // Operação
+                    //} else {
+                    //    table.columns([8]).visible(true); // Operação
+                    //    if (movto == 0 || movto == 2 || movto == 5 || rowCount == 0) {
+                    //        table.columns([0]).visible(false); // Id
+                    //    }
+                    //}
+
+                    table.columns([9]).visible(false); // Status
+                    table.columns([3]).visible(false); // código cliente
+
+
+                    if (movto == 0) {
+                        table.columns([6]).visible(false); // Transportadora
+                        table.columns([7]).visible(false); // Volumes
+                        table.columns([9]).visible(false); // Status
+                        table.columns([8]).visible(false); // Operação
+                        table.columns([0]).visible(false); // Id
+                    }
+                    if (movto == 6) {
+                        table.columns([5]).visible(false); //Local Entrega
+                    }
+                    if (movto == 0 || movto == 7 || movto == 5 || rowCount == 0) {
+                        table.columns([0]).visible(false); // Id
+                    }
+
+                    if (movto == 7) { //Desabilitar o botão de finalizar lançamentos em outra aba que não seja "Em Transito"
+                        $('#btnFinalizarLancamentos').removeClass('hide');
+                    }
+
+                    $('#tbNotaFiscal').on('click', 'a.historico', function (e) {
+                        e.preventDefault();
+                        var id = $(this).attr('data-id');
+                        var url = '@Url.Action("Historico", "NotaFiscal", new { area = "ExpedicaoApp", id = "_id" })';
+                        $('#myModalContent').load(url.replace('_id', id), function () {
+                            $('#myModal').modal({
+                                backdrop: 'static',
+                                keyboard: true
+                            }, 'show');
+                        });
+                        return false;
+                    });
+
+                    // Cancelar lançamento
+                    $('#tbNotaFiscal').on('click', 'a.btn-cancel', function (e) {
+                        swal({
+                            title: "Cancelar Lançamento de Nota Fiscal",
+                            text: "Confirma o cancelamento do lançamento da Nota Fiscal?",
+                            buttons: {
+                                cancel: {
+                                    text: "Não",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true,
+                                },
+                                confirm: {
+                                    text: "Sim",
+                                    className: "swal-btn-success",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        }).then((confirm) => {
+                            if (confirm) {
+                                var notafiscal_id = $(this).data('id');
+
+                                $.ajax({
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    url: '@Url.Action("CancelarLancamento", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                                    data: { id: notafiscal_id }
+                                }).done(function (response) {
+                                    if (response.success) {
+                                        swal({
+                                            title: "Cancelar Lançamento de Nota Fiscal",
+                                            text: "Lançamento cancelado com sucesso!",
+                                            buttons: false,
+                                            timer: 1000,
+                                        }).then(function () {
+                                            //location.reload();
+                                            $('#tbNotaFiscal').DataTable().ajax.reload();
+                                        });
+                                    } else {
+                                        var div = document.createElement("div");
+                                        div.innerHTML = "<h4 class='swal-text-error'>" + response.msg + "</h4>";
+                                        swal({
+                                            title: "Cancelar Lançamento de Nota Fiscal",
+                                            content: div,
+                                            buttons: {
+                                                confirm: {
+                                                    visible: false
+                                                },
+                                                cancel: {
+                                                    text: "Fechar",
+                                                    className: "swal-btn-danger",
+                                                    closeModal: true,
+                                                    visible: true
+                                                }
+                                            }
+                                        })
+                                    }
+                                }).fail(function (xhr, status, error) {
+                                    var errorMessage = xhr.status + ': ' + xhr.error;
+                                    var div = document.createElement("div");
+                                    div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao cancelar o lançamento da Nota Fiscal!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                                    swal({
+                                        title: "Cancelar Lançamento de Nota Fiscal",
+                                        content: div,
+                                        buttons: {
+                                            confirm: {
+                                                visible: false
+                                            },
+                                            cancel: {
+                                                text: "Fechar",
+                                                className: "swal-btn-danger",
+                                                closeModal: true,
+                                                visible: true
+                                            }
+                                        }
+                                    })
+                                })
+                            }
+                        });
+                    });
+
+                    // Imprimir etiquetas
+                    //$('a.btn-print').click(function (e) {
+                    $('#tbNotaFiscal').on('click', 'a.btn-print', function (e) {
+                        e.stopImmediatePropagation(); //faz com que os botões da data table com a mesma classe não sejam acionados juntos
+                        //e.preventDefault();
+                        $('#notaId').val($(this).data('id'));
+                        //////////////////////////////////////////////////////////////////////////
+                        //excluir até onde estiver "FINAL EXCLUIR" após arrumar a impressão///////
+                        //////////////////////////////////////////////////////////////////////////
+                        var selectedNFs = $(this).data('id');
+
+
+                        $.ajax({
+                            type: 'GET',
+                            dataType: 'json',
+                            url: '@Url.Action("GetDataToPrintTemporary", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                            data: { ids: selectedNFs }
+                        }).done(function (response) {
+                            if (response.success) {
+                                $('#tbNotaFiscal').DataTable().ajax.reload();
+                                if (response.etiquetas.length > 0) {
+                                    let arr_etiquetas = [];
+                                    arr_etiquetas = response.etiquetas;
+                                    $('#qtd-etiquetas-imprimir').text(arr_etiquetas.length)
+                                    $('#printModal').modal();
+                                }
+                                else {
+                                    var div = document.createElement("div");
+                                    div.innerHTML = "<h4 class='swal-text-error'>A transportadora não emite etiqueta!</h4>";
+                                    swal({
+                                        title: "Atenção!",
+                                        content: div,
+                                        buttons: {
+                                            confirm: {
+                                                visible: false
+                                            },
+                                            cancel: {
+                                                text: "Fechar",
+                                                className: "swal-btn-danger",
+                                                closeModal: true,
+                                                visible: true
+                                            }
+                                        }
+                                    }).then(function () {
+                                        //$('#tbNotaFiscal').DataTable().ajax.reload();
+                                    });
+                                }
+                            } else {
+
+                                //console.log(response.msg)
+                                var div = document.createElement("div");
+                                div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                                swal({
+                                    title: "Processar Notas Fiscais",
+                                    content: div,
+                                    buttons: {
+                                        confirm: {
+                                            visible: false
+                                        },
+                                        cancel: {
+                                            text: "Fechar",
+                                            className: "swal-btn-danger",
+                                            closeModal: true,
+                                            visible: true
+                                        }
+                                    }
+                                }).then(function () {
+                                   $('#tbNotaFiscal').DataTable().ajax.reload();
+                                });
+                            }
+
+                        }).fail(function (xhr, status, error) {
+                            var errorMessage = xhr.status + ': ' + xhr.error;
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                            swal({
+                                title: "Processar Notas Fiscais",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            })
+                        })
+
+                        //FINAL EXCLUIR APÓS CONSERTAR A IMPRESSÃO
+                        var tr = $(this).closest('tr');
+
+                        $('#modal-nf').text(tr.find('td:eq(1)').text());
+                        $('#modal-cliente').text(tr.find('td:eq(2)').text());
+                        $('#modal-volumes').text(tr.find('td:eq(6)').text());
+
+
+                        //$('#printModal').modal();
+                    });
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item encontrado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            table.columns.adjust().draw(false);
+
+            // Handle iCheck change event for "select all" control
+            $(table.table().container()).on('ifChanged', '.dt-checkboxes-select-all input[type="checkbox"]', function (event) {
+                var col = table.column($(this).closest('th'), { filter: 'applied' });
+                col.checkboxes.select(this.checked);
+            });
+
+            // Handle iCheck change event for checkboxes in table body
+            $(table.table().container()).on('ifChanged', '.dt-checkboxes', function (event) {
+                var cell = table.cell($(this).closest('td'));
+                cell.checkboxes.select(this.checked);
+            });
+
+        }
+
+        function EnableDisablePrintRoteiro() {
+            var rows_selected = $('#tbNotaFiscal').DataTable().column(0).checkboxes.selected();
+            if (rows_selected.length > 0) {
+                $('#qtdRoteiros').text("(" + rows_selected.length + ")");
+                $('#btnImprimirRoteiros').removeClass('hide');
+            } else {
+                $('#btnImprimirRoteiros').addClass('hide');
+            }
+        }
+
+        function EnableDisableProcessarNotasFiscais() {
+            var rows_selected = $('#tbNotaFiscal').DataTable().column(0).checkboxes.selected();
+            if (rows_selected.length > 0) {
+                $('#qtdNotasFicais').text("(" + rows_selected.length + ")");
+                $('#btnProcessarNotasFiscais').removeClass('hide');
+            } else {
+                $('#btnProcessarNotasFiscais').addClass('hide');
+            }
+        }
+
+        function ProcessNextPrint(arr_etiquetas_next) {
+            const nextItem = arr_etiquetas_next.shift()
+            //const nextItem = arr_etiquetas.shift()
+            if (nextItem) {
+                isFunctionRunning = true;
+                ImprimirEtiqueta(nextItem, arr_etiquetas_next);
+            } else {
+                isFunctionRunning = false;
+               // location.reload();
+            }
+        }
+
+        function ImprimirEtiqueta(zpl, arr_etiquetas_print) {
+            var printer_ip = $('#ip').val();
+            var printer_port = $('#porta').val();
+
+            if (printer_ip && printer_port && zpl) {
+                var url = "https://" + ps_ip + ":" + ps_port + "/quasardealer/impressora/iframeImpressao";
+
+                //var now = new Date();
+                //var currentDateTime = now.toLocaleString();
+                //console.log(currentDateTime, 'Carregando o iframe...')
+                $("#dummyframe").attr("src", url);
+
+                setTimeout(function () {
+                    //var now = new Date();
+                    //var currentDateTime = now.toLocaleString();
+                    //console.log(currentDateTime, 'Iframe carregado')
+                    var iframeWin = document.getElementById("dummyframe").contentWindow;
+                    var mensagem = JSON.stringify({
+                        ipServidorImpressao: ps_ip,
+                        portaServidorImpressao: ps_port,
+                        ipImpressora: printer_ip,
+                        portaImpressora: printer_port,
+                        comandosZPL: zpl
+                    });
+
+                    try {
+                        iframeWin.postMessage(mensagem, "*");
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            url: '@Url.Action("LogPrintZpl", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                            data: { zpl: zpl }
+                        }).done(function (response) {
+                            if (!response.success) {
+                                alert(response.msg);
+                            }
+                        })
+                    } catch (e) {
+                        console.log(e);
+                    }
+
+                    //setTimeout(function () {
+                    //    ProcessNextPrint(arr_etiquetas_print);
+                    //}, 700);
+                }, 700)
+            }
+        }
+
+        function ImprimirEtiquetaAll(zpl) {
+            var printer_ip = $('#ip').val();
+            var printer_port = $('#porta').val();
+
+            if (printer_ip && printer_port && zpl) {
+                var url = "https://" + ps_ip + ":" + ps_port + "/quasardealer/impressora/iframeImpressao";
+                $("#dummyframe").attr("src", url);
+
+                setTimeout(function () {
+                    var iframeWin = document.getElementById("dummyframe").contentWindow;
+                    var mensagem = JSON.stringify({
+                        ipServidorImpressao: ps_ip,
+                        portaServidorImpressao: ps_port,
+                        ipImpressora: printer_ip,
+                        portaImpressora: printer_port,
+                        comandosZPL: zpl
+                    });
+
+                    try {
+                        iframeWin.postMessage(mensagem, "*");
+                    } catch (e) {
+                        console.log(e);
+                    }
+                },3000)
+            }
+        }
+
+        //função para verificar se é possivel usar local storage no browser do usuário
+        function localStorageAvailable() {
+            if (typeof (Storage) !== "undefined") {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        $(document).ready(function () {
+
+            // ----------------------------------
+            // Obter Notas Fiscais por movimento
+            // ----------------------------------
+            $('.btnMovimento').click(function () {
+                var movto = $(this).data('movto');
+                $('#btnProcessarNotasFiscais').addClass('hide');
+                $('#btnImprimirRoteiros').addClass('hide');
+                $('#btnFinalizarLancamentos').addClass('hide');
+                LoadData(movto);
+                $(this).blur();
+            })
+
+            $('[data-movto="0"]').click().focus();
+
+            $('#ImpressoraDDL').on('change', function () {
+                var impressoraId = $(this).val();
+
+                $('#ip').empty();
+                $('#porta').empty();
+
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: '@Url.Action("GetPrinterData", "Printer", new { area = "ConfiguracaoApp" })',
+                    data: { id: impressoraId },
+                    success: function (response) {
+                        //console.log(response.data);
+                        if (response.success) {
+                            $('#ip').val(response.data.IP);
+                            $('#porta').val(response.data.Porta);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.statusText;
+                        alert(errorMessage)
+                    }
+                })
+            }).change();
+
+            // -------------------------------------------------
+            // Processar Notas Fiscais
+            // -------------------------------------------------
+
+            $('#btnProcessarNotasFiscais').click(function (event) {
+                event.preventDefault();
+                let selectedNFS = table.columns().checkboxes.selected()[0];
+
+                try {
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '@Url.Action("GetPrintCount", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                        data: { ids: selectedNFS },
+                    }).done(function (response) {
+                        if (response.success) {
+                            $('#qtd-etiquetas-imprimir').text(response.countImpressao);
+                            $('#printModal').modal();
+                        }
+                        else {
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                            swal({
+                                title: "Processar Notas Fiscais",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            }).then(function () {
+                                $('#tbNotaFiscal').DataTable().ajax.reload();
+                            });
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.error;
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                        swal({
+                            title: "Processar Notas Fiscais",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    })
+                }
+                catch (e) {
+                    console.log(e)
+                }
+
+                //arr_etiquetas = [];
+            });
+
+            $('#btnConfirmaImpressaoEtiquetas').click(function () {
+                //console.log(arr_etiquetas)
+
+                var selectedNFs = table.columns().checkboxes.selected()[0];
+
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '@Url.Action("Processar", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                    data: { ids: selectedNFs }
+                }).done(function (response) {
+                    if (response.success) {
+                        $('#tbNotaFiscal').DataTable().ajax.reload();
+                            if (response.etiquetas.length > 0) {
+                                if (localStorageAvailable()) {
+                                    if (!(localStorage.DoNotShowMessageAgain && localStorage.DoNotShowMessageAgain === "true")) {
+                                        $('#modalConfirm').modal();
+                                    }
+                                }
+                                let arr_etiquetas = []
+                                arr_etiquetas = response.etiquetas;
+                                let zplAll = arr_etiquetas.join("");
+                                
+                                //ProcessNextPrint(arr_etiquetas);
+                                try {
+                                    $.ajax({
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        url: '@Url.Action("LogZplGenerated", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                                        data: { zpl: zplAll, tipo: 'Impressão' }
+                                    }).done(function (response) {
+                                        if (!response.success) {
+                                            alert(response.msg);
+                                        }
+                                    })
+                                } catch (e) {
+                                    console.log(e);
+                                }
+                            ImprimirEtiqueta(zplAll, arr_etiquetas);
+                            $('#qtd-etiquetas-imprimir').text(arr_etiquetas.length);
+                            //$('#qtd-etiquetas-imprimir').text(arr_etiquetas.length);
+                            //ProcessNextPrint(arr_etiquetas);
+                        }                    
+                        $('#btnProcessarNotasFiscais').addClass('hide');
+                    } else {
+                        //console.log(response.msg)
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                        swal({
+                            title: "Processar Notas Fiscais",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        }).then(function () {
+                           $('#tbNotaFiscal').DataTable().ajax.reload();
+                        });
+                    }
+
+                }).fail(function (xhr, status, error) {
+                    var errorMessage = xhr.status + ': ' + xhr.error;
+                    var div = document.createElement("div");
+                    div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                    swal({
+                        title: "Processar Notas Fiscais",
+                        content: div,
+                        buttons: {
+                            confirm: {
+                                visible: false
+                            },
+                            cancel: {
+                                text: "Fechar",
+                                className: "swal-btn-danger",
+                                closeModal: true,
+                                visible: true
+                            }
+                        }
+                    })
+                })
+
+
+
+                // Concatenar todas as etiqueta em uma única string
+                //var zpl = '';
+                //arr_etiquetas.forEach(function (item, index) {
+                //    zpl = zpl + item;
+                //})
+                //if (zpl != '') {
+                //    ImprimirEtiquetaAll(zpl);
+                //}
+
+            })
+
+            // ----------------
+            // Imprimir roteiro
+            // ----------------
+            $('#btnImprimirRoteiros').click(function (event) {
+                event.preventDefault();
+                var selectedIds = table.columns().checkboxes.selected()[0];
+                var url = '@Url.Action("ImprimirRoteiro", "NotaFiscal", new { area = "ExpedicaoApp", notas = "_notas" })';
+                url = url.replace('_notas', selectedIds);
+                window.open(url, '_blank');
+            })
+
+            // ---------------------------------------------------
+            // Finalizar Lançamentos
+            // Altera status das Notas Fiscais para 4 (Finalizado)
+            // ---------------------------------------------------
+            $('#btnFinalizarLancamentos').click(function () {
+                $('#danfeModal').modal();
+            })
+
+            let count_confirm = 0;
+            $('#danfeModal').on('shown.bs.modal', function (e) {
+                $('#danfe-confirm').val('');
+                count_confirm = 0;
+            })
+
+            $('#danfeModal').on('hidden.bs.modal', function (e) {
+                $('#danfe-confirm').val('');
+                if (count_confirm != 0) {
+                    location.reload();
+                }
+            })
+
+            $('#danfe-confirm').on('keyup', function (event) {
+                event.preventDefault();
+                var movto = $(this).data('movto');
+                var input = $(this).val();
+                if (event.keyCode === 13) {
+                    $(this).val('');
+
+                    //let isnum = /^\d+$/.test(input);
+                    //if (!isnum || input.length != 44) {
+                    //    return;
+                    //}
+
+                    // Atualiza o status da Nota Fiscal
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '@Url.Action("Finalizar", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                        data: { key: input }
+                    }).done(function (response) {
+                        if (response.success == true) {
+                            var button = $('.btnMovimento[data-movto="' + movto + '"]');
+                            var label = button.find('span');
+                            count_confirm++;
+
+                            $('#tbNotaFiscal').DataTable().ajax.reload();
+
+                        } else {
+                            var div = document.createElement("div");
+                            div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
+                            swal({
+                                title: "Finalizar Lançamento de Nota Fiscal",
+                                content: div,
+                                buttons: {
+                                    confirm: {
+                                        visible: false
+                                    },
+                                    cancel: {
+                                        text: "Fechar",
+                                        className: "swal-btn-danger",
+                                        closeModal: true,
+                                        visible: true
+                                    }
+                                }
+                            }).then(function () {
+                                $('#tbNotaFiscal').DataTable().ajax.reload();
+                            });
+                        }
+                    }).fail(function (xhr, status, error) {
+                        var errorMessage = xhr.status + ': ' + xhr.error;
+                        var div = document.createElement("div");
+                        div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao processar a solicitação!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
+                        swal({
+                            title: "Finalizar Lançamento de Nota Fiscal",
+                            content: div,
+                            buttons: {
+                                confirm: {
+                                    visible: false
+                                },
+                                cancel: {
+                                    text: "Fechar",
+                                    className: "swal-btn-danger",
+                                    closeModal: true,
+                                    visible: true
+                                }
+                            }
+                        })
+                    })
+                }
+            })
+
+            //ação do botão de confirmar não ver mais o alerta
+            $('#btnConfirmAlert').click(function () {
+                if ($('#checkboxDontShowAgain').is(':checked')) {
+                    if (localStorageAvailable())
+                        localStorage.DoNotShowMessageAgain = "true";
+                }
+            })
+
+
+            //Avisa caso a função de imprimir estiver rodando
+            function onBeforeUnload(e) {
+                if (isFunctionRunning) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return;
+                }
+
+                delete e['returnValue'];
+            }
+
+            window.addEventListener('beforeunload', onBeforeUnload);
+
+        });
+    </script>
+}
+
+

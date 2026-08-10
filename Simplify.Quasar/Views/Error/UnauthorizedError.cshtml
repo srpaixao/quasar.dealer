@@ -1,0 +1,28 @@
+﻿@{
+    ViewBag.Title = "Unauthorized Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content">
+    <div class="error-page" style="margin-left:0px;width:100%">
+        @*<h2 class="headline text-red">401</h2>*@
+
+        <div class="error-content" style="margin-left:20px">
+            <h3><i class="fa fa-warning text-red"></i> Oops! Something went wrong.</h3>
+            <p>
+                There was an error processing your request. Please, try again. If the problem persists, contact support.
+            </p>
+            <br />
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label><b>Message error</b></label>
+                        <div class="error">@ViewBag.Title</div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <a href="@Url.Action("Index", "Home", new { area = ""})" class="btn btn-primary" role="button"><i class="fa fa-home"></i> Voltar para a página inicial</a>
+        </div>
+    </div>
+</section>

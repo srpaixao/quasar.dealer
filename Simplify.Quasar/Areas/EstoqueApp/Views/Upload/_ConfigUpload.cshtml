@@ -1,0 +1,90 @@
+﻿@model Simplify.Quasar.Areas.EstoqueApp.ViewModels.ConfigUploadViewModel
+@{
+    ViewBag.Title = "Configurar Upload";
+    Layout = null;
+}
+
+@*<style>
+            .chk-area {
+            font-weight: normal !important;
+            margin: 5px !important;
+        }
+    </style>*@
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-solid fa-gear fa-lg fa-fw"></i>&nbsp;&nbsp;Configurar Upload</span>
+        </div>
+
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.Id)
+
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <p class="text-muted"><b>Locações</b> que devem ser desconsideradas no arquivo de atualização</p>
+                        <div>
+                            @Html.TextAreaFor(m => m.Valor, new { @class = "form-control", @rows = "5", @autocomplete = "off" })
+                            <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.Valor)</div>
+                        </div>
+                        <div style="margin-top:5px">
+                            <p class="text-muted"><i class="fa fa-fw fa-exclamation-triangle text-orange"></i> Os valores devem ser separados por ponto-e-vírgula</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="pull-right">
+                        <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="card-text text-muted" style="margin-bottom:0px">
+                        <small><i>Criado por <b>@Model.CriadoPorNome</b> em @Model.CriadoEm</i></small>
+                        @Html.HiddenFor(m => m.CriadoPor)
+                        @Html.HiddenFor(m => m.CriadoPorNome)
+                        @Html.HiddenFor(m => m.CriadoEm)
+                    </p>
+                    @if (Model.ModificadoPor != null)
+                    {
+                        <p class="card-text text-muted">
+                            <small><i>Modificado por <b>@Model.ModificadoPorNome</b> em @Model.ModificadoEm</i></small>
+                            @Html.HiddenFor(m => m.ModificadoPor)
+                            @Html.HiddenFor(m => m.ModificadoPorNome)
+                            @Html.HiddenFor(m => m.ModificadoEm)
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+<script>
+    $(document).ready(function () {
+        $('.input-validation-error').each(function () {
+            $(this).addClass('is-invalid')
+        }).on('focus', function () {
+            $(this).removeClass('is-invalid')
+        })
+    })
+</script>
+
+

@@ -1,0 +1,171 @@
+﻿@model Simplify.Quasar.Areas.ComprasApp.ViewModels.EmpresaViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = null;
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-regular fa-square-plus fa-fw"></i>&nbsp;&nbsp;Cadastrar Filial</span>
+        </div>
+
+
+        <div class="modal-body">
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">CNPJ</label>
+                        @Html.TextBoxFor(m => m.CNPJ, new { @class = "form-control text-center", @autocomplete = "off" })
+                        @Html.ValidationMessageFor(x => x.CNPJ, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-9">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Nome, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label class="form-label">CEP</label>
+                        @Html.TextBoxFor(m => m.Endereco_CEP, new { @class = "form-control text-center", @autocomplete = "off", @maxlength = "8" })
+                        @Html.ValidationMessageFor(x => x.Endereco_CEP, null, new { @class = "text-red text-nowrap" })
+                        <div id="msg-cep" class="text-red text-nowrap" style="display:none;">CEP não localizado</div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Endereço</label>
+                        @Html.TextBoxFor(m => m.Endereco_Logradouro, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Endereco_Logradouro, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label class="form-label">Número</label>
+                        @Html.TextBoxFor(m => m.Endereco_Numero, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Endereco_Numero, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label class="form-label">Complemento</label>
+                        @Html.TextBoxFor(m => m.Endereco_Complemento, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Endereco_Complemento, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label class="form-label">Bairro</label>
+                        @Html.TextBoxFor(m => m.Endereco_Bairro, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Endereco_Bairro, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-5">
+                    <div class="form-group">
+                        <label class="form-label">Cidade</label>
+                        @Html.TextBoxFor(m => m.Endereco_Cidade, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Endereco_Cidade, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">Estado</label>
+                        @Html.DropDownListFor(m => m.Endereco_UF, Model.EstadoDDL, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(x => x.Endereco_UF, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        @Html.TextBoxFor(m => m.Telefone1, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Telefone1, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <div class="pull-right">
+                <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+            </div>
+        </div>
+
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+<script>
+        $('.input-validation-error').parents('.form-group').addClass('has-error');
+
+        $('.form-control').on('change', function () {
+            $(this).parent().removeClass('has-error');
+            $(this).next().html('');
+        });
+
+        // inputmask está definido no bundles
+        $('#CNPJ').inputmask({
+            mask: ['99.999.999/9999-99'],
+            keepStatic: true
+        });
+
+        $('#Telefone1').inputmask({
+            mask: ['(99) 99999-9999'],
+            keepStatic: true
+        })
+
+        // Acessar API Via CEP
+        $("#Endereco_CEP").blur(function () {
+            if ($(this).val()) {
+                $('#msg-cep').hide();
+                $("#Endereco_CEP").parent().removeClass('has-error');
+                $("#Endereco_Logradouro").val('');
+                $("#Endereco_Numero").val('');
+                $("#Endereco_Complemento").val('');
+                $("#Endereco_Bairro").val('');
+                $("#Endereco_Cidade").val('');
+                $('#Endereco_UF').val('');
+                var cep = $(this).val();
+                cep = cep.replace('.', '').replace('-', '');
+                if (cep.length == 8) {
+                    $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
+                        if (!("erro" in dados)) {
+                            $("#Endereco_Logradouro").val(dados.logradouro);
+                            $("#Endereco_Numero").val('');
+                            $("#Endereco_Complemento").val('');
+                            $("#Endereco_Bairro").val(dados.bairro);
+                            $("#Endereco_Cidade").val(dados.localidade);
+                            $('#Endereco_UF').val(dados.uf);
+                            $('#Endereco_Numero').focus();
+                        } else {
+                            $("#Endereco_CEP").parent().addClass('has-error');
+                            $('#msg-cep').show();
+                        }
+                    });
+                }
+            }
+        });
+
+</script>
