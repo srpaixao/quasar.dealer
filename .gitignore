@@ -195,6 +195,19 @@ publish/
 /Simplify.Quasar/Uploads/
 *.bak
 
+# API environment configuration
+/Api/appsettings*.json
+!/Api/appsettings.example.json
+/Api/Properties/PublishProfiles/
+
+# Coletor environment, mock data and generated output
+/Coletor/.env*
+!/Coletor/.env.example
+/Coletor/db.json
+!/Coletor/db.example.json
+/Coletor/dist/
+/Coletor/node_modules/
+
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
 # checkin your Azure Web App publish settings, but sensitive information contained
 # in these scripts will be unencrypted
