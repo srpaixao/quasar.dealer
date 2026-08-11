@@ -33,8 +33,10 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.ViewModels
         public decimal? QtdTotal { get; set; }
 
         public DateTime? CriadoEm { get; set; }
+        public string CriadoEmTexto { get; set; }
         public string CriadoPor { get; set; }
         public DateTime? ModificadoEm { get; set; }
+        public string ModificadoEmTexto { get; set; }
         public string ModificadoPor { get; set; }
     }
 

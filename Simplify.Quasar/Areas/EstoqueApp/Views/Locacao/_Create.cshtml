@@ -1,0 +1,107 @@
+@model Simplify.Quasar.Areas.EstoqueApp.ViewModels.LocacaoViewModel
+@{
+    ViewBag.Title = "Create";
+    Layout = null;
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-regular fa-square-plus fa-fw"></i>&nbsp;&nbsp;Cadastrar locação</span>
+        </div>
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label class="form-label">Código</label>
+                        @Html.TextBoxFor(m => m.Codigo, new { @class = "form-control text-center", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(m => m.Codigo, null, new { @class = "text-red" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        @Html.TextBoxFor(m => m.Descricao, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">Tipo</label>
+                        @Html.DropDownListFor(m => m.Tipo, Model.TipoDDL, "-- Selecione --", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Tipo, null, new { @class = "text-red" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">Área</label>
+                        @Html.TextBoxFor(m => m.AreaId, new { @class = "form-control text-center", @autocomplete = "off" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">Zona</label>
+                        @Html.DropDownListFor(m => m.ZonaId, Model.ZonaDDL, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label">Curva</label>
+                        @Html.TextBoxFor(m => m.Curva, new { @class = "form-control text-center", @autocomplete = "off", @maxlength = "100" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-3">
+                    <div class="form-group">
+                        <label class="form-label" style="visibility:hidden">x</label>
+                        <div class="checkbox">
+                            <label style="padding-left:0px !important">@Html.CheckBoxFor(m => m.Bloqueado)<b>&nbsp;&nbsp;&nbsp;Bloqueado</b></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Observações</label>
+                        @Html.TextAreaFor(m => m.Observacoes, new { @class = "form-control", @rows = "3", @autocomplete = "off", @maxlength = "500" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="pull-right">
+                <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+<script>
+    $('.input-validation-error').parents('.form-group').addClass('has-error');
+
+    $('.form-control').on('change', function () {
+        $(this).parent().removeClass('has-error');
+        $(this).next().html('');
+    });
+
+    $('#Bloqueado').iCheck({
+        checkboxClass: 'icheckbox_flat-red'
+    });
+</script>

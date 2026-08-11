@@ -1,0 +1,29 @@
+@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.MaterialCadastroViewModel
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Novo Material";
+    ViewBag.IsEdit = false;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        @using (Html.BeginForm("Create", "Material", new { area = "ConfiguracaoApp" }, FormMethod.Post, null))
+        {
+            @Html.AntiForgeryToken()
+            <div class="box-body">
+                @Html.Partial("_Form", Model)
+            </div>
+            <div class="box-footer text-right">
+                <button type="submit" class="btn btn-success"><i class="fa fa-check fa-fw"></i> Salvar</button>
+                <a href="@Url.Action("Index", "Material", new { area = "ConfiguracaoApp" })" class="btn btn-danger">
+                    <i class="fa fa-times fa-fw"></i> Cancelar
+                </a>
+            </div>
+        }
+    </div>
+</section>

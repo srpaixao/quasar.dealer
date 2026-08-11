@@ -1,0 +1,273 @@
+<script>
+    (function ($) {
+        var estado = { volume: '', area: 0, itens: [] };
+        var token = $('input[name="__RequestVerificationToken"]').first().val();
+
+        function numero(valor) {
+            if (valor === null || valor === undefined || valor === '') return null;
+            var resultado = Number(String(valor).replace(',', '.'));
+            return isFinite(resultado) ? resultado : null;
+        }
+
+        function diferenca(item) {
+            var informada = numero(item.qtdDigitada);
+            if (informada === null) return null;
+            return Math.round((informada - Number(item.quantidade)) * 1000) / 1000;
+        }
+
+        function formatar(valor) {
+            if (valor === null || valor === undefined) return '-';
+            return Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+        }
+
+        function formatarDiferenca(valor) {
+            if (valor === null) return '-';
+            return (valor > 0 ? '+' : '') + formatar(valor);
+        }
+
+        function formatarData(valor) {
+            return valor || '-';
+        }
+
+        function atualizarContadores(contadores) {
+            if (!contadores) return;
+            $('#count-total').text(contadores.total || 0);
+            $('#count-pendente').text(contadores.pendentes || 0);
+            $('#count-conferido').text(contadores.conferidos || 0);
+            $('#count-incorreto').text(contadores.incorretos || 0);
+        }
+
+        function focoQuantidade(itemId) {
+            setTimeout(function () { $('#qtdConferidaWeb-' + itemId).focus().select(); }, 150);
+        }
+
+        function exibirErro(mensagem) {
+            var conteudo = document.createElement('div');
+            var texto = document.createElement('h4');
+            texto.className = 'swal-text-error';
+            texto.textContent = mensagem || 'Não foi possível processar a conferência.';
+            conteudo.appendChild(texto);
+            return swal({
+                title: 'Conferência de Volumes',
+                content: conteudo,
+                buttons: { confirm: { visible: false }, cancel: { text: 'Fechar', className: 'swal-btn-danger', visible: true } }
+            });
+        }
+
+        function renderizar() {
+            var tbody = $('#tabelaConferenciaVolumeItens tbody').empty();
+
+            estado.itens.forEach(function (item) {
+                var tr = $('<tr>').attr('data-id', item.id);
+                $('<td>').text(item.notaFiscal || '-').appendTo(tr);
+                var itemCell = $('<td>');
+                $('<div>').text(item.item || '-').appendTo(itemCell);
+                if (item.itemCritico) {
+                    var criticalMessage = item.observacaoItemCritico || 'Item crítico sem observação cadastrada.';
+                    $('<div class="text-orange text-bold small" style="margin-top:4px">')
+                        .append($('<i class="fa fa-exclamation-triangle" style="margin-right:4px">'))
+                        .append(document.createTextNode(criticalMessage))
+                        .appendTo(itemCell);
+                }
+                itemCell.appendTo(tr);
+                $('<td class="text-right">').text(formatar(item.quantidade)).appendTo(tr);
+
+                var input = $('<input>', {
+                    id: 'qtdConferidaWeb-' + item.id,
+                    type: 'text',
+                    inputmode: 'decimal',
+                    class: 'form-control qtd-conferida-web',
+                    value: item.qtdDigitada === null || item.qtdDigitada === undefined ? '' : item.qtdDigitada,
+                    disabled: !item.podeEditar
+                }).data('item', item);
+                $('<td>').append(input).appendTo(tr);
+
+                $('<td class="text-right">').text(formatar(item.qtdArmazenada)).appendTo(tr);
+                $('<td class="text-right diferenca-web">').text(formatarDiferenca(diferenca(item))).appendTo(tr);
+
+                var checkbox = $('<input>', {
+                    type: 'checkbox',
+                    class: 'conferido-web',
+                    checked: Boolean(item.marcarConferido),
+                    disabled: !item.podeEditar
+                }).data('item', item);
+                $('<td class="text-center">').append(checkbox).appendTo(tr);
+                var situacao = $('<td class="situacao-web">');
+                $('<strong>').text(item.situacao || 'Pendente').appendTo(situacao);
+                if (item.usuarioConferencia || item.dtHrConferencia) {
+                    $('<div class="text-muted small">').text('Conferência: ' + (item.usuarioConferencia || '-') + ' · ' + formatarData(item.dtHrConferencia)).appendTo(situacao);
+                }
+                if (item.usuarioArmazenagem || item.dtHrArmazenagem) {
+                    $('<div class="text-muted small">').text('Armazenagem: ' + (item.usuarioArmazenagem || '-') + ' · ' + formatarData(item.dtHrArmazenagem)).appendTo(situacao);
+                }
+                situacao.appendTo(tr);
+
+                var botao = $('<button>', {
+                    type: 'button',
+                    class: 'btn btn-success btn-sm confirmar-item-web',
+                    disabled: !item.podeEditar
+                }).data('item', item).append($('<i class="fa fa-check">')).append(' Confirmar');
+                $('<td>').append(botao).appendTo(tr);
+                tbody.append(tr);
+            });
+        }
+
+        function carregar(volume, area) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: '@Url.Action("GetConferenciaVolumeItens", "NotaFiscal")',
+                data: { __RequestVerificationToken: token, volume: volume, area: area }
+            }).done(function (response) {
+                atualizarContadores(response.contadores);
+                if (response.erro) {
+                    exibirErro(response.msg).then(function () { $('#volume').focus(); });
+                    return;
+                }
+
+                estado.volume = response.volume;
+                estado.area = area;
+                estado.itens = (response.itens || []).map(function (item) {
+                    item.qtdDigitada = item.qtdConferida;
+                    item.marcarConferido = Boolean(item.conferido);
+                    return item;
+                });
+
+                $('#numeroConferenciaVolume').text(response.volume);
+                renderizar();
+                $('#modalConferenciaVolumeItens').modal('show');
+                var pendente = estado.itens.find(function (item) { return !item.conferido; });
+                if (pendente) focoQuantidade(pendente.id);
+            }).fail(function (xhr) {
+                exibirErro(xhr.status + ': ' + xhr.statusText);
+            });
+        }
+
+        function salvar(item, confirmarDivergencia) {
+            var quantidade = numero(item.qtdDigitada);
+            var botao = $('#tabelaConferenciaVolumeItens tr[data-id="' + item.id + '"] .confirmar-item-web');
+            botao.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processando');
+
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: '@Url.Action("ConfirmarConferenciaVolumeItem", "NotaFiscal")',
+                data: {
+                    __RequestVerificationToken: token,
+                    id: item.id,
+                    volume: estado.volume,
+                    area: estado.area,
+                    qtdConferida: String(quantidade).replace('.', ','),
+                    conferido: true,
+                    confirmarDivergencia: confirmarDivergencia,
+                    modificadoEmEsperado: item.modificadoEm || ''
+                }
+            }).done(function (response) {
+                if (response.erro) {
+                    exibirErro(response.msg).then(function () {
+                        if (response.concorrencia) carregar(estado.volume, estado.area);
+                        else focoQuantidade(item.id);
+                    });
+                    return;
+                }
+
+                Object.assign(item, response.item, {
+                    qtdDigitada: response.item.qtdConferida,
+                    marcarConferido: response.item.conferido
+                });
+                atualizarContadores(response.contadores);
+                renderizar();
+
+                if (response.volumeFinalizado) {
+                    $('#modalConferenciaVolumeItens').modal('hide');
+                    if (typeof LoadDataTable === 'function') {
+                        var filtro = typeof currentStatusFilter !== 'undefined' ? currentStatusFilter : 0;
+                        LoadDataTable(filtro);
+                    }
+                    swal('Conferência de Volumes', 'Conferência do volume finalizada!', 'success').then(function () { $('#volume').focus(); });
+                } else {
+                    var proximo = estado.itens.find(function (candidato) { return !candidato.conferido; });
+                    if (proximo) focoQuantidade(proximo.id);
+                }
+            }).fail(function (xhr) {
+                exibirErro(xhr.status + ': ' + xhr.statusText);
+            }).always(function () {
+                botao.prop('disabled', !item.podeEditar).html('<i class="fa fa-check"></i> Confirmar');
+            });
+        }
+
+        $(document).on('input', '.qtd-conferida-web', function () {
+            var item = $(this).data('item');
+            item.qtdDigitada = $(this).val();
+            $(this).closest('tr').find('.diferenca-web').text(formatarDiferenca(diferenca(item)));
+        });
+
+        $(document).on('change', '.conferido-web', function () {
+            $(this).data('item').marcarConferido = $(this).is(':checked');
+        });
+
+        $(document).on('click', '.confirmar-item-web', function () {
+            var item = $(this).data('item');
+            var quantidade = numero(item.qtdDigitada);
+
+            if (quantidade === null) {
+                exibirErro('Informe a quantidade conferida.').then(function () { focoQuantidade(item.id); });
+                return;
+            }
+            if (quantidade < 0) {
+                exibirErro('A quantidade conferida não pode ser negativa.').then(function () { focoQuantidade(item.id); });
+                return;
+            }
+            if (!item.marcarConferido) {
+                exibirErro('Marque o campo Conferido antes de finalizar.');
+                return;
+            }
+
+            var diferencaItem = diferenca(item);
+            if (diferencaItem === 0) {
+                salvar(item, false);
+                return;
+            }
+
+            var conteudo = document.createElement('div');
+            [
+                'Quantidade da NF: ' + formatar(item.quantidade),
+                'Quantidade conferida: ' + formatar(quantidade),
+                'Diferença: ' + formatarDiferenca(diferencaItem)
+            ].forEach(function (linha) {
+                var p = document.createElement('p');
+                p.textContent = linha;
+                conteudo.appendChild(p);
+            });
+            var pergunta = document.createElement('strong');
+            pergunta.textContent = 'Deseja finalizar a conferência?';
+            conteudo.appendChild(pergunta);
+
+            swal({
+                title: 'Confirma a quantidade conferida a ' + (diferencaItem < 0 ? 'menor?' : 'maior?'),
+                content: conteudo,
+                buttons: {
+                    cancel: { text: 'Não, corrigir', className: 'swal-btn-danger', visible: true },
+                    confirm: { text: 'Sim, finalizar', className: 'swal-btn-success', visible: true }
+                }
+            }).then(function (confirmou) {
+                if (confirmou) salvar(item, true);
+                else focoQuantidade(item.id);
+            });
+        });
+
+        $(function () {
+            $('#volume').off('keyup').on('keyup.conferenciaQuantidade', function (event) {
+                if (event.keyCode !== 13) return;
+                event.preventDefault();
+                var volume = $(this).val().trim();
+                var area = parseInt($('#AreaDDL').val(), 10);
+                $(this).val('');
+                if (!volume || !area) return;
+                carregar(volume, area);
+            });
+
+            $('#modalConferenciaVolumeItens').on('hidden.bs.modal', function () { $('#volume').focus(); });
+        });
+    })(jQuery);
+</script>

@@ -20,12 +20,50 @@ namespace Simplify.Quasar
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+
+            try
+            {
+                Simplify.Quasar.Custom.Util.EnsureRecebimentoConferenciaVolumeMenuTarget();
+                Simplify.Quasar.Custom.Util.EnsureExpedicaoConferenciaRomaneioMenu();
+                Simplify.Quasar.Custom.Util.EnsureEstoqueAssociacaoLocacaoMenu();
+                Simplify.Quasar.Custom.Util.EnsureControleAcessoAtividadesMenu();
+                Simplify.Quasar.Custom.Util.EnsureOnlineUserTimeoutParameters();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         protected void Session_Start(object sender, EventArgs e)
         {
             /* Sets the session duration to 120 minutes. */
             Session.Timeout = 120;
+        }
+
+        protected void Session_End(object sender, EventArgs e)
+        {
+            if (Session != null)
+            {
+                Simplify.Quasar.Custom.OnlineUserTracker.Unregister(Session.SessionID);
+            }
+        }
+
+        public override string GetVaryByCustomString(HttpContext context, string custom)
+        {
+            if (custom == "MenuProfile")
+            {
+                var session = context != null ? context.Session : null;
+                string perfil = session != null && session["perfilid"] != null ? session["perfilid"].ToString() : "0";
+                string filial = session != null && session["filialid"] != null ? session["filialid"].ToString() : "0";
+
+                int perfilId;
+                int.TryParse(perfil, out perfilId);
+
+                int version = Simplify.Quasar.Custom.Util.GetMenuCacheVersion(perfilId);
+                return perfil + ":" + filial + ":" + version;
+            }
+
+            return base.GetVaryByCustomString(context, custom);
         }
 
         //protected void Application_Error(object sender, EventArgs e)

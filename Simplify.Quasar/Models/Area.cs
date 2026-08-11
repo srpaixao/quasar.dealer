@@ -14,17 +14,24 @@ namespace Simplify.Quasar.Models
     
     public partial class Area
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Area()
+        {
+            this.Zona = new HashSet<Zona>();
+        }
+    
         public int Id { get; set; }
         public string Nome { get; set; }
         public string Descricao { get; set; }
-        public Nullable<bool> Etiqueta { get; set; }
-        public Nullable<int> QtdeArmazenagem { get; set; }
-        public Nullable<int> QtdeSeparacao { get; set; }
         public string CriadoPor { get; set; }
         public Nullable<System.DateTime> CriadoEm { get; set; }
         public string ModificadoPor { get; set; }
         public Nullable<System.DateTime> ModificadoEm { get; set; }
         public Nullable<int> FilialId { get; set; }
-        public string Tipo { get; set; }
+        public Nullable<int> TipoAreaId { get; set; }
+        public Nullable<bool> Etiqueta { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Zona> Zona { get; set; }
     }
 }

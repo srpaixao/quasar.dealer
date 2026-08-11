@@ -17,6 +17,8 @@ namespace Simplify.Quasar.Areas.ComprasApp.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
+        int filialId = Util.GetCurrentFilial();
+
         // GET: Empresa/Index
         public ActionResult Index()
         {
@@ -36,7 +38,7 @@ namespace Simplify.Quasar.Areas.ComprasApp.Controllers
             }
 
             // Obtem lista de permissões mostra botão para criar/alterar/excluir ou não
-            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString());
+            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString(), ControllerContext.RouteData.DataTokens["area"] as string);
 
             return View(vm);
         }

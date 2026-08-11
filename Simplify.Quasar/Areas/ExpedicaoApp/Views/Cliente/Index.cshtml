@@ -57,30 +57,20 @@
                             <thead>
                                 <tr>
                                     <th>Nome</th>
-                                    <th>CNPJ</th>
                                     <th>Cidade</th>
                                     <th>Estado</th>
+                                    <th>Transportadora</th>
+                                    <th>Rota</th>
+                                    <th>Parada</th>
+                                    <th>Etiqueta</th>
+                                    <th>CPF/CNPJ</th>
                                     @if (ViewBag.Permissoes.Contains("[delete]"))
                                     {
                                         <th></th>
                                     }
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td><a href="#" class="@(ViewBag.Permissoes.Contains("[update]") ? "edit" : "" )" data-id="@item.Id">@item.Nome</a></td>
-                                        <td>@item.CNPJ</td>
-                                        <td>@item.Endereco_Cidade</td>
-                                        <td>@item.Endereco_UF</td>
-                                        @if (ViewBag.Permissoes.Contains("[delete]"))
-                                        {
-                                            <td><a href="#" class="delete" data-id="@item.Id"> <i class="fa fa-lg fa-trash-o text-red"></i></a></td>
-                                        }
-                                    </tr>
-                                }
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -110,12 +100,58 @@
 
         $(document).ready(function () {
 
+            var podeAlterar = @(ViewBag.Permissoes.Contains("[update]") ? "true" : "false");
+
+            function escapeHtml(value) {
+                return $('<div>').text(value == null ? '' : value).html();
+            }
+
             var table = $('#tbCliente').DataTable({
                 processing: true,
                 deferRender: true,
+                serverSide: true,
+                autoWidth: false,
                 pageLength: 25,
-                columnDefs: [
-                    { orderable: false, targets: -1 }
+                order: [[0, 'asc']],
+                ajax: {
+                    url: '@Url.Action("GetData", "Cliente", new { area = "ExpedicaoApp" })',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: function (d) { return JSON.stringify(d); }
+                },
+                columns: [
+                    {
+                        data: 'Nome',
+                        render: function (data, type, row) {
+                            var nome = escapeHtml(data);
+                            return podeAlterar
+                                ? '<a href="#" class="edit" data-id="' + row.Id + '">' + nome + '</a>'
+                                : nome;
+                        }
+                    },
+                    { data: 'Endereco_Cidade', defaultContent: '' },
+                    { data: 'Endereco_UF', defaultContent: '' },
+                    { data: 'NomeTransportadora', defaultContent: '' },
+                    { data: 'NomeRota', defaultContent: '' },
+                    { data: 'NomeParada', defaultContent: '' },
+                    {
+                        data: 'Etiqueta',
+                        render: function (data) { return data ? 'Sim' : 'Não'; }
+                    },
+                    { data: 'CNPJ', defaultContent: '' }
+                    @if (ViewBag.Permissoes.Contains("[delete]"))
+                    {
+                        <text>,
+                        {
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            render: function (data, type, row) {
+                                return '<a href="#" class="delete" data-id="' + row.Id + '"><i class="fa fa-lg fa-trash-o text-red"></i></a>';
+                            }
+                        }</text>
+                    }
                 ],
                 language: {
                     processing: "Carregando dados...",
@@ -181,7 +217,7 @@
             
             $("#tbCliente").on("click", "a.delete", function (e) {
                 var clienteId = $(this).attr("data-id");
-                var cliente = $(this).closest('tr').find('td:eq(1)').text().trim();
+                var cliente = $(this).closest('tr').find('td:eq(0)').text().trim();
 
                 var div = document.createElement("div");
                 div.innerHTML = "<span>Confirma a exclusão do cliente <b>" + cliente + "</b> ?</span>";

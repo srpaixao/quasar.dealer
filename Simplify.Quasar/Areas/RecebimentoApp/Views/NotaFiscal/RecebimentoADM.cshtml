@@ -119,13 +119,17 @@
 
             var table = $('#tbADM').DataTable({
                 deferRender: true,
+                serverSide: true,
+                processing: true,
                 autoWidth: false,
                 pageLength: 25,
                 order: [],
                 ajax: {
                     url: action,
-                    type: 'GET',
-                    dataType: 'json'
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: function (d) { return JSON.stringify(d); }
                 },
                 columns: [
                             {
@@ -165,13 +169,7 @@
                                 }
                             },
                             {
-                                data: 'CriadoEm', title: 'Data Cadastro', visible: false, render: function (data, type) {
-                                    if (data) {
-                                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                                    } else {
-                                        return data;
-                                    }
-                                }
+                                data: 'CriadoEmTexto', title: 'Data Cadastro', visible: false
                             },
                 ],
 

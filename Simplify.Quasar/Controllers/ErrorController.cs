@@ -19,8 +19,11 @@ namespace Simplify.Quasar.Controllers
             return View();
         }
 
-        public ActionResult UnauthorizedError()
+        public ActionResult UnauthorizedError(string message)
         {
+            ViewBag.Message = string.IsNullOrWhiteSpace(message)
+                ? "Acesso não autorizado. Seu perfil não possui permissão para acessar esta funcionalidade."
+                : message;
             return View();
         }
 

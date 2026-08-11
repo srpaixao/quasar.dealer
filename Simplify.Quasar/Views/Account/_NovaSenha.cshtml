@@ -1,10 +1,20 @@
 ﻿@model Simplify.Quasar.ViewModels.NewPasswordViewModel
 
-@using (Html.BeginForm("AtualizarSenha", "Account", FormMethod.Post, new { id = "frmAtualizarSenha" }))
+@using (Html.BeginForm("AtualizarSenha", "Account", FormMethod.Post, new
+{
+    id = "frmAtualizarSenha",
+    autocomplete = "off",
+    autocapitalize = "off",
+    autocorrect = "off",
+    spellcheck = "false",
+    data_lpignore = "true"
+}))
 {
     @Html.AntiForgeryToken()
 
     @Html.HiddenFor(m => m.UsuarioId)
+    <input type="text" name="username" autocomplete="username" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;" />
+    <input type="password" name="password" autocomplete="new-password" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;" />
 
     <div class="modal-content">
         <div class="modal-header bg-blue-gradient">
@@ -19,12 +29,40 @@
                             <div class="offset-2 col-8">
                                 <div class="form-group text-center">
                                     <label for="NovaSenha" class="form-label text-muted">Cadastre uma nova senha de acesso</label>
-                                    @Html.PasswordFor(m => m.NovaSenha, new { @class = "form-control form-control-sm text-center", @autocomplete = "off", @required = "required", @style="font-size:18px;" })
+                                    @Html.PasswordFor(m => m.NovaSenha, new Dictionary<string, object>
+                                    {
+                                        { "class", "form-control form-control-sm text-center" },
+                                        { "autocomplete", "new-password" },
+                                        { "required", "required" },
+                                        { "style", "font-size:18px;" },
+                                        { "data-lpignore", "true" },
+                                        { "data-1p-ignore", "true" },
+                                        { "data-form-type", "other" },
+                                        { "spellcheck", "false" },
+                                        { "autocapitalize", "off" },
+                                        { "autocorrect", "off" },
+                                        { "readonly", "readonly" },
+                                        { "onfocus", "this.removeAttribute('readonly');" }
+                                    })
                                     <div class="input-validation-error">@Html.ValidationMessageFor(m => m.NovaSenha)</div>
                                 </div>
                                 <div class="form-group text-center pt-2">
                                     <label for="ConfirmaNovaSenha" class="form-label text-muted">Confirme a nova senha de acesso</label>
-                                    @Html.PasswordFor(m => m.ConfirmaNovaSenha, new { @class = "form-control form-control-sm text-center", @autocomplete = "off", @required = "required", @style = "font-size:18px;" })
+                                    @Html.PasswordFor(m => m.ConfirmaNovaSenha, new Dictionary<string, object>
+                                    {
+                                        { "class", "form-control form-control-sm text-center" },
+                                        { "autocomplete", "new-password" },
+                                        { "required", "required" },
+                                        { "style", "font-size:18px;" },
+                                        { "data-lpignore", "true" },
+                                        { "data-1p-ignore", "true" },
+                                        { "data-form-type", "other" },
+                                        { "spellcheck", "false" },
+                                        { "autocapitalize", "off" },
+                                        { "autocorrect", "off" },
+                                        { "readonly", "readonly" },
+                                        { "onfocus", "this.removeAttribute('readonly');" }
+                                    })
                                     <div class="input-validation-error">@Html.ValidationMessageFor(m => m.ConfirmaNovaSenha)</div>
                                 </div>
                             </div>
@@ -46,6 +84,10 @@
     </div>
 
     <script>
+        $('#NovaSenha, #ConfirmaNovaSenha').on('focus mousedown touchstart', function () {
+            $(this).removeAttr('readonly');
+        });
+
         $('#NovaSenha, #ConfirmaNovaSenha').blur(function () {
             $('span.field-validation-error').each(function () {
                 $(this).html('');

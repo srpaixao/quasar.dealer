@@ -17,6 +17,9 @@ namespace Simplify.Quasar.Custom
         public Search search { get; set; }
         public Order[] order { get; set; }
         public Column[] columns { get; set; }
+        public int? zonaId { get; set; }
+        public int? statusId { get; set; }
+        public int? areaId { get; set; }
     }
 
     public class Search

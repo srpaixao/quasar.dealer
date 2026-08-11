@@ -19,6 +19,7 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.ViewModels
         public string Danfe { get; set; }
         public int? FilialId { get; set; }
         public DateTime? CriadoEm { get; set; }
+        public string CriadoEmTexto { get; set; }
 
             public string ItemNr { get; set; }
             public string Descricao { get; set; }

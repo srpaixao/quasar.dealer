@@ -9,6 +9,8 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
+        int filialId = Util.GetCurrentFilial();
+
         // GET: ControleAcesso/Home
         public ActionResult Index()
         {

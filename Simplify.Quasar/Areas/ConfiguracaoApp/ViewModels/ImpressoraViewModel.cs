@@ -12,7 +12,8 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels
         public string IP { get; set; }
         public int Porta { get; set; }
 
-        public int FilialId { get; set; }
+        public int? FilialId { get; set; }
+        public string FilialNome { get; set; }
         public string Localizacao { get; set; }
         public string Fabricante { get; set; }
         public string Modelo { get; set; }

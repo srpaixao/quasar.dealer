@@ -1,0 +1,109 @@
+@model IEnumerable<Simplify.Quasar.Areas.DevolucaoApp.ViewModels.DevolucaoOcorrenciaConsultaViewModel>
+@{
+    ViewBag.Title = "Devolu&ccedil;&atilde;o";
+    ViewBag.Description = "Ocorr&ecirc;ncias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .devolucao-ocorrencia-table th,
+    .devolucao-ocorrencia-table td {
+        vertical-align: middle !important;
+    }
+
+    .devolucao-ocorrencia-table th {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .devolucao-ocorrencia-link {
+        font-weight: 700;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @Html.Raw(ViewBag.Title)<small>@Html.Raw(ViewBag.Description)</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered table-hover table-small devolucao-ocorrencia-table" id="tbDevolucaoOcorrencias">
+                    <thead>
+                        <tr>
+                            <th>Controle Nr</th>
+                            <th>Nota Fiscal</th>
+                            <th>Emissor</th>
+                            <th>Quantidade de Linhas</th>
+                            <th>Quantidade de Pe&ccedil;as</th>
+                            <th>&Uacute;ltima Atualiza&ccedil;&atilde;o</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a class="devolucao-ocorrencia-link" href="@Url.Action("OcorrenciaDetalhe", "Home", new { area = "DevolucaoApp", id = item.Id })">
+                                        @item.ControleNr
+                                    </a>
+                                </td>
+                                <td>@item.NotaFiscalNr</td>
+                                <td>@item.Emissor</td>
+                                <td class="text-center">@item.QuantidadeLinhas</td>
+                                <td class="text-center">@item.QuantidadePecas</td>
+                                <td data-order="@(item.UltimaAtualizacao.HasValue ? item.UltimaAtualizacao.Value.ToString("yyyyMMddHHmmss") : string.Empty)">
+                                    @(item.UltimaAtualizacao.HasValue ? item.UltimaAtualizacao.Value.ToString("dd/MM/yyyy HH:mm:ss") : string.Empty)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#tbDevolucaoOcorrencias').DataTable({
+                processing: true,
+                deferRender: true,
+                pageLength: 25,
+                order: [[5, 'desc']],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por pagina",
+                    search: "Consultar:",
+                    zeroRecords: "Nenhum registro localizado",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}

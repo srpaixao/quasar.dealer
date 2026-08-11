@@ -1,159 +1,146 @@
-﻿
 @{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
-    h4 {
-        font-weight:bold;
-        font-size:22px;
+    .summary-link {
+        color: inherit;
+        display: block;
+        text-decoration: none;
     }
 
-    .small-box .inner {
-        padding-top: 20px;
+    .summary-link:hover,
+    .summary-link:focus {
+        color: inherit;
+        text-decoration: none;
     }
 
-    a.small-box-footer {
-        font-weight: bold;
+    .summary-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        background: #fff;
+        min-height: 110px;
     }
 
+    .summary-card .summary-value {
+        display: block;
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .summary-card .summary-label {
+        color: #6b7280;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .summary-card .summary-title {
+        display: block;
+        margin-top: 10px;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .summary-card .summary-detail {
+        display: block;
+        margin-top: 4px;
+        color: #4b5563;
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    .summary-card.is-aqua {
+        background: #eaf6fb;
+        border-color: #3c8dbc;
+    }
+
+    .summary-card.is-orange {
+        background: #fff3e8;
+        border-color: #f39c12;
+    }
+
+    .summary-card.is-green {
+        background: #e8f6ec;
+        border-color: #00a65a;
+    }
+
+    .summary-card.is-purple {
+        background: #f4ebff;
+        border-color: #605ca8;
+    }
+
+    .summary-card.is-blue {
+        background: #eaf1fb;
+        border-color: #0073b7;
+    }
 </style>
+
+<section class="qd-home-hero">
+    <span class="qd-home-eyebrow">Vis&atilde;o operacional</span>
+    <h1>Bem-vindo ao Quasar Dealer</h1>
+    <p>Acompanhe os principais fluxos da opera&ccedil;&atilde;o e acesse rapidamente as atividades que precisam de aten&ccedil;&atilde;o.</p>
+</section>
+
+<div class="qd-home-content">
 <div class="box box-default">
-
     <div class="box-body">
-
         <div class="row">
-
-            <div class="col-lg-3 col-xs-6">
-                <!-- small box -->
-                <div class="small-box bg-aqua">
-                    <div class="inner">
-                        <h3>@ViewBag.VolumesParaConferencia</h3>
-                        <p><br />Volumes para conferir</p>
+            <div class="col-md-3 col-sm-6">
+                <a class="summary-link" href="@Url.Action("Index","NotaFiscal", new { area = "RecebimentoApp" })">
+                    <div class="summary-card is-aqua">
+                        <span class="summary-label">Recebimento</span>
+                        <span class="summary-value">@ViewBag.VolumesParaConferencia</span>
+                        <span class="summary-title">Confer&ecirc;ncia</span>
+                        <span class="summary-detail">Volumes para conferir</span>
                     </div>
-
-                    <div class="icon">
-                        <i class="fa-solid fa-truck-ramp-box"></i>
-                    </div>
-                    <a href="@Url.Action("Index","NotaFiscal", new { area = "RecebimentoApp" })" class="small-box-footer">Recebimento <i class="fa fa-arrow-circle-right"></i></a>
-                </div>
+                </a>
             </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-xs-6">
-                <!-- small box -->
-                <div class="small-box bg-green-gradient">
-                    <div class="inner">
-                        <h3>0</h3>
-                        <p><br />Itens para armazenar</p>
+            <div class="col-md-3 col-sm-6">
+                <a class="summary-link" href="@(Url.Action("Index","NotaFiscal", new { area = "RecebimentoApp" }) + "#tab_devolucao")">
+                    <div class="summary-card is-orange">
+                        <span class="summary-label">Recebimento</span>
+                        <span class="summary-value">@ViewBag.DevolucoesPendentes</span>
+                        <span class="summary-title">Devolu&ccedil;&atilde;o</span>
+                        <span class="summary-detail">Processos pendentes</span>
                     </div>
-                    <div class="icon">
-                        <i class="fa fa-cubes"></i>
-                    </div>
-                    <a href="@Url.Action("Index","Home", new { area = "EstoqueApp" })" class="small-box-footer">Estoque <i class="fa fa-arrow-circle-right"></i></a>
-                </div>
+                </a>
             </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-xs-6">
-                <!-- small box -->
-                <div class="small-box bg-blue">
-                    <div class="inner">
-                        <h3>0</h3>
-                        <p><br />Volumes para entregar</p>
+            <div class="col-md-3 col-sm-6">
+                <a class="summary-link" href="@Url.Action("Index","Home", new { area = "EstoqueApp" })">
+                    <div class="summary-card is-green">
+                        <span class="summary-label">Estoque</span>
+                        <span class="summary-value">0</span>
+                        <span class="summary-title">Armazenagem</span>
+                        <span class="summary-detail">Itens para armazenar</span>
                     </div>
-                    <div class="icon">
-                        <i class="fa-solid fa-dolly"></i>
-                    </div>
-                    <a href="@Url.Action("Index","Home", new { area = "ExpedicaoApp" })" class="small-box-footer">Expedição <i class="fa fa-arrow-circle-right"></i></a>
-                </div>
+                </a>
             </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-xs-6">
-                <!-- small box -->
-                <div class="small-box bg-red">
-                    <div class="inner">
-                        <h3>0</h3>
-                        <p><br />Processos pendentes</p>
+            <div class="col-md-3 col-sm-6">
+                <a class="summary-link" href="@Url.Action("Index","Romaneio", new { area = "SeparacaoApp" })">
+                    <div class="summary-card is-purple">
+                        <span class="summary-label">Separa&ccedil;&atilde;o</span>
+                        <span class="summary-value">@ViewBag.RomaneiosParaSeparacao</span>
+                        <span class="summary-title">Pendentes</span>
+                        <span class="summary-detail">Pedidos para separar</span>
                     </div>
-                    <div class="icon">
-                        <i class="fa fa-exclamation-triangle"></i>
-                    </div>
-                    <a href="@Url.Action("Index","Home", new { area = "ConfiguracaoApp" })" class="small-box-footer">Configuração <i class="fa fa-arrow-circle-right"></i></a>
-                </div>
+                </a>
             </div>
-            
-            <!--<div class="col-lg-3 col-xs-6">-->
-                <!-- small box -->
-                <!--<div class="small-box bg-orange">
-                    <div class="inner">
-                        <h3>0</h3>
-                        <p><br />Usuários ativos</p>
+            <div class="col-md-3 col-sm-6">
+                <a class="summary-link" href="@Url.Action("Index","Home", new { area = "ExpedicaoApp" })">
+                    <div class="summary-card is-blue">
+                        <span class="summary-label">Expedi&ccedil;&atilde;o</span>
+                        <span class="summary-value">0</span>
+                        <span class="summary-title">Entrega</span>
+                        <span class="summary-detail">Volumes para entregar</span>
                     </div>
-                    <div class="icon">
-                        <i class="fa-regular fa-user"></i>
-                    </div>
-                    <a href="@Url.Action("Index","Home", new { area = "ControleAcessoApp" })" class="small-box-footer">Acessos <i class="fa fa-arrow-circle-right"></i></a>
-                </div>
-            </div>-->
-            
-            <!--<div class="col-lg-3 col-xs-6">-->
-            <!-- small box -->
-            <!--<div class="small-box bg-maroon-gradient">
-                <div class="inner">
-                    <h3>0</h3>
-                    <p><br />Processos pendentes</p>
-                </div>
-                <div class="icon">
-                    <i class="fa-solid fa-file-signature"></i>
-                </div>
-                <a href="@Url.Action("Index","Home", new { area = "GarantiaApp" })" class="small-box-footer">Garantia <i class="fa fa-arrow-circle-right"></i></a>
+                </a>
             </div>
         </div>
-        <div class="col-lg-3 col-xs-6">-->
-            <!-- small box -->
-            <!--<div class="small-box bg-blue">
-                <div class="inner">
-                    <h3>0</h3>
-                    <p><br />Itens para receber</p>
-                </div>
-                <div class="icon">
-                    <i class="fa-solid fa-truck-arrow-right fa-flip-horizontal"></i>
-                </div>
-                <a href="@Url.Action("Index","Home", new { area = "ComprasApp" })" class="small-box-footer">Compras <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-
-        <div class="col-lg-3 col-xs-6">-->
-            <!-- small box -->
-            <!--<div class="small-box bg-purple">
-                <div class="inner">
-                    <h3>0</h3>
-                    <p><br />Itens para separar</p>
-                </div>
-                <div class="icon">
-                    <i class="fa-solid fa-filter"></i>
-                </div>
-                <a href="#" class="small-box-footer">Separação <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>-->
-
-        </div>
-
-
     </div>
-
 </div>
-
-@section Scripts {
-    
-    <script>
-        $(document).ready(function () {
-
-        })
-    </script>
-    }
-
-
-
-
-
+</div>

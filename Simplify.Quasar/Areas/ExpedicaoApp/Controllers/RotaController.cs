@@ -32,7 +32,7 @@ namespace Simplify.Quasar.Areas.ExpedicaoApp.Controllers
                       }).ToList();
 
             // Obtem lista de permissões mostra botão para criar/alterar/excluir ou não
-            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString());
+            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString(), ControllerContext.RouteData.DataTokens["area"] as string);
 
             return View(vm);
         }

@@ -17,9 +17,24 @@
         opacity: 0.6;
     }
 
-        .disabled-box:hover {
-            opacity: 1;
-        }
+    .disabled-box:hover {
+        opacity: 1;
+    }
+
+    .conference-refresh-status {
+        margin-top: 24px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(39, 139, 179, 0.10);
+        color: var(--text-700);
+        font-size: 13px;
+        text-align: right;
+    }
+
+    .conference-refresh-status .fa {
+        margin-right: 5px;
+        color: var(--brand-500);
+    }
 </style>
 
 <section class="content-header">
@@ -36,6 +51,14 @@
                     <div class="form-group">
                         <label>Área de Recebimento</label>
                         @Html.DropDownList("AreaDDL", ViewBag.AreaDDL as SelectList, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-6">
+                    <div id="conference-refresh-status" class="conference-refresh-status" aria-live="polite">
+                        <i class="fa fa-refresh"></i>
+                        <span id="conference-last-refresh">Aguardando primeira atualização</span>
+                        <span class="hidden-xs"> &middot; </span>
+                        <span id="conference-next-refresh" class="hidden-xs">Próxima em 01:00</span>
                     </div>
                 </div>
             </div>
@@ -120,15 +143,72 @@
 
 </section>
 
+@Html.Partial("_ConferenciaVolumeItens")
+
 @section Scripts {
 
     <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
     <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
 
     <script>
+        var currentStatusFilter = 0;
+        var dtVolume = null;
+        var conferenceRefreshTimer = null;
+        var conferenceCountdownTimer = null;
+        var conferenceNextRefreshAt = null;
+        var conferencePendingCount = null;
+
+        function FormatConferenceTime(date) {
+            return String(date.getHours()).padStart(2, '0') + ':' +
+                String(date.getMinutes()).padStart(2, '0') + ':' +
+                String(date.getSeconds()).padStart(2, '0');
+        }
+
+        function UpdateConferenceCountdown() {
+            if (conferencePendingCount === 0) {
+                $('#conference-next-refresh').text('Atualização pausada: sem volumes pendentes');
+                return;
+            }
+
+            if (!conferenceNextRefreshAt) {
+                return;
+            }
+
+            var seconds = Math.max(0, Math.ceil((conferenceNextRefreshAt - Date.now()) / 1000));
+            var minutes = Math.floor(seconds / 60);
+            var remainingSeconds = seconds % 60;
+            $('#conference-next-refresh').text(
+                'Próxima em ' + String(minutes).padStart(2, '0') + ':' + String(remainingSeconds).padStart(2, '0')
+            );
+        }
+
+        function RegisterConferenceRefreshSuccess(pendingCount) {
+            conferencePendingCount = parseInt(pendingCount, 10) || 0;
+            $('#conference-refresh-status').removeClass('text-danger');
+            $('#conference-last-refresh').text('Última atualização: ' + FormatConferenceTime(new Date()));
+
+            if (conferencePendingCount > 0) {
+                conferenceNextRefreshAt = Date.now() + 60000;
+            } else {
+                conferenceNextRefreshAt = null;
+            }
+
+            UpdateConferenceCountdown();
+        }
+
+        function RegisterConferenceRefreshError() {
+            $('#conference-refresh-status').addClass('text-danger');
+            $('#conference-last-refresh').text('Falha na atualização automática');
+        }
+
+        function ApplyCardFilterState(status) {
+            $('div.small-box').addClass('disabled-box');
+            $('.filter-datatable[data-status="' + status + '"]').closest('div.small-box').removeClass('disabled-box');
+        }
 
         function LoadDataTable(status) {
             //console.log("LoadDataTable",status)
+            currentStatusFilter = status;
 
             var area = $('#AreaDDL').val();
 
@@ -139,22 +219,30 @@
             $('#tbVolume tbody').empty();
             dtVolume = $('#tbVolume').DataTable({
                 deferRender: true,
+                serverSide: true,
                 autoWidth: true,
                 processing: true,
                 pageLength: 25,
                 ajax: {
                     url: '@Url.Action("GetDataVolumeDANFE", "NotaFiscal", new { area = "RecebimentoApp" })',
-                    data: { statusId: status, areaId: area },
-                    type: 'GET',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
                     dataType: 'json',
+                    data: function (d) {
+                        d.statusId = status;
+                        d.areaId = area;
+                        return JSON.stringify(d);
+                    },
                     dataSrc: function (json) {
-                        //console.log("Mensagem aqui dentro",json)
-                        // $('#count-total').text(json.data.length ?? 0);
-                        $('#count-total').text(json.data.filter(item => item.StatusId != 3).length);
-                        $('#count-pendente').text(json.data.filter(item => item.StatusId === 1).length);
-                        $('#count-conferido').text(json.data.filter(item => item.StatusId === 2).length);
-                        $('#count-incorreto').text(json.data.filter(item => item.StatusId === 3).length);
+                        $('#count-total').text(json.totalCount || 0);
+                        $('#count-pendente').text(json.pendenteCount || 0);
+                        $('#count-conferido').text(json.conferidoCount || 0);
+                        $('#count-incorreto').text(json.incorretoCount || 0);
+                        RegisterConferenceRefreshSuccess(json.pendenteCount);
                         return json.data;
+                    },
+                    error: function () {
+                        RegisterConferenceRefreshError();
                     }
                 },
                 columns: [
@@ -174,13 +262,7 @@
                     },
                     { data: 'StatusNome', title: 'Status' },
                     {
-                        data: 'CriadoEm', title: 'Criado em', render: function (data, type) {
-                            if (data) {
-                                return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                            } else {
-                                return data;
-                            }
-                        }
+                        data: 'CriadoEmTexto', title: 'Criado em'
                     }
                 ],
                 columnDefs: [{
@@ -227,24 +309,36 @@
 
         }
 
+        function RefreshConferenceData() {
+            if (!(conferencePendingCount > 0)) {
+                if (conferencePendingCount === 0) {
+                    UpdateConferenceCountdown();
+                }
+                return;
+            }
+
+            conferenceNextRefreshAt = Date.now() + 60000;
+            UpdateConferenceCountdown();
+
+            if (document.hidden || !$('#AreaDDL').val()) {
+                return;
+            }
+
+            if ($.fn.DataTable.isDataTable('#tbVolume')) {
+                $('#tbVolume').DataTable().ajax.reload(null, false);
+            }
+        }
+
         $(document).ready(function () {
-
-            var dtVolume = null;
-
             $('#AreaDDL').change(() => {
-                LoadDataTable(0);
+                LoadDataTable(currentStatusFilter);
             }).change();
 
             $('a.filter-datatable').click(function (e) {
                 e.preventDefault();
-                var status = $(this).data('status');
+                var status = parseInt($(this).data('status'), 10) || 0;
+                ApplyCardFilterState(status);
                 LoadDataTable(status);
-
-                $('div.small-box').each(function () {
-                    $(this).addClass('disabled-box');
-                })
-
-                $(this).closest('div.small-box').removeClass('disabled-box');
             });
 
             // Leitura da DANFE
@@ -271,9 +365,7 @@
                         //console.log(response)
                         $('#danfe').focus();
                         if (response.erro == false) {
-                            LoadDataTable(0);
-                            $('#count-pendente').text(response.pendentes);
-                            $('#count-total').text(response.total);
+                            LoadDataTable(currentStatusFilter);
                             $('#teste').text(response.msg);
                             //console.log("count pendente", $('#count-pendente').text())
                             //console.log("count total", $('#count-total').text())
@@ -348,11 +440,7 @@
                     }).done(function (response) {
                         $('#volume').focus();
                         if (response.erro == false) {
-                            LoadDataTable(1);
-                            $('#count-total').text(response.total);
-                            $('#count-pendente').text(response.pendentes);
-                            $('#count-conferido').text(response.conferidos);
-                            $('#count-incorreto').text(response.incorretos);
+                            LoadDataTable(currentStatusFilter);
                             //console.log("Passou")
                         } else {
                             var div = document.createElement("div");
@@ -401,7 +489,7 @@
             $('#btnReiniciar').click(function () {
 
                 var div = document.createElement("div");
-                div.innerHTML = "Confirma a operação ?<br><br><p><i class='fa fa-lg fa-exclamation-triangle text-orange'></i> ATENÇÂO: Todos os dados serão apagados!</p>";
+                div.innerHTML = "Confirma a operação ?<br><br><p><i class='fa fa-lg fa-exclamation-triangle text-orange'></i> ATENÇÃO: Todos os dados serão apagados!</p>";
 
                 swal({
                     title: "Reiniciar conferência de volumes",
@@ -432,12 +520,8 @@
                             url: '@Url.Action("ReiniciarVolume", "NotaFiscal")',
                         }).done(function (response) {
                             if (response.erro == false) {
-                                $('#count-pendente').text(0);
-                                $('#count-conferido').text(0);
-                                $('#count-incorreto').text(0);
-                                $('#count-total').text(0);
                                 //console.lo("Passou2")
-                                LoadDataTable(0);
+                                LoadDataTable(currentStatusFilter);
                               } else {
                                 var div = document.createElement("div");
                                 div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao reiniciar a operação!</h4><p class='swal-text-error-detail'>" + response.msg + "</p>";
@@ -480,7 +564,18 @@
                     }
                 });
             })
+
+            conferenceNextRefreshAt = Date.now() + 60000;
+            UpdateConferenceCountdown();
+            conferenceRefreshTimer = window.setInterval(RefreshConferenceData, 60000);
+            conferenceCountdownTimer = window.setInterval(UpdateConferenceCountdown, 1000);
+            $(window).on('beforeunload', function () {
+                window.clearInterval(conferenceRefreshTimer);
+                window.clearInterval(conferenceCountdownTimer);
+            });
         });
     </script>
+
+    @Html.Partial("_ConferenciaVolumeItensScript")
 
 }

@@ -1,402 +1,112 @@
-﻿
+﻿@using System.Linq
+@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioViewModel
 @{
-    ViewBag.Title = "Separação";
-    ViewBag.Description = "Importar arquivo de Romaneios";
-
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "Atualizações";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
 
 <link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
-<link href="~/Content/jquery-filestyle/jquery-filestyle.min.css" rel="stylesheet" />
 
 <style>
-    select.selected {
-        border: 2px solid #00a65a;
-    }
-
-    th, td {
-        text-align: center;
+    .layout-table th, .layout-table td {
         vertical-align: middle !important;
-    }
-
-    th {
-        white-space: nowrap;
-    }
-
-    div.jfilestyle.jfilestyle-theme-quasar input {
-        border: none;
-        background: #eee;
-    }
-
-    div.jfilestyle.jfilestyle-theme-quasar label {
-        border: none;
-        background: #3c8dbc;
-        color: #fff;
-    }
-
-    .last-update {
-        font-size: 14px !important;
-        margin-top: 5px !important;
-        margin-right: 10px !important;
-    }
-
-    #scrollable-dropdown-menu .tt-menu {
-        max-height: 200px;
-        overflow-y: auto;
     }
 </style>
 
 <section class="content-header">
-    <h1>
-        @ViewBag.Title<small>@ViewBag.Description</small>
-    </h1>
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
 </section>
 
 <section class="content">
     <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li><a href="@Url.Action("Index", "Romaneio", new { area = "SeparacaoApp" })">Separação</a></li>
+                <li><a href="@Url.Action("Conferencia", "Romaneio", new { area = "SeparacaoApp" })">Conferência</a></li>
+                <li><a href="@Url.Action("Administracao", "Romaneio", new { area = "SeparacaoApp" })">Finalizado</a></li>
+                <li><a href="@Url.Action("AnaliseNaoGerados", "Romaneio", new { area = "SeparacaoApp" })">Não Gerados</a></li>
+                <li class="active"><a href="@Url.Action("Atualizacao", "Romaneio", new { area = "SeparacaoApp" })">Atualização</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="box-body">
+                        @if (TempData["Flash.Message"] != null)
+                        {
+                            <div class="alert alert-@TempData["Flash.Type"]" style="margin-top:12px;">
+                                @TempData["Flash.Message"]
+                            </div>
+                        }
 
-        <div class="box-body">
-            <p id="processing">Loading...</p>
-            <div class="data-container hide">
-                <div class="row">
-                    <div class="col-xs-12 col-lg-8">
-                        <div class="form-group">
-                            <label class="text-muted">Importar arquivo de Notas Fiscais</label>
-                            <div>
-                                <input type="file" id="uploadarquivo" class="jfilestyle"
-                                       data-theme="quasar"
-                                       data-text="<i class='fa-solid fa-folder'></i> Selecionar"
-                                       data-buttonBefore="true"
-                                       data-inputSize="300px"
-                                       data-placeholder="Nenhum arquivo selecionado">
-                                <button type="button" id="btn-importar-arquivo" class="btn btn-success hide" style="margin-left:5px">
-                                    <i class="fa fa-fw fa-upload"></i> Importar
-                                </button>
+                        <div class="row">
+                            <div class="col-md-9">
+                                @using (Html.BeginForm("UploadPlanilha", "Romaneio", new { area = "SeparacaoApp" }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" id="dataInicialUpload" name="dataInicial" value="@Model.DataInicial.ToString("yyyy-MM-dd")" />
+                                    <input type="hidden" id="dataFinalUpload" name="dataFinal" value="@Model.DataFinal.ToString("yyyy-MM-dd")" />
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <div class="form-group">
+                                                <label>Planilha de Atualização</label>
+                                                <input type="file" name="arquivo" class="form-control" accept=".xls,.xlsx,.csv,.txt" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <div style="margin-top:25px;">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fa fa-upload"></i> Importar e Atualizar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-3">
+                                @using (Html.BeginForm("GerarRomaneios", "Romaneio", new { area = "SeparacaoApp" }, FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <div style="margin-top:25px;">
+                                        <button type="submit" class="btn btn-default">
+                                            <i class="fa fa-plus-circle"></i> Gerar Romaneios
+                                        </button>
+                                    </div>
+                                }
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="table-responsive">
-                            <table class="table table-condensed table-bordered table-hover table-small" id="tbNotaFiscal" style="font-size:13px"></table>
+                        <div class="row">
+                            <div class="col-md-12">
+                                @if (Model.ImportSummary != null)
+                                {
+                                    <h4>Resumo da Importação</h4>
+                                    <div class="well">
+                                        <div><strong>Processados:</strong> @Model.ImportSummary.Processados</div>
+                                        <div><strong>Atualizados:</strong> @Model.ImportSummary.Atualizados</div>
+                                        <div><strong>Criados:</strong> @Model.ImportSummary.Criados</div>
+                                        <div><strong>Status 1 -&gt; 2:</strong> @Model.ImportSummary.StatusAlterados</div>
+                                        <div><strong>Erros:</strong> @Model.ImportSummary.Erros</div>
+                                    </div>
+
+                                    if (Model.ImportSummary.Mensagens.Any())
+                                    {
+                                        <div class="alert alert-warning">
+                                            <strong>Observações</strong>
+                                            <ul style="margin-top:8px;">
+                                                @foreach (var mensagem in Model.ImportSummary.Mensagens.Take(10))
+                                                {
+                                                    <li>@mensagem</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                }
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </section>
-
-<!-- Modal  -->
-<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div id="myModalContent"></div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
-    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
-    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
-    <script src="~/Scripts/jquery-filestyle/jquery-filestyle.min.js"></script>
-
-    <script>
-        function LoadDataTable() {
-            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
-
-            $('#processing').removeClass('hide');
-            $('.data-container').addClass('hide');
-
-            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
-
-            if ($.fn.DataTable.isDataTable('#tbNotaFiscal')) {
-                $('#tbNotaFiscal').DataTable().destroy();
-            }
-
-            $('#tbNotaFiscal tbody').empty();
-            var action = '@Url.Action("GetData", "NotaFiscal", new { area = "ExpedicaoApp" })';
-
-            var table = $('#tbNotaFiscal').DataTable({
-                deferRender: true,
-                autoWidth: false,
-                pageLength: 25,
-                order: [],
-                ajax: {
-                    url: action,
-                    type: 'GET',
-                    dataType: 'json'
-                },
-                columns: [
-                            { data: 'Numero', title: 'Número NF' },
-                            {
-                                data: 'DataEmissao', title: 'Dt Entrada/Saída', visible: true, render: function (data, type) {
-                                    if (data) {
-                                        return moment(data).format('DD/MM/YYYY');
-                                    } else {
-                                        return data;
-                                    }
-                                }
-                            },
-                           { data: 'Classificacao', title: 'Nome Depto' },
-                           { data: 'Controle', title: 'Contato' },
-                           { data: 'Vendedor', title: 'Vendedor' },
-                           //{ data: 'CodigoCliente', title: 'Cód. Cliente' },
-                           { data: 'NomeCliente', title: 'Cliente' },
-                           { data: 'Cidade', title: 'Cidade' },
-                           { data: 'Estado', title: 'Estado' },
-                           {
-                                data: null, name: 'btnActions', render: function (data, type, row) {
-                                    var btnGroup = '<div class="btn-group">' +
-                                        '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
-                                       '</div>';
-
-                                    return btnGroup;
-                                }
-
-                           }
-                ],
-
-                columnDefs: [{ 'targets': [-1], 'orderable': false }],
-
-                drawCallback: function () {
-                    // console.log("drawCallback");
-                },
-                fnInitComplete: function () {
-                    // console.log('fnInitComplete')
-                    $('#processing').addClass('hide');
-                    $('.data-container').removeClass('hide');
-                },
-                language: {
-                    processing: "Carregando dados...",
-                    lengthMenu: "Exibir _MENU_ itens por página",
-                    search: "Procurar:",
-                    zeroRecords: "Nenhum item encontrado",
-                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
-                    infoEmpty: "Exibindo 0 de 0 itens",
-                    infoFiltered: "",
-                    thousands: ".",
-                    decimal: ",",
-                    paginate: {
-                        first: "Primeira",
-                        last: "Última",
-                        next: "Próxima",
-                        previous: "Anterior"
-                    }
-                }
-            });
-
-            table.columns.adjust().draw(false);
-            table.columns([5]).visible(false); //Código Cliente
-        }
-
-        $(document).ready(function () {
-
-            LoadDataTable();
-
-            $('#uploadarquivo').on('change', function (ev) {
-                if ($(this).get(0).files.length === 0) {
-                    $('#btn-importar-arquivo').addClass('hide');
-                    $('#check-arquivo').addClass('hide');
-                } else {
-                    $('#btn-importar-arquivo').removeClass('hide');
-                    $('#check-arquivo').removeClass('hide');
-                }
-            });
-
-            $('#btn-importar-arquivo').click(function (e) {
-                e.preventDefault();
-
-                if ($("#uploadarquivo").val() != '') {
-                    var msg = 'Confirma a importação do arquivo ?';
-
-                    swal({
-                        title: "Atualizar Notas Fiscais de Expedição",
-                        text: "Confirma a importação do arquivo ?",
-                        buttons: {
-                            cancel: {
-                                text: "Não",
-                                className: "swal-btn-danger",
-                                closeModal: true,
-                                visible: true,
-                            },
-                            confirm: {
-                                text: "Sim",
-                                className: "swal-btn-success",
-                                closeModal: true,
-                                visible: true
-                            }
-                        }
-                    }).then((confirm) => {
-                        if (confirm) {
-                            $('#btn-importar-arquivo').html("<i class='fa fa-fw fa-pulse fa-spinner'></i> Importando arquivo...");
-
-                            var fileUpload = $("#uploadarquivo").get(0);
-                            var files = fileUpload.files;
-                            var form = new FormData();
-                            form.append("Arquivo", files[0]);
-                            //console.log(files[0]);
-                            //console.log("AAAAAAAAA");
-
-                            $.ajax({
-                                type: "POST",
-                                url: '@Url.Action("UploadFile", "NotaFiscal", new { area = "ExpedicaoApp" })',
-                                contentType: false,
-                                processData: false,
-                                data: form,
-                            }).done(function (response) {
-                                $('#btn-importar-arquivo').html("<i class='fa fa-fw fa-upload'></i> Importar");
-                                if (response.erro == false) {
-
-                                    setTimeout(function () {
-                                        LoadDataTable();
-
-                                        var div = document.createElement("div");
-                                        div.innerHTML = "<h4 class='swal-text-success'>Arquivo importado com sucesso!</h4>";
-
-                                        swal({
-                                            title: "Atualizar Notas Fiscais de Expedição",
-                                            content: div,
-                                            buttons: {
-                                                confirm: {
-                                                    className: "swal-btn-info"
-                                                }
-                                            }
-                                        })
-                                    }, 300);
-                                } else {
-                                    var div = document.createElement("div");
-                                    div.innerHTML = "<h4 class='swal-text-error'>Não foi possível importar o arquivo selecionado!</h4><p class='swal-text-error-detail'>" + response.mensagem + "</p>";
-                                    swal({
-                                        title: "Atualizar Notas Fiscais de Expedição",
-                                        content: div,
-                                        buttons: {
-                                            confirm: {
-                                                visible: false
-                                            },
-                                            cancel: {
-                                                text: "Fechar",
-                                                className: "swal-btn-danger",
-                                                closeModal: true,
-                                                visible: true
-                                            }
-                                        }
-                                    })
-                                }
-                            }).fail(function (jqXHR, textStatus, errorThrown) {
-                                $('#btn-importar-arquivo').html("<i class='fa fa-fw fa-upload'></i> Importar");
-                                var div = document.createElement("div");
-                                div.innerHTML = "<h4 class='swal-text-error'>Não foi possível importar o arquivo selecionado!</h4><p class='swal-text-error-detail'>" + jqXHR + "</p>";
-                                swal({
-                                    title: "Atualizar Notas Fiscais de Expedição",
-                                    content: div,
-                                    buttons: {
-                                        confirm: {
-                                            visible: false
-                                        },
-                                        cancel: {
-                                            text: "Fechar",
-                                            className: "swal-btn-danger",
-                                            closeModal: true,
-                                            visible: true
-                                        }
-                                    }
-                                });
-                            });
-                        }
-                    });
-                }
-            });
-
-            $('#tbNotaFiscal').on('click', 'a.btn-cancel', function (e) {
-                var tr = $(this).closest('tr');
-                var rowData = $('#tbNotaFiscal').DataTable().row(tr).data();
-                swal({
-                    title: "Deletar Nota Fiscal",
-                    text: "Deletar nota fiscal de numero " + rowData.Numero + "?",
-                    buttons: {
-                        cancel: {
-                            text: "Não",
-                            className: "swal-btn-danger",
-                            closeModal: true,
-                            visible: true
-                        },
-                        confirm: {
-                            text: "Sim",
-                            className: "swal-btn-success",
-                            claoseModal: true,
-                            visible: true
-                        }
-                    }
-                }).then((confirm) => {
-                    if (confirm) {
-                        var notaId = $(this).data('id');
-                        console.log(notaId);
-
-                        $.ajax({
-                            type: 'POST',
-                            dataType: 'json',
-                            url: '@Url.Action("DeleteDanfe", "NotaFiscal", new { area = "ExpedicaoApp"})',
-                            data: { id: notaId }
-                        }).done(function (response) {
-                            if (response.success) {
-                                swal({
-                                    title: "Deletar Nota Fiscal",
-                                    text: "Nota Fiscal deletada com sucesso!",
-                                    buttons: false,
-                                    timer: 1000,
-                                }).then(function () {
-                                    $('#tbNotaFiscal').DataTable().ajax.reload();
-                                });
-                            } else {
-                                var div = document.createElement("div");
-                                div.innerHTML = "<h4 class='swal-text-error'>" + response.msg + "</h4>";
-                                swal({
-                                    title: "Deletar Nota Fiscal",
-                                    content: div,
-                                    buttons: {
-                                        confirm: {
-                                            visible: false
-                                        },
-                                        cancel: {
-                                            text: "Fechar",
-                                            className: "swal-btn-danger",
-                                            closeModal: true,
-                                            visible: true
-                                        }
-                                    }
-                                })
-                            }
-                        }).fail(function (xhr, status, error) {
-                            var errorMessage = xhr.status + ': ' + xhr.error;
-                            var div = document.createElement("div");
-                            div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao cancelar o lançamento da Nota Fiscal!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
-                            swal({
-                                title: "Cancelar Lançamento de Nota Fiscal",
-                                content: div,
-                                buttons: {
-                                    confirm: {
-                                        visible: false
-                                    },
-                                    cancel: {
-                                        text: "Fechar",
-                                        className: "swal-btn-danger",
-                                        closeModal: true,
-                                        visible: true
-                                    }
-                                }
-                            })
-                        })
-                    }
-
-                });
-
-            });
-        });
-    </script>
-}

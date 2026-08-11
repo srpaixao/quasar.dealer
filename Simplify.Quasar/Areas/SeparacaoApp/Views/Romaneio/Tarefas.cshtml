@@ -1,0 +1,114 @@
+@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioViewModel
+@using System.Linq
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+@{
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "Consulta de Tarefas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var itens = Model.TarefaItens ?? Enumerable.Empty<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.TarefaConsultaItemViewModel>();
+}
+
+@functions {
+    public string FormatText(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+}
+
+<style>
+    #grid-tarefas tbody tr.task-start td {
+        border-top: 3px solid #dfe7f1;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li><a href="@Url.Action("AlocacaoZona", "Romaneio", new { area = "SeparacaoApp" })">AlocaÃ§Ã£o de Pedidos</a></li>
+                <li class="active"><a href="@Url.Action("Tarefas", "Romaneio", new { area = "SeparacaoApp" })">Consulta de Tarefas</a></li>
+                <li><a href="@Url.Action("Pendencias", "Romaneio", new { area = "SeparacaoApp" })">PendÃªncias</a></li>
+                <li><a href="@Url.Action("NaoEncontrados", "Romaneio", new { area = "SeparacaoApp" })">Cortes</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="box-body table-responsive">
+                        <table id="grid-tarefas" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Tarefa Nr</th>
+                                    <th>Zona</th>
+                                    <th>Romaneio Nr</th>
+                                    <th>Item Nr</th>
+                                    <th>LocaÃ§Ã£o</th>
+                                    <th>DescriÃ§Ã£o</th>
+                                    <th>Qtde</th>
+                                    <th>Criado Em</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (itens.Any())
+                                {
+                                    string tarefaAtual = null;
+                                    foreach (var item in itens)
+                                    {
+                                        bool novaTarefa = !string.Equals(tarefaAtual, item.TarefaNr);
+                                        <tr class="@(novaTarefa ? "task-start" : string.Empty)">
+                                            <td>@(novaTarefa ? FormatText(item.Status) : string.Empty)</td>
+                                            <td>@FormatText(item.TarefaNr)</td>
+                                            <td>@FormatText(item.Zona)</td>
+                                            <td>@FormatText(item.RomaneioNr)</td>
+                                            <td>@FormatText(item.ItemNr)</td>
+                                            <td>@FormatText(item.Locacao)</td>
+                                            <td>@FormatText(item.Descricao)</td>
+                                            <td>@(item.Qtde.HasValue ? item.Qtde.Value.ToString() : "-")</td>
+                                            <td>@(novaTarefa ? (item.CriadoEm.HasValue ? item.CriadoEm.Value.ToString("dd/MM/yyyy HH:mm") : "-") : string.Empty)</td>
+                                        </tr>
+
+                                        tarefaAtual = item.TarefaNr;
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="9" class="text-center">Nenhuma tarefa localizada.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('#grid-tarefas').DataTable({
+                language: {
+                    search: "Pesquisar:",
+                    lengthMenu: "Mostrar _MENU_ registros",
+                    zeroRecords: "Nenhum registro localizado.",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                    infoFiltered: "(filtrado de _MAX_ registros)",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Ãšltima",
+                        next: "PrÃ³xima",
+                        previous: "Anterior"
+                    }
+                },
+                order: [[1, "asc"], [5, "asc"]],
+                pageLength: 25
+            });
+        });
+    </script>
+}

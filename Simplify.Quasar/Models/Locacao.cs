@@ -28,5 +28,9 @@ namespace Simplify.Quasar.Models
         public string ModificadoPor { get; set; }
         public Nullable<System.DateTime> ModificadoEm { get; set; }
         public Nullable<int> FilialId { get; set; }
+        public Nullable<int> ZonaId { get; set; }
+        public int Id { get; set; }
+    
+        public virtual Zona Zona { get; set; }
     }
 }

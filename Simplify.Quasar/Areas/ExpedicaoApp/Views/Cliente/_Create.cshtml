@@ -20,14 +20,14 @@
                 <div class="col-xs-12 col-lg-9">
                     <div class="form-group">
                         <label class="form-label">Nome</label>
-                        @Html.TextBoxFor(m => m.Nome_Fantasia, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
-                        @Html.ValidationMessageFor(x => x.Nome_Fantasia, null, new { @class = "text-red text-nowrap" })
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Nome, null, new { @class = "text-red text-nowrap" })
                     </div>
                 </div>
                 <div class="col-xs-12 col-lg-3">
                     <div class="form-group">
-                        <label class="form-label">CNPJ</label>
-                        @Html.TextBoxFor(m => m.CNPJ, new { @class = "form-control text-center", @autocomplete = "off" })
+                        <label class="form-label">CPF/CNPJ</label>
+                        @Html.TextBoxFor(m => m.CNPJ, new { @class = "form-control text-center", @autocomplete = "off", @maxlength = "18" })
                         @Html.ValidationMessageFor(x => x.CNPJ, null, new { @class = "text-red text-nowrap" })
                     </div>
                 </div>
@@ -89,40 +89,75 @@
             </div>
 
             <div class="row">
-                <div class="col-xs-12 col-lg-3">
+                <div class="col-xs-12 col-lg-4">
                     <div class="form-group">
-                        <label class="form-label">Telefone</label>
-                        @Html.TextBoxFor(m => m.Telefone1, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        <label class="form-label">Telefone 1</label>
+                        @Html.TextBoxFor(m => m.Telefone1, new { @class = "form-control telefone", @autocomplete = "off", @maxlength = "100" })
                         @Html.ValidationMessageFor(x => x.Telefone1, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label class="form-label">Telefone 2</label>
+                        @Html.TextBoxFor(m => m.Telefone2, new { @class = "form-control telefone", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Telefone2, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label class="form-label">Telefone 3</label>
+                        @Html.TextBoxFor(m => m.Telefone3, new { @class = "form-control telefone", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Telefone3, null, new { @class = "text-red text-nowrap" })
                     </div>
                 </div>
             </div>
 
-            @*<div class="col-xs-12 col-lg-4">
-                <div class="form-group">
-                    <label>Transportadora</label>
-                    @Html.DropDownListFor(m => m.Nome_Fantasia, Model.TransportadoraDDL, "-- Selecione --", new { @class = "form-control" })
-                    @Html.ValidationMessageFor(x => x.Nome_Fantasia, null, new { @class = "text-red text-nowrap" })
+            <div class="row">
+                <div class="col-xs-12 col-lg-4">
+                    <div class="form-group">
+                        <label>Transportadora</label>
+                        @Html.DropDownListFor(m => m.TransportadoraId, Model.TransportadoraDDL, "-- Selecione --", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(x => x.TransportadoraId, null, new { @class = "text-red text-nowrap" })
+                    </div>
                 </div>
-            </div>*@
-
-            @*<div class="row">
-                <div class="col-xs-12 col-lg-6">
+                <div class="col-xs-12 col-lg-3">
                     <div class="form-group">
                         <label class="form-label">Rota</label>
-                        @Html.DropDownListFor(m => m.Nome, Model.RotaDDL, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(x => x.Nome, null, new { @class = "text-red text-nowrap" })
+                        @Html.DropDownListFor(m => m.RotaId, Model.RotaDDL, "-- Selecione --", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(x => x.RotaId, null, new { @class = "text-red text-nowrap" })
                     </div>
                 </div>
 
                 <div class="col-xs-12 col-lg-3">
                     <div class="form-group">
                         <label class="form-label">Parada</label>
-                        @Html.DropDownListFor(m => m.Nome, Model.ParadaDDL, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(x => x.Nome, null, new { @class = "text-red text-nowrap" })
+                        @Html.DropDownListFor(m => m.ParadaId, Model.ParadaDDL, "-- Selecione --", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(x => x.ParadaId, null, new { @class = "text-red text-nowrap" })
                     </div>
                 </div>
-            </div>*@
+                <div class="col-xs-12 col-lg-2">
+                    <div class="form-group">
+                        <label class="form-label">Etiqueta</label>
+                        <div class="checkbox">
+                            <label>
+                                @Html.CheckBoxFor(m => m.Etiqueta)
+                                Gerar etiqueta
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Observações</label>
+                        @Html.TextBoxFor(m => m.Observacoes, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                        @Html.ValidationMessageFor(x => x.Observacoes, null, new { @class = "text-red text-nowrap" })
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="modal-footer">
@@ -149,11 +184,11 @@ else
 
     // inputmask está definido no bundles
     $('#CNPJ').inputmask({
-        mask: ['99.999.999/9999-99'],
+        mask: ['999.999.999-99', '99.999.999/9999-99'],
         keepStatic: true
     });
 
-    $('#Telefone1').inputmask({
+    $('.telefone').inputmask({
         mask: ['(99) 99999-9999'],
         keepStatic: true
     })

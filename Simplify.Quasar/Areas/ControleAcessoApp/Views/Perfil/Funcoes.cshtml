@@ -1,0 +1,149 @@
+@model Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.PerfilFuncoesViewModel
+@{
+    ViewBag.Title = "Funcoes Perfil";
+    Layout = null;
+}
+
+<style>
+    .funcoes-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        padding: 10px;
+    }
+
+    .funcoes-group {
+        margin-bottom: 15px;
+    }
+
+    .funcoes-group-header {
+        background-color: #f5f5f5;
+        padding: 8px 12px;
+        font-weight: bold;
+        border-bottom: 2px solid #00a65a;
+        margin-bottom: 5px;
+    }
+
+    .funcoes-group-header label {
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .funcoes-item {
+        padding: 4px 12px 4px 30px;
+    }
+
+    .funcoes-item label {
+        cursor: pointer;
+        margin: 0;
+        font-weight: normal;
+        font-size: 13px;
+    }
+
+    .funcoes-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    .funcoes-meta {
+        color: #999;
+        font-size: 11px;
+        margin-left: 8px;
+    }
+
+    .select-all-btn {
+        font-size: 12px;
+        padding: 2px 8px;
+    }
+</style>
+
+<div class="modal-header bg-blue-gradient">
+    <span><i class="fa-solid fa-shield-halved fa-lg fa-fw"></i>&nbsp;&nbsp;Permissões do Perfil: <b>@Model.PerfilNome</b></span>
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.PerfilId)
+    @Html.HiddenFor(m => m.PerfilNome)
+
+    <div class="modal-body">
+        <div class="row" style="margin-bottom: 10px;">
+            <div class="col-xs-12 text-right">
+                <button type="button" class="btn btn-xs btn-default select-all-btn" id="btnSelectAll">
+                    <i class="fa-solid fa-check-double"></i> Selecionar Todos
+                </button>
+                <button type="button" class="btn btn-xs btn-default select-all-btn" id="btnDeselectAll">
+                    <i class="fa-solid fa-xmark"></i> Limpar Todos
+                </button>
+            </div>
+        </div>
+
+        <div class="funcoes-container">
+            @{
+                var grupos = Model.Funcoes.GroupBy(f => string.IsNullOrEmpty(f.CodComponente) ? "Sem Componente" : f.CodComponente).OrderBy(g => g.Key);
+                foreach (var grupo in grupos)
+                {
+                    var componente = grupo.Key;
+                    <div class="funcoes-group">
+                        <div class="funcoes-group-header">
+                            <label>
+                                <input type="checkbox" class="group-check" data-component="@componente" />
+                                @componente
+                            </label>
+                        </div>
+                        @foreach (var funcao in grupo.OrderBy(f => f.Codigo))
+                        {
+                            <div class="funcoes-item">
+                                <label>
+                                    <input type="checkbox" name="funcoesSelecionadas" value="@funcao.FuncaoId" @(funcao.Selecionada ? "checked" : "") class="funcao-check" data-component="@componente" />
+                                    <b>@funcao.Codigo</b> - @funcao.DescPTBR
+                                    @if (!string.IsNullOrEmpty(funcao.Controller))
+                                    {
+                                        <span class="funcoes-meta">[@funcao.Controller/@funcao.Action]</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(funcao.TituloMenu))
+                                    {
+                                        <span class="funcoes-meta"><i class="fa-solid fa-bars-staggered"></i> @funcao.TituloMenu</span>
+                                    }
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div class="pull-right">
+            <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Cancelar</button>
+        </div>
+    </div>
+}
+
+<script>
+    $(document).ready(function () {
+        $('#btnSelectAll').click(function () {
+            $('.funcao-check').prop('checked', true);
+            $('.group-check').prop('checked', true);
+        });
+
+        $('#btnDeselectAll').click(function () {
+            $('.funcao-check').prop('checked', false);
+            $('.group-check').prop('checked', false);
+        });
+
+        $('.group-check').change(function () {
+            var componente = $(this).data('component');
+            $('.funcao-check[data-component="' + componente + '"]').prop('checked', $(this).prop('checked'));
+        });
+
+        $('.funcao-check').change(function () {
+            var componente = $(this).data('component');
+            var total = $('.funcao-check[data-component="' + componente + '"]').length;
+            var checked = $('.funcao-check[data-component="' + componente + '"]:checked').length;
+            $('.group-check[data-component="' + componente + '"]').prop('checked', total === checked);
+        });
+    });
+</script>

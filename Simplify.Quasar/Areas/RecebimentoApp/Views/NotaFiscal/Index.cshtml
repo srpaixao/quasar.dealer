@@ -3,6 +3,8 @@
 @{
     ViewBag.Title = "Recebimento";
     ViewBag.Description = "Notas Fiscais";
+    DateTime? ultimaAtualizacaoTransito = ViewBag.UltimaAtualizacaoTransito as DateTime?;
+    string ultimoArquivoTransito = ViewBag.UltimoArquivoTransito as string;
 
     Layout = "~/Views/Shared/_Layout.cshtml";
 
@@ -38,22 +40,61 @@
         color: #fff;
     }
 
-    .last-update {
+    .quasar-modern .content-header > h1 > small.last-update {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
         font-size: 14px !important;
         margin-top: 5px !important;
         margin-right: 10px !important;
+        text-align: left;
+    }
+
+    .last-update-line {
+        display: block;
+        white-space: nowrap;
+    }
+
+    .last-update-file {
+        margin-top: 2px;
     }
 
     #scrollable-dropdown-menu .tt-menu {
         max-height: 200px;
         overflow-y: auto;
     }
+
+    #tbDevolucao th.col-emissor-devolucao,
+    #tbDevolucao td.col-emissor-devolucao {
+        min-width: 280px;
+        width: 280px;
+        text-align: left;
+    }
 </style>
 
 <section class="content-header">
     <h1>
         @ViewBag.Title<small>@ViewBag.Description</small>
-        <small class="pull-right last-update"></small>
+        <small class="pull-right last-update">
+            <span class="last-update-line">
+                <i class="fa fa-clock-o fa-fw"></i>
+                <strong>Última atualização:</strong>
+                <span id="ultima-atualizacao-transito">
+                    @(ultimaAtualizacaoTransito.HasValue
+                        ? ultimaAtualizacaoTransito.Value.ToString("dd/MM/yyyy HH:mm:ss")
+                        : "Não realizada")
+                </span>
+            </span>
+            <span class="last-update-line last-update-file">
+                <i class="fa fa-file-o fa-fw"></i>
+                <strong>Último arquivo:</strong>
+                <span id="ultimo-arquivo-transito">
+                    @(string.IsNullOrWhiteSpace(ultimoArquivoTransito)
+                        ? "Não informado"
+                        : ultimoArquivoTransito)
+                </span>
+            </span>
+        </small>
     </h1>
 </section>
 
@@ -225,23 +266,15 @@
                             <div class="tab-pane" id="tab_devolucao">
                                 <div class="row">
                                     <div class="col-xs-12">
-                                        <a href="@Url.Action("Devolucao","NotaFiscal", new { area = "RecebimentoApp" })" class="btn btn-success"><i class="fa-regular fa-file-lines"></i> Cadastrar Nota Fiscal</a>
-                                        <a href="#" class="btn btn-success disabled"><i class="fa-regular fa-file-lines"></i> Cadastrar Nota Fiscal</a>
-                                    </div>
-                                </div>
-                                <br />
-                                <div class="row">
-                                    <div class="col-xs-12">
                                         <div class="table-responsive">
                                             <table class="table table-condensed table-bordered table-hover table-small" id="tbDevolucao">
                                                 <thead>
                                                     <tr>
+                                                        <th>Controle Nr</th>
                                                         <th>Nota Fiscal</th>
-                                                        <th>Filial</th>
-                                                        <th>Status</th>
-                                                        <th>Linhas</th>
-                                                        <th>Itens</th>
-                                                        <th>Volumes</th>
+                                                        <th class="col-emissor-devolucao">EMISSOR</th>
+                                                        <th>ITENS</th>
+                                                        <th>PEÇAS</th>
                                                         <th>Última atualização</th>
                                                     </tr>
                                                 </thead>
@@ -250,13 +283,19 @@
                                                     {
                                                         <tr>
                                                             <td>
-                                                                <a href="#" class="showItensNF" data-id="@item.Id">@item.Numero</a>
+                                                                @if (item.DevolucaoId.HasValue)
+                                                                {
+                                                                    <a href="@Url.Action("DevolucaoDetalhe", "NotaFiscal", new { area = "RecebimentoApp", id = item.DevolucaoId.Value })">@item.ControleNr</a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    @item.ControleNr
+                                                                }
                                                             </td>
-                                                            <td>@item.NomeEmissor</td>
-                                                            <td>@item.StatusNF</td>
+                                                            <td>@item.Numero</td>
+                                                            <td class="col-emissor-devolucao">@item.NomeEmissor</td>
                                                             <td>@item.QtdItensNF</td>
-                                                            <td>@item.QtdItens</td>
-                                                            <td>@item.QtdVolumes</td>
+                                                            <td>@((item.QtdTotal ?? 0).ToString("N0"))</td>
                                                             <td>@item.ModificadoEm</td>
                                                         </tr>
                                                     }
@@ -307,28 +346,33 @@
             }
 
             $('#tbGM tbody').empty();
-            var action = '@Url.Action("GetDataTransito", "NotaFiscal", new { area = "RecebimentoApp", material = "_material" })';
+            var action = '@Url.Action("GetDataTransito", "NotaFiscal", new { area = "RecebimentoApp" })';
+            var actionSeparator = action.indexOf('?') >= 0 ? '&' : '?';
+            var actionUrl = action + actionSeparator + 'material=' + encodeURIComponent(filtro || '');
             var url_detail = '@Url.Action("GetItens","NotaFiscal", new { area = "RecebimentoApp", notafiscal = "_nota"})';
 
             var table = $('#tbGM').DataTable({
                 deferRender: true,
+                serverSide: true,
+                processing: true,
                 autoWidth: false,
                 pageLength: 25,
                 order: [],
                 ajax: {
-                    url: action.replace('_material', filtro),
-                    type: 'GET',
-                    dataType: 'json'
+                    url: actionUrl,
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: function (d) { return JSON.stringify(d); }
                 },
                 columns: [
-                            {
-                                data: 'NotaFiscalNr', title: 'Nota Fiscal', render: function (data, type, row) {
-                                    var id = row['NotaFiscalId'];
-                                    return '<a class="detail-nf" href=' + url_detail.replace('_nota', id) + '>' + data + '</a>';
-                                }
-                            },
-                            { data: 'Fornecedor', title: 'Fornecedor' },
-                            { data: 'Origem', title: 'Origem' },
+                             {
+                                 data: 'NotaFiscalNr', title: 'Nota Fiscal', render: function (data, type, row) {
+                                     var id = row['NotaFiscalId'];
+                                     return '<a class="detail-nf" href=' + url_detail.replace('_nota', id) + '>' + data + '</a>';
+                                 }
+                             },
+                             { data: 'Origem', title: 'Origem' },
                             { data: 'Status', title: 'Status' },
                             {
                                 data: 'QtdItensNF', title: 'Linhas', visible: false, render: function (data, type) {
@@ -348,24 +392,21 @@
                                     }
                                 }
                             },
-                            {
-                                data: 'QtdVolumes', title: 'Volumes', render: function (data, type) {
-                                    if (data) {
-                                        return data.toLocaleString();
+                             {
+                                 data: 'QtdVolumes', title: 'Volumes', render: function (data, type) {
+                                     if (data) {
+                                         return data.toLocaleString();
                                     } else {
                                         return data;
-                                    }
-                                }
-                            },
-                            {
-                                data: 'ModificadoEm', title: 'Atualizado em', visible: false, render: function (data, type) {
-                                    if (data) {
-                                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                                    } else {
-                                        return data;
-                                    }
-                                }
-                            },
+                                     }
+                                 }
+                             },
+                             {
+                                 data: 'CriadoEmTexto', title: 'Criado em'
+                             },
+                             {
+                                 data: 'ModificadoEmTexto', title: 'Atualizado em', visible: false
+                             },
                 ],
 
                 drawCallback: function () {
@@ -375,11 +416,6 @@
                     // console.log('fnInitComplete')
                     $('#processing').addClass('hide');
                     $('.data-container').removeClass('hide');
-
-                    var maxData = table.column(7).data().sort().reverse()[0];
-                    if (maxData) {
-                        $('.last-update').html('<i class="fa fa-clock-o fa-fw"></i> Última atualização: ' + moment(maxData).format('DD/MM/YYYY HH:mm:ss'));
-                    }
 
                 },
                 language: {
@@ -531,6 +567,7 @@
             var tbDevolucao = $('#tbDevolucao').DataTable({
                 processing: false,
                 deferRender: true,
+                autoWidth: false,
                 pageLength: 25,
                 drawCallback: function (settings) {
                     //console.log("Draw tbDevolucao");
@@ -639,6 +676,13 @@
                             }).done(function (response) {
                                 $('#btn-importar-transito').html("<i class='fa fa-fw fa-upload'></i> Importar");
                                 if (response.erro == false) {
+                                    if (response.atualizado_em) {
+                                        $('#ultima-atualizacao-transito').text(response.atualizado_em);
+                                    }
+
+                                    if (response.arquivo_processado) {
+                                        $('#ultimo-arquivo-transito').text(response.arquivo_processado);
+                                    }
 
                                     setTimeout(function () {
                                         LoadDataTableTransito('');

@@ -10,6 +10,8 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
+        int filialId = Util.GetCurrentFilial();
+
         // GET: Estoque/Contagem
         public ActionResult Index()
         {

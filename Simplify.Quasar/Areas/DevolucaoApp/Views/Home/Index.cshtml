@@ -1,34 +1,702 @@
-﻿@{
-    ViewBag.Title = "Devolução";
-    ViewBag.Description = "Página inicial";
+@model Simplify.Quasar.Areas.DevolucaoApp.ViewModels.DevolucaoCadastroViewModel
 
+@{
+    ViewBag.Title = "Devolu\u00E7\u00E3o";
+    ViewBag.Description = "Cadastro";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
 
-<section class="content-header">
+<style>
+    .devolucao-card {
+        border-top: 3px solid #1f5a7d;
+    }
+
+    .devolucao-grid th,
+    .devolucao-grid td {
+        vertical-align: middle !important;
+    }
+
+    .devolucao-grid td.text-right,
+    .devolucao-grid th.text-right {
+        text-align: right !important;
+    }
+
+    .devolucao-item-actions .btn {
+        margin-right: 6px;
+    }
+
+    .devolucao-readonly {
+        background-color: #f7f9fc !important;
+    }
+
+    .devolucao-empty {
+        padding: 18px 0;
+        color: #7b8794;
+        text-align: center;
+    }
+
+    .devolucao-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .devolucao-header-actions {
+        margin-top: 4px;
+    }
+</style>
+
+<section class="content-header clearfix">
+    @if (Model.UltimaDevolucaoId.HasValue)
+    {
+        <div class="pull-right devolucao-header-actions">
+            <a href="@Url.Action("Print", "Home", new { area = "DevolucaoApp", id = Model.UltimaDevolucaoId.Value })" class="btn btn-primary" target="_blank">
+                <i class="fa fa-fw fa-print"></i> Imprimir Autoriza&ccedil;&atilde;o
+            </a>
+        </div>
+    }
     <h1>
         @ViewBag.Title<small>@ViewBag.Description</small>
     </h1>
 </section>
 
 <section class="content">
-    <div class="box box-default">
-
+    <div class="box box-default devolucao-card">
         <div class="box-body">
-            <p>Conteúdo da página</p>
-        </div>
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
 
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @Html.ValidationSummary(false)
+                </div>
+            }
+
+            @using (Html.BeginForm("Index", "Home", new { area = "DevolucaoApp" }, FormMethod.Post, new { id = "formDevolucao" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.ItensJson, new { id = "ItensJson" })
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Tipo de Movimento</label>
+                            @Html.DropDownListFor(m => m.Movimento, Model.MovimentoDDL, new { @class = "form-control", id = "Movimento", required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Efetuar Retirada</label>
+                            @Html.DropDownListFor(m => m.Retirar, Model.RetirarDDL, new { @class = "form-control", id = "Retirar", required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Status</label>
+                            @Html.DropDownListFor(m => m.StatusId, Model.StatusDDL, new { @class = "form-control", id = "StatusId", required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Motivo</label>
+                            @Html.DropDownListFor(m => m.MotivoId, Model.MotivoDDL, new { @class = "form-control", id = "MotivoId", required = "required" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>NFiscal de Venda</label>
+                            <div class="input-group">
+                                @Html.TextBoxFor(m => m.NFVenda, new { @class = "form-control", id = "NFVenda", maxlength = "50", autocomplete = "off", required = "required" })
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-info" id="btnBuscarNota">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            @Html.TextBoxFor(m => m.Cliente, new { @class = "form-control devolucao-readonly", id = "Cliente", @readonly = "readonly", autocomplete = "off", required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Data da Venda</label>
+                            @Html.TextBoxFor(m => m.DataVenda, new { @class = "form-control devolucao-readonly", id = "DataVenda", @readonly = "readonly", autocomplete = "off", required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Vendedor</label>
+                            <input
+                                type="text"
+                                name="Vendedor"
+                                id="Vendedor"
+                                class="form-control @(Model.VendedorBloqueado ? "devolucao-readonly" : string.Empty)"
+                                value="@Model.Vendedor"
+                                @(Model.VendedorBloqueado ? "readonly=\"readonly\"" : string.Empty) required="required" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>NFiscal de Devolu&ccedil;&atilde;o</label>
+                            @Html.TextBoxFor(m => m.NFDevolucao, new { @class = "form-control", id = "NFDevolucao", maxlength = "50", autocomplete = "off", required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Sinistro</label>
+                            @Html.TextBoxFor(m => m.Sinistro, new { @class = "form-control", id = "Sinistro", maxlength = "50", autocomplete = "off" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Placa</label>
+                            @Html.TextBoxFor(m => m.PlacaVeiculo, new { @class = "form-control", id = "PlacaVeiculo", maxlength = "50", autocomplete = "off" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Transportadora</label>
+                            @Html.DropDownListFor(m => m.TransportadoraId, Model.TransportadoraDDL, new { @class = "form-control", id = "TransportadoraId", required = "required" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Observa&ccedil;&otilde;es</label>
+                            @Html.TextAreaFor(m => m.Observacao, 3, 1, new { @class = "form-control", id = "Observacao", maxlength = "1000" })
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h4>Itens</h4>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Item</label>
+                            <div class="input-group">
+                                <input type="text" id="ItemNr" class="form-control" maxlength="50" autocomplete="off" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-info" id="btnBuscarMaterial">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Descri&ccedil;&atilde;o</label>
+                            <input type="text" id="ItemDescricao" class="form-control devolucao-readonly" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Quantidade</label>
+                            <input type="number" id="Quantidade" class="form-control" min="1" step="1" />
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Valor Unit&aacute;rio</label>
+                            <input type="number" id="ValorUnitario" class="form-control" min="0" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="button" class="btn btn-success btn-block" id="btnAdicionarItem">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Observa&ccedil;&atilde;o do Item</label>
+                            <input type="text" id="ItemObservacao" class="form-control" maxlength="500" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover devolucao-grid" id="tbItens">
+                        <thead>
+                            <tr>
+                                <th style="width: 14%;">Item</th>
+                                <th>Descri&ccedil;&atilde;o</th>
+                                <th style="width: 10%;" class="text-right">Quantidade</th>
+                                <th style="width: 12%;" class="text-right">Valor Unit&aacute;rio</th>
+                                <th style="width: 20%;">Observa&ccedil;&atilde;o</th>
+                                <th style="width: 12%;">A&ccedil;&otilde;es</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="devolucao-toolbar">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Salvar
+                    </button>
+                </div>
+            }
+        </div>
     </div>
 </section>
 
 @section Scripts {
-
     <script>
+        (function () {
+            var itens = [];
+            var itemEditIndex = -1;
+            var hiddenItens = document.getElementById('ItensJson');
+            var vendedorInput = document.getElementById('Vendedor');
 
-        $(document).ready(function () {
+            function parseItens() {
+                try {
+                    itens = hiddenItens.value ? JSON.parse(hiddenItens.value) : [];
+                } catch (e) {
+                    itens = [];
+                }
+            }
 
+            function syncItens() {
+                hiddenItens.value = JSON.stringify(itens);
+            }
 
-        });
+            function escapeHtml(value) {
+                return $('<div/>').text(value || '').html();
+            }
+
+            function showMessage(type, message, title) {
+                if (typeof swal === 'function') {
+                    var div = document.createElement('div');
+                    div.innerHTML = "<h4 class='swal-text-" + (type || 'warning') + "'>" + escapeHtml(message) + "</h4>";
+
+                    swal({
+                        title: title || 'Devolução',
+                        content: div,
+                        buttons: {
+                            confirm: {
+                                className: type === 'error' ? 'swal-btn-danger' : 'swal-btn-info'
+                            }
+                        }
+                    });
+                    return;
+                }
+
+                alert(message);
+            }
+
+            function clearItemForm() {
+                itemEditIndex = -1;
+                $('#ItemNr').val('');
+                $('#ItemDescricao').val('');
+                $('#Quantidade').val('');
+                $('#ValorUnitario').val('');
+                $('#ItemObservacao').val('');
+                $('#btnAdicionarItem').html('<i class="fa fa-plus"></i>');
+                $('#ItemNr').focus();
+            }
+
+            function renderItens() {
+                var tbody = $('#tbItens tbody');
+                tbody.empty();
+
+                if (!itens.length) {
+                    tbody.append('<tr><td colspan="6" class="devolucao-empty">Nenhum item adicionado.</td></tr>');
+                    syncItens();
+                    return;
+                }
+
+                $.each(itens, function (index, item) {
+                    var row = [
+                        '<tr>',
+                        '<td>', escapeHtml(item.ItemNr), '</td>',
+                        '<td>', escapeHtml(item.ItemDescricao), '</td>',
+                        '<td class="text-right">', escapeHtml(item.Quantidade), '</td>',
+                        '<td class="text-right">', Number(item.ValorUnitario || 0).toFixed(2), '</td>',
+                        '<td>', escapeHtml(item.Observacao), '</td>',
+                        '<td class="devolucao-item-actions">',
+                        '<button type="button" class="btn btn-xs btn-primary btn-editar-item" data-index="', index, '"><i class="fa fa-pencil"></i></button>',
+                        '<button type="button" class="btn btn-xs btn-danger btn-remover-item" data-index="', index, '"><i class="fa fa-trash"></i></button>',
+                        '</td>',
+                        '</tr>'
+                    ].join('');
+
+                    tbody.append(row);
+                });
+
+                syncItens();
+            }
+
+            function applyVendedorState(isLocked) {
+                vendedorInput.readOnly = !!isLocked;
+                $(vendedorInput).toggleClass('devolucao-readonly', !!isLocked);
+            }
+
+            function applyDocumentoVendaState(isLocked) {
+                $('#Cliente')
+                    .prop('readonly', !!isLocked)
+                    .toggleClass('devolucao-readonly', !!isLocked);
+
+                $('#DataVenda')
+                    .prop('readonly', !!isLocked)
+                    .toggleClass('devolucao-readonly', !!isLocked);
+            }
+
+            function normalizeNotaFiscalNr(numero) {
+                var texto = (numero || '').trim();
+                if (!texto) {
+                    return '';
+                }
+
+                var baseNumero = texto.split('-')[0] || '';
+                var digits = (baseNumero.match(/\d+/g) || []).join('');
+                if (!digits) {
+                    return texto;
+                }
+
+                if (digits.length > 9) {
+                    digits = digits.substring(digits.length - 9);
+                }
+
+                return digits.length < 9 ? digits.padStart(9, '0') : digits;
+            }
+
+            function buscarNotaFiscal() {
+                var numero = normalizeNotaFiscalNr($('#NFVenda').val());
+                if (!numero) {
+                    return;
+                }
+
+                $('#NFVenda').val(numero);
+
+                $.get('@Url.Action("GetNotaFiscalVenda", "Home", new { area = "DevolucaoApp" })', { numero: numero })
+                    .done(function (response) {
+                        if (!response.success) {
+                            $('#Cliente').val('');
+                            $('#DataVenda').val('');
+                            applyDocumentoVendaState(false);
+                            applyVendedorState(false);
+                            showMessage('warning', response.msg);
+                            return;
+                        }
+
+                        $('#NFVenda').val(response.data.Numero || numero);
+                        $('#Cliente').val(response.data.Cliente || '');
+                        $('#DataVenda').val(response.data.DataVenda || '');
+                        $('#Vendedor').val(response.data.Vendedor || '');
+                        applyDocumentoVendaState(true);
+                        applyVendedorState(!response.data.RequerVendedorManual);
+                    })
+                    .fail(function () {
+                        showMessage('error', 'Falha ao consultar a Nota Fiscal de venda.');
+                    });
+            }
+
+            function buscarMaterial() {
+                var codigo = ($('#ItemNr').val() || '').trim();
+                if (!codigo) {
+                    return;
+                }
+
+                $.get('@Url.Action("GetMaterial", "Home", new { area = "DevolucaoApp" })', { codigo: codigo })
+                    .done(function (response) {
+                        if (!response.success) {
+                            $('#ItemDescricao').val('');
+                            showMessage('warning', response.msg);
+                            return;
+                        }
+
+                        $('#ItemNr').val(response.data.Codigo || codigo);
+                        $('#ItemDescricao').val(response.data.Descricao || '');
+                    })
+                    .fail(function () {
+                        showMessage('error', 'Falha ao consultar o material.');
+                    });
+            }
+
+            function collectItem() {
+                var quantidade = parseInt($('#Quantidade').val(), 10);
+                var valorUnitario = parseFloat($('#ValorUnitario').val() || '0');
+
+                return {
+                    ItemNr: ($('#ItemNr').val() || '').trim().toUpperCase(),
+                    ItemDescricao: ($('#ItemDescricao').val() || '').trim(),
+                    Quantidade: isNaN(quantidade) ? 0 : quantidade,
+                    ValorUnitario: isNaN(valorUnitario) ? -1 : valorUnitario,
+                    Observacao: ($('#ItemObservacao').val() || '').trim()
+                };
+            }
+
+            function validateItem(item) {
+                if (!item.ItemNr) {
+                    showMessage('warning', 'Informe o item.');
+                    return false;
+                }
+
+                if (!item.ItemDescricao) {
+                    alert('Consulte um material válido.');
+                    return false;
+                }
+
+                if (item.Quantidade <= 0) {
+                    showMessage('warning', 'Informe uma quantidade maior que zero.');
+                    return false;
+                }
+
+                if (item.ValorUnitario < 0) {
+                    alert('Informe um valor unitário válido.');
+                    return false;
+                }
+
+                return true;
+            }
+
+            parseItens();
+            renderItens();
+            applyVendedorState(@(Model.VendedorBloqueado ? "true" : "false"));
+
+            $('#btnBuscarNota').on('click', buscarNotaFiscal);
+            $('#NFVenda').on('blur', buscarNotaFiscal);
+            applyDocumentoVendaState(!!($('#DataVenda').val() || '').trim());
+            $('#btnBuscarMaterial').on('click', buscarMaterial);
+            $('#ItemNr').on('blur', buscarMaterial);
+
+            $('#btnAdicionarItem').on('click', function () {
+                var item = collectItem();
+                if (!validateItem(item)) {
+                    return;
+                }
+
+                if (itemEditIndex >= 0) {
+                    itens[itemEditIndex] = item;
+                } else {
+                    itens.push(item);
+                }
+
+                renderItens();
+                clearItemForm();
+            });
+
+            $('#tbItens').on('click', '.btn-editar-item', function () {
+                var index = parseInt($(this).data('index'), 10);
+                var item = itens[index];
+
+                if (!item) {
+                    return;
+                }
+
+                itemEditIndex = index;
+                $('#ItemNr').val(item.ItemNr);
+                $('#ItemDescricao').val(item.ItemDescricao);
+                $('#Quantidade').val(item.Quantidade);
+                $('#ValorUnitario').val(item.ValorUnitario);
+                $('#ItemObservacao').val(item.Observacao);
+                $('#btnAdicionarItem').html('<i class="fa fa-check"></i>');
+                $('#ItemNr').focus();
+            });
+
+            $('#tbItens').on('click', '.btn-remover-item', function () {
+                var index = parseInt($(this).data('index'), 10);
+                itens.splice(index, 1);
+                renderItens();
+                if (itemEditIndex === index) {
+                    clearItemForm();
+                }
+            });
+
+            $('#formDevolucao').on('submit', function (event) {
+                syncItens();
+
+                if (!($('#Movimento').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o tipo de movimento.');
+                    return false;
+                }
+
+                if (!($('#Retirar').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe se deve efetuar retirada.');
+                    return false;
+                }
+
+                if (!($('#StatusId').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o status.');
+                    return false;
+                }
+
+                if (!($('#MotivoId').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o motivo.');
+                    return false;
+                }
+
+                if (!($('#NFVenda').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe a Nota Fiscal de venda.');
+                    return false;
+                }
+
+                if (!($('#Cliente').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o cliente.');
+                    return false;
+                }
+
+                if (!($('#DataVenda').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe a data da venda.');
+                    return false;
+                }
+
+                if (!($('#Vendedor').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o vendedor.');
+                    return false;
+                }
+
+                if (!($('#NFDevolucao').val() || '').trim()) {
+                    event.preventDefault();
+                    alert('Informe a NFiscal de devolução.');
+                    return false;
+                }
+
+                if (!($('#TransportadoraId').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe a transportadora.');
+                    return false;
+                }
+
+                if (!itens.length) {
+                    event.preventDefault();
+                    showMessage('warning', 'Adicione pelo menos um item antes de salvar.');
+                    return false;
+                }
+            });
+
+            validateItem = function (item) {
+                if (!item.ItemNr) {
+                    showMessage('warning', 'Informe o item.');
+                    return false;
+                }
+
+                if (!item.ItemDescricao) {
+                    showMessage('warning', 'Consulte um material válido.');
+                    return false;
+                }
+
+                if (item.Quantidade <= 0) {
+                    showMessage('warning', 'Informe uma quantidade maior que zero.');
+                    return false;
+                }
+
+                if (item.ValorUnitario < 0) {
+                    showMessage('warning', 'Informe um valor unitário válido.');
+                    return false;
+                }
+
+                return true;
+            };
+
+            $('#formDevolucao').off('submit').on('submit', function (event) {
+                syncItens();
+                var nfVendaNormalizada = normalizeNotaFiscalNr($('#NFVenda').val());
+                if (nfVendaNormalizada) {
+                    $('#NFVenda').val(nfVendaNormalizada);
+                }
+
+                if (!($('#Movimento').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o tipo de movimento.');
+                    return false;
+                }
+
+                if (!($('#Retirar').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe se deve efetuar retirada.');
+                    return false;
+                }
+
+                if (!($('#StatusId').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o status.');
+                    return false;
+                }
+
+                if (!($('#MotivoId').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o motivo.');
+                    return false;
+                }
+
+                if (!($('#NFVenda').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe a Nota Fiscal de venda.');
+                    return false;
+                }
+
+                if (!($('#Cliente').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o cliente.');
+                    return false;
+                }
+
+                if (!($('#DataVenda').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe a data da venda.');
+                    return false;
+                }
+
+                if (!($('#Vendedor').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe o vendedor.');
+                    return false;
+                }
+
+                if (!($('#NFDevolucao').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe a NFiscal de devolução.');
+                    return false;
+                }
+
+                if (!($('#TransportadoraId').val() || '').trim()) {
+                    event.preventDefault();
+                    showMessage('warning', 'Informe a transportadora.');
+                    return false;
+                }
+
+                if (!itens.length) {
+                    event.preventDefault();
+                    showMessage('warning', 'Adicione pelo menos um item antes de salvar.');
+                    return false;
+                }
+            });
+        })();
     </script>
 }

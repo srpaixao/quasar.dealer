@@ -1,94 +1,164 @@
-﻿@model Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.RomaneioViewModel
-
+﻿@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioViewModel
 @{
-    ViewBag.Title = "Separação";
-    ViewBag.Description = "Romaneios";
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "Separação";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
-<link href="~/Content/DataTables/checkbox/dataTables.checkboxes.css" rel="stylesheet" />
-<link href="~/Content/icheck/minimal/blue.css" rel="stylesheet" />
 
 <style>
-    select.selected {
-        border: 2px solid #00a65a;
+    .summary-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+        background: #fff;
+        min-height: 86px;
     }
 
-    .btn-current, .btn-current:active, .btn-current:hover, .btn-current:focus {
-        border: 2px solid #3c8dbc;
-        background-color: #fff;
+    .summary-card .summary-value {
+        display: block;
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1.1;
     }
 
-    th, td {
-        text-align: center;
-        vertical-align: middle !important;
+    .summary-card .summary-label {
+        color: #6b7280;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
     }
 
-    th {
-        white-space: nowrap;
+    .summary-card.is-white {
+        background: #ffffff;
+        border-color: #d2d6de;
     }
 
-        th.dt-checkboxes-select-all {
-            text-align: center !important;
-        }
-
-    table.dataTable.table-condensed > thead > tr > th:first-child {
-        padding-right: 5px;
+    .summary-card.is-red {
+        background: #fbeaea;
+        border-color: #dd4b39;
     }
 
-    .last-update {
-        font-size: 14px !important;
-        margin-top: 5px !important;
-        margin-right: 10px !important;
+    .summary-card.is-yellow {
+        background: #fcf8e3;
+        border-color: #f39c12;
     }
 
-    #scrollable-dropdown-menu .tt-menu {
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .form-control.filter {
-        margin-left: 5px;
+    .summary-card.is-green {
+        background: #e8f6ec;
+        border-color: #00a65a;
     }
 </style>
 
 <section class="content-header">
-    <h1>
-        @ViewBag.Title<small>@ViewBag.Description</small>
-    </h1>
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
 </section>
 
 <section class="content">
     <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="@Url.Action("Index", "Romaneio", new { area = "SeparacaoApp" })">Separação</a></li>
+                <li><a href="@Url.Action("Conferencia", "Romaneio", new { area = "SeparacaoApp" })">Conferência</a></li>
+                @if (Model.CanViewFullMenu)
+                {
+                    <li><a href="@Url.Action("Administracao", "Romaneio", new { area = "SeparacaoApp" })">Finalizado</a></li>
+                    <li><a href="@Url.Action("AnaliseNaoGerados", "Romaneio", new { area = "SeparacaoApp" })">Não Gerados</a></li>
+                    <li><a href="@Url.Action("Atualizacao", "Romaneio", new { area = "SeparacaoApp" })">Atualização</a></li>
+                }
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="box-body">
+                        @if (TempData["Flash.Message"] != null)
+                        {
+                            <div class="alert alert-@TempData["Flash.Type"]" style="margin-top:12px;">
+                                @TempData["Flash.Message"]
+                            </div>
+                        }
 
-        <div class="box-body">
-            <div class="row">
-                <div class="col-xs-12">
-                    <button type="button" class="btn btn-default btnMovimento" data-movto="0">Pendentes <span class="label label-warning">@(Model.TotalRomaneioPendente > 0 ? Model.TotalRomaneioPendente.ToString() : string.Empty)</span></button>
-                    <button type="button" class="btn btn-default btnMovimento" data-movto="1">Separação <span class="label label-warning">@(Model.TotalRomaneioSeparar> 0 ? Model.TotalRomaneioSeparar.ToString() : string.Empty)</span></button>
-                    <button type="button" class="btn btn-default btnMovimento" data-movto="2">Ocorrências <span class="label label-warning">@(Model.TotalRemaneioOcorrencia > 0 ? Model.TotalRemaneioOcorrencia.ToString() : string.Empty)</span></button>
-                    <button type="button" class="btn btn-default btnMovimento" data-movto="3">Finalizado <span class="label label-warning">@(Model.TotalRomaneioFinalizado > 0 ? Model.TotalRomaneioFinalizado.ToString() : string.Empty)</span></button>
-                    <div class="btn-group pull-right">
-                        <button type="button" id="btnProcessarNotasFiscais" class="btn btn-success hide" style="margin-left:5px"><i class="fa-regular fw-lg fa-fw fa-object-ungroup"></i> Processar Notas Fiscais <span id="qtdNotasFicais"></span></button>
-                        <button type="button" id="btnFinalizarLancamentos" class="btn btn-success hide" style="margin-left:5px;"><i class="fa-solid fa-fw fa-clipboard-check"></i> Finalizar Lançamentos</button>
-                    </div>
-                </div>
-            </div>
-            <br />
-            <p id="processing">Loading...</p>
-            <div class="data-container hide">
-                <div class="row" style="margin-bottom:10px;">
-                    <div class="col-xs-12">
-                        <div class="form-inline">
-                            <div class="datatable_filter pull-left"></div>
+                        <div class="row" style="margin-top:12px;">
+                            <div class="col-md-2 col-sm-4">
+                                <div class="summary-card is-white">
+                                    <span class="summary-label">Não Gerado</span>
+                                    <span class="summary-value">@Model.TotalNaoGerado</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-4">
+                                <div class="summary-card is-red">
+                                    <span class="summary-label">Pendente</span>
+                                    <span class="summary-value">@Model.TotalAguardandoSeparacao</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-4">
+                                <div class="summary-card is-yellow">
+                                    <span class="summary-label">Em Processo</span>
+                                    <span class="summary-value">@Model.TotalEmSeparacao</span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-4">
+                                <div class="summary-card is-green">
+                                    <span class="summary-label">Finalizado</span>
+                                    <span class="summary-value">@Model.TotalFinalizado</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-12">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                @using (Html.BeginForm("IniciarSeparacao", "Romaneio", new { area = "SeparacaoApp" }, FormMethod.Post, new { @class = "row", id = "form-iniciar-separacao" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Picker</label>
+                                            @Html.DropDownListFor(m => m.PickerId, Model.PickerDDL, "-- Selecione --", new { @class = "form-control", @id = "pickerId" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Romaneio Nr</label>
+                                            @Html.TextBoxFor(m => m.RomaneioNr, new { @class = "form-control", @id = "romaneioNr", @placeholder = "Digite o Romaneio Nr e pressione Enter", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <hr />
+
                         <div class="table-responsive">
-                            <table class="table table-condensed table-bordered table-hover table-small" id="tbNotaFiscal"></table>
+                            <table class="table table-bordered table-striped" id="tb-romaneios-separacao">
+                                <thead>
+                                    <tr>
+                                        <th>Romaneio Nr</th>
+                                        <th>Área</th>
+                                        <th>Prioridade</th>
+                                        <th>Vendedor</th>
+                                        <th>Contato Nr</th>
+                                        <th>Status</th>
+                                        <th>Dt/Hr</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.GridItems)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="#" class="select-romaneio" data-romaneio-nr="@item.RomaneioNr">@item.RomaneioNr</a>
+                                            </td>
+                                            <td>@item.Area</td>
+                                            <td>@(item.Prioridade.HasValue ? item.Prioridade.Value.ToString() : "-")</td>
+                                            <td>@item.UsuarioApollo</td>
+                                            <td>@(item.ContatoNr.HasValue ? item.ContatoNr.Value.ToString() : "-")</td>
+                                            <td>@item.Status</td>
+                                            <td>@(item.DataRomaneio.HasValue ? item.DataRomaneio.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -97,382 +167,44 @@
     </div>
 </section>
 
-<!-- Modal  -->
-<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div id="myModalContent"></div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal  -->
-<div class="modal fade" id="danfeModal" data-backdrop="static" tabindex="-1" aria-labelledby="danfeModal" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-blue-gradient">
-                <span><i class="fa-solid fa-fw fa-clipboard-check"></i>&nbsp;&nbsp;Finalizar Lançamento de Nota Fiscal</span>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="notaId-confirm" />
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="form-group">
-                            <label style="visibility:hidden">Nota Fiscal</label>
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-lg fa-file-text-o"></i></span>
-                                <input type="text" id="danfe-confirm" class="form-control" placeholder="Número ou DANFE da Nota Fiscal de envio" maxlength="44" style="width: 100%;">
-                                <input type="hidden" id="input-danfe-confirm" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="pull-right">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
+@section scripts {
     <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
     <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
-    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
-    <script src="~/Scripts/DataTables/plugins/checkboxes/dataTables.checkboxes.min.js"></script>
-
-
     <script>
-        let ps_ip = $('#ps-ip').val();
-        let ps_port = $('#ps-port').val();
-        let table = null;
-        let isFunctionRunning = false;
-        let currentUser;
+        $(function () {
+            var pickerStorageKey = 'separacaoapp-picker-id';
 
-        function LoadData(movto) {
-
-            $.ajax({
-                type: 'GET',
-                dataType: 'json',
-                url: '@Url.Action("GetUser", "NotaFiscal", new { area = "SeparacaoApp"})',
-                success: function (response) {
-                    if (response.success) {
-                        currentUser = response.user;
-                    }
-                },
-                error: function (xhr, status, error) {
-                    var errorMessage = xhr.status + ': ' + xhr.statusText;
-                    alert(errorMessage)
-                }
-            })
-           
-            $('.btnMovimento').each(function () {
-                $(this).removeClass('btn-current');
-                if ($(this).data('movto') == movto) {
-                    $(this).addClass('btn-current');
-                }
-            })
-
-            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
-
-            $('#processing').removeClass('hide');
-            $('.data-container').addClass('hide');
-
-            $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
-
-            if ($.fn.DataTable.isDataTable('#tbNotaFiscal')) {
-                $('#tbNotaFiscal').DataTable().destroy();
-            }
-
-            $('#tbNotaFiscal tbody').empty();
-
-            if (movto == 0) {
-                var colDefs = [{ 'targets': [-1], 'orderable': false }];
-            } else {
-                if (movto == 99) {
-                    var colDefs = [{ 'targets': [-1, 0], 'orderable': false }, {
-                        'targets': 0,
-                        'checkboxes': {
-                            'selectRow': true,
-                            'selectCallback': function (nodes, selected) {
-                                $('input[type="checkbox"]', nodes).iCheck('update');
-                                EnableDisablePrintRoteiro();
-                            },
-                            'selectAllCallback': function (nodes, selected, indeterminate) {
-                                $('input[type="checkbox"]', nodes).iCheck('update');
-                            },
-                        }
-                    }
-                    ];
-                } else {
-                    var colDefs = [{ 'targets': [-1, 0], 'orderable': false }, {
-                        'targets': 0,
-                        'checkboxes': {
-                            'selectRow': true,
-                            'selectCallback': function (nodes, selected) {
-                                $('input[type="checkbox"]', nodes).iCheck('update');
-                                EnableDisableProcessarNotasFiscais();
-                            },
-                            'selectAllCallback': function (nodes, selected, indeterminate) {
-                                $('input[type="checkbox"]', nodes).iCheck('update');
-                            }
-                        }
-                    }];
+            function tryStartSeparacao() {
+                if ($.trim($('#romaneioNr').val()).length > 0 && $('#pickerId').val()) {
+                    $('#form-iniciar-separacao').submit();
                 }
             }
 
+            function restorePicker() {
+                var lastPickerId = window.localStorage.getItem(pickerStorageKey);
+                if (!lastPickerId) {
+                    return;
+                }
 
-            var action = '@Url.Action("GetData", "NotaFiscal", new { movimento = "_movimento", area = "SeparacaoApp" })';
+                if ($('#pickerId option[value="' + lastPickerId + '"]').length > 0) {
+                    $('#pickerId').val(lastPickerId);
+                }
+            }
 
-            table = $('#tbNotaFiscal').DataTable({
-                deferRender: true,
-                autoWidth: false,
-                pageLength: 25,
-                order: [],
-                ajax: {
-                    url: action.replace("_movimento", movto),
-                    type: 'GET',
-                    dataType: 'json'
-                },
-                columns: [
-                    { data: 'Id' },
-                    {
-                        data: 'RomaneioNr', title: 'Romaneio Nr', render: function (data, type, row) {
-                            var id = row['Id'];
-                            if (movto != 0) {
-                                return '<a href="#" class="historico" data-id="' + id + '">' + data + '</a>';
-                            }
-                            else {
-                                return data;
-                            }
-                        }
-                    },
-                    {
-                        data: 'Dt', title: 'Dt/Hr', visible: false, render: function (data, type) {
-                            if (data) {
-                                return moment(data).local().format('DD/MM/YYYY HH:mm:ss');
-                            } else {
-                                return data;
-                            }
-                        },
-                           { data: 'ContatoNr', title: 'Contato Nr' },
-                           { data: 'Vendedor', title: 'Vendedor' },
-                           { data: 'Separador', title: 'Separador' },
-                           { data: 'DtHrSeparador', title: 'Dt/Hr' },
-                           { data: 'Conferente', title: 'Operação' },
-                           { data: 'DtHrConferente', title: 'Dt/Hr' },
-                           { data: 'Status', title: 'Status' },
-                           { data: 'Localizacao', title: 'Localização' },
-                           
-                        {
-                            data: null, name: "btnActions", render: function (data, type, row) {
-                                   if (movto == 0) {
-                                       return null;
-                                   }
-                                   if (movto == 5 || movto == 7 || movto == 99) {
-                                       if (data.QtdVolumes != null) {
-                                           var btngroup = '<div class="btn-group">' +
-                                               '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
-                                               '</div>';
-                                       }
-                                       else {
-                                           var btngroup = '<div class="btn-group">' +
-                                               '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
-                                               '</div>';
-                                       }
-                                        return btngroup;
-                                   }
-                                   if (movto == 6) {
-                                       if (data.QtdVolumes != null) {
-                                           var btngroup = '<div class="btn-group">' +
-                                               '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
-                                               '</div>';
-                                       }
-                                       else {
-                                           var btngroup = '<div class="btn-group">' +
-                                               '<a href="#" class="btn btn-xs btn-default btn-cancel" data-id="' + row.Id + '"><i class="fa fa-lg fa-times text-red"></i></a>' +
-                                               '</div>';
-                                       }
-                                       return btngroup;
-                                   }
-                               }
-                           },
-                ],
-                columnDefs: colDefs,
-                drawCallback: function () {
-                    if (movto != 0) {
-                        $('input[type="checkbox"]').iCheck({
-                            checkboxClass: 'icheckbox_flat-blue'
-                        });
-                    }
-                },
-                fnInitComplete: function () {
-                    $('div.datatable_filter').empty();
-
-                    if (movto != 0) {
-                        this.api().columns([6, 8, 10]).every(function (th) {
-
-                            var column = this;
-                            var theadname = $("#tbNotaFiscal th").eq([th - 1]).text(); 
-                            var select = $('<select class="form-control filter" id="filter' + theadname + '"> <option value="">' + theadname + '</option></select > ')
-                                .appendTo('div.datatable_filter')
-                                .on('change', function () {
-                                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                                    column
-                                        .search(val ? '^' + val + '$' : '', true, false)
-                                        .draw();
-
-                                    if ($(this).prop('selectedIndex') == 0) {
-                                        $(this).removeClass('selected');
-                                    } else {
-                                        $(this).addClass('selected');
-                                    }
-                                    $(this).blur();
-
-                                });
-
-                            column.cells('', column[0]).render('display').sort().unique().each(function (d, j) {
-                                var regX = /(<([^>]+)>)/ig; 
-                                d = d.replace(regX, '').trim();
-                                select.append('<option value="' + d + '">' + d + '</option>')
-                                if (d == currentUser) {
-                                    $('#filterUsuário').val(currentUser).change();
-                                }
-                            });
-                        });
-                    }
-
-                    $('#processing').addClass('hide');
-                    $('.data-container').removeClass('hide');
-
-                    var rowCount = table.rows().count();
-
-                    table.columns([0]).visible(false); // Romaneio Nr
-                    table.columns([1]).visible(false); // Dt
-                    table.columns([2]).visible(false); // Hr
-
-                        table.columns([6]).visible(false); // Contato Nr
-                        table.columns([7]).visible(false); // OS
-                        table.columns([9]).visible(false); // Vendedor
-                        table.columns([8]).visible(false); // Separador
-                        table.columns([0]).visible(false); // Dt Separador
-                    table.columns([0]).visible(false); // Hr Separador
-
-                    table.columns([8]).visible(false); // Conferente
-                    table.columns([0]).visible(false); // Dt Conferente
-                    table.columns([0]).visible(false); // Hr Conferente
-
-                    table.columns([0]).visible(false); // Status
-                    table.columns([0]).visible(false); // Localização
-                    
-
-                    $('#tbNotaFiscal').on('click', 'a.historico', function (e) {
-                        e.preventDefault();
-                        var id = $(this).attr('data-id');
-                        var url = '@Url.Action("Historico", "NotaFiscal", new { area = "SeparacaoApp", id = "_id" })';
-                        $('#myModalContent').load(url.replace('_id', id), function () {
-                            $('#myModal').modal({
-                                backdrop: 'static',
-                                keyboard: true
-                            }, 'show');
-                        });
-                        return false;
-                    });
-
-                    // Cancelar lançamento
-                    $('#tbNotaFiscal').on('click', 'a.btn-cancel', function (e) {
-                        swal({
-                            title: "Cancelar Lançamento de Separação",
-                            text: "Confirma o cancelamento do lançamento da Separação?",
-                            buttons: {
-                                cancel: {
-                                    text: "Não",
-                                    className: "swal-btn-danger",
-                                    closeModal: true,
-                                    visible: true,
-                                },
-                                confirm: {
-                                    text: "Sim",
-                                    className: "swal-btn-success",
-                                    closeModal: true,
-                                    visible: true
-                                }
-                            }
-                        }).then((confirm) => {
-                            if (confirm) {
-                                var notafiscal_id = $(this).data('id');
-
-                                $.ajax({
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    url: '@Url.Action("CancelarSeparacao", "NotaFiscal", new { area = "SeparacaoApp" })',
-                                    data: { id: notafiscal_id }
-                                }).done(function (response) {
-                                    if (response.success) {
-                                        swal({
-                                            title: "Cancelar Lançamento de Separação",
-                                            text: "Separação cancelada com sucesso!",
-                                            buttons: false,
-                                            timer: 1000,
-                                        }).then(function () {
-                                            //location.reload();
-                                            $('#tbNotaFiscal').DataTable().ajax.reload();
-                                        });
-                                    } else {
-                                        var div = document.createElement("div");
-                                        div.innerHTML = "<h4 class='swal-text-error'>" + response.msg + "</h4>";
-                                        swal({
-                                            title: "Cancelar Lançamento de Separação",
-                                            content: div,
-                                            buttons: {
-                                                confirm: {
-                                                    visible: false
-                                                },
-                                                cancel: {
-                                                    text: "Fechar",
-                                                    className: "swal-btn-danger",
-                                                    closeModal: true,
-                                                    visible: true
-                                                }
-                                            }
-                                        })
-                                    }
-                                }).fail(function (xhr, status, error) {
-                                    var errorMessage = xhr.status + ': ' + xhr.error;
-                                    var div = document.createElement("div");
-                                    div.innerHTML = "<h4 class='swal-text-error'>Ocorreu um erro ao cancelar a Separação!</h4><p class='swal-text-error-detail'>" + errorMessage + "</p>";
-                                    swal({
-                                        title: "Cancelar Lançamento da Separação",
-                                        content: div,
-                                        buttons: {
-                                            confirm: {
-                                                visible: false
-                                            },
-                                            cancel: {
-                                                text: "Fechar",
-                                                className: "swal-btn-danger",
-                                                closeModal: true,
-                                                visible: true
-                                            }
-                                        }
-                                    })
-                                })
-                            }
-                        });
-                    });
-                },
+            $('#tb-romaneios-separacao').DataTable({
+                paging: true,
+                info: true,
+                lengthChange: true,
+                pageLength: 50,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Todos']],
+                ordering: true,
+                order: [[2, 'asc'], [0, 'asc']],
                 language: {
-                    processing: "Carregando dados...",
-                    lengthMenu: "Exibir _MENU_ itens por página",
-                    search: "Procurar:",
-                    zeroRecords: "Nenhum item encontrado",
-                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
-                    infoEmpty: "Exibindo 0 de 0 itens",
-                    infoFiltered: "",
-                    thousands: ".",
-                    decimal: ",",
+                    search: "Pesquisar:",
+                    lengthMenu: "Exibir _MENU_ itens",
+                    zeroRecords: "Nenhum romaneio encontrado",
+                    info: "Exibindo _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 a 0 de 0 registros",
                     paginate: {
                         first: "Primeira",
                         last: "Última",
@@ -482,65 +214,52 @@
                 }
             });
 
-            table.columns.adjust().draw(false);
+            restorePicker();
 
-            // Handle iCheck change event for "select all" control
-            $(table.table().container()).on('ifChanged', '.dt-checkboxes-select-all input[type="checkbox"]', function (event) {
-                var col = table.column($(this).closest('th'), { filter: 'applied' });
-                col.checkboxes.select(this.checked);
+            $('#romaneioNr').on('keydown', function (event) {
+                if (event.key !== 'Enter') {
+                    return;
+                }
+
+                event.preventDefault();
+
+                if ($('#pickerId').val()) {
+                    tryStartSeparacao();
+                    return;
+                }
+
+                $('#pickerId').focus();
             });
 
-            // Handle iCheck change event for checkboxes in table body
-            $(table.table().container()).on('ifChanged', '.dt-checkboxes', function (event) {
-                var cell = table.cell($(this).closest('td'));
-                cell.checkboxes.select(this.checked);
+            $('#tb-romaneios-separacao').on('click', '.select-romaneio', function (event) {
+                event.preventDefault();
+
+                var romaneioNr = $(this).data('romaneio-nr');
+                if (!romaneioNr) {
+                    return;
+                }
+
+                $('#romaneioNr').val(String(romaneioNr));
+
+                if ($('#pickerId').val()) {
+                    tryStartSeparacao();
+                    return;
+                }
+
+                $('#pickerId').focus();
             });
 
-        }
+            $('#pickerId').on('change', function () {
+                window.localStorage.setItem(pickerStorageKey, $(this).val() || '');
 
-        function EnableDisablePrintRoteiro() {
-            var rows_selected = $('#tbNotaFiscal').DataTable().column(0).checkboxes.selected();
-            if (rows_selected.length > 0) {
-                $('#qtdRoteiros').text("(" + rows_selected.length + ")");
-                $('#btnImprimirRoteiros').removeClass('hide');
-            } else {
-                $('#btnImprimirRoteiros').addClass('hide');
-            }
-        }
+                if ($(this).val()) {
+                    $('#romaneioNr').focus();
+                }
 
-        function EnableDisableProcessarNotasFiscais() {
-            var rows_selected = $('#tbNotaFiscal').DataTable().column(0).checkboxes.selected();
-            if (rows_selected.length > 0) {
-                $('#qtdNotasFicais').text("(" + rows_selected.length + ")");
-                $('#btnProcessarNotasFiscais').removeClass('hide');
-            } else {
-                $('#btnProcessarNotasFiscais').addClass('hide');
-            }
-        }
-
-        function ProcessNextPrint(arr_etiquetas_next) {
-            const nextItem = arr_etiquetas_next.shift()
-            //const nextItem = arr_etiquetas.shift()
-            if (nextItem) {
-                isFunctionRunning = true;
-                ImprimirEtiqueta(nextItem, arr_etiquetas_next);
-            } else {
-                isFunctionRunning = false;
-               // location.reload();
-            }
-        }
-
-        //função para verificar se é possivel usar local storage no browser do usuário
-        function localStorageAvailable() {
-            if (typeof (Storage) !== "undefined") {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-
+                if ($.trim($('#romaneioNr').val()).length > 0) {
+                    tryStartSeparacao();
+                }
+            });
+        });
     </script>
 }
-
-

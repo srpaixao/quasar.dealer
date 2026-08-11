@@ -1,0 +1,235 @@
+@model IEnumerable<Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.FuncaoViewModel>
+@{
+    ViewBag.Title = "Controle de Acesso";
+    ViewBag.Description = "Funções";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .datatable_filter {
+        padding-bottom: 15px;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @ViewBag.Title <small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <a href="#" data-url="@Url.Action("Create", "Funcao", new { area = "ControleAcessoApp"})" class="btn btn-primary create"> <i class="fa-solid fa-key fa-fw"></i> Nova</a>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover table-small" id="tbFuncao">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Controller</th>
+                                    <th>Action</th>
+                                    <th>Menu</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td><a href="#" class="edit" data-id="@item.Id"><b>@item.Codigo</b></a></td>
+                                        <td>@item.DescPTBR</td>
+                                        <td>@item.Controller</td>
+                                        <td>@item.Action</td>
+                                        <td>@item.TituloMenu</td>
+                                        <td>
+                                            @if (item.Status)
+                                            {
+                                                <span class="label label-success">Ativo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="label label-danger">Inativo</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a href="#" class="detail" title="Detalhes" data-id="@item.Id"><i class="fa-solid fa-eye fa-lg fa-fw text-info"></i></a>
+                                            <a href="#" class="delete" title="Excluir" data-id="@item.Id"><i class="fa-regular fa-trash-can fa-lg fa-fw text-red"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/moment/moment.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $('#tbFuncao').DataTable({
+                processing: true,
+                deferRender: true,
+                pageLength: 25,
+                columnDefs: [
+                    { orderable: false, targets: -1 }
+                ],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum registro localizado",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            $.ajaxSetup({ cache: false });
+
+            $("a.create").click(function () {
+                var url = $(this).attr('data-url');
+                if (url) {
+                    $('#myModalContent').load(url, function () {
+                        $('#myModal').modal({
+                            backdrop: 'static',
+                            keyboard: true
+                        }, 'show');
+                        bindForm(this);
+                    });
+                    return false;
+                }
+            });
+
+            $("#tbFuncao").on("click", "a.edit", function (e) {
+                var id = $(this).attr("data-id");
+                var url = '@Url.Action("Edit", "Funcao", new { area="ControleAcessoApp", id = "_id" })';
+                $('#myModalContent').load(url.replace("_id", id), function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            $("#tbFuncao").on("click", "a.detail", function (e) {
+                var id = $(this).attr("data-id");
+                var url = '@Url.Action("Detail", "Funcao", new { area="ControleAcessoApp", id = "_id" })';
+                $('#myModalContent').load(url.replace("_id", id), function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                });
+                return false;
+            });
+
+            $("#tbFuncao").on("click", "a.delete", function (e) {
+                var funcaoId = $(this).attr("data-id");
+                var funcao = $(this).closest('tr').find('td:eq(0)').text().trim();
+
+                var div = document.createElement("div");
+                div.innerHTML = "<span>Confirma a exclusão da função <b>" + funcao + "</b> ?</span>";
+                swal({
+                    title: "Cadastro de Funções",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true,
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then((confirm) => {
+                    if (confirm) {
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            url: '@Url.Action("Delete", "Funcao", new { area = "ControleAcessoApp"})',
+                            data: { id: funcaoId },
+                            success: function (data) {
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    swal("Atenção", data.msg, "warning");
+                                }
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                swal("Erro", "Ocorreu um erro ao excluir a função.", "error");
+                            }
+                        });
+                    }
+                });
+            });
+
+            function bindForm(dialog) {
+                $('form', dialog).submit(function () {
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: $(this).serialize(),
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                                location.reload();
+                            } else {
+                                $('#myModalContent').html(result);
+                                bindForm();
+                            }
+                        },
+                        error: function (data) {
+                            console.log('erro', data);
+                        }
+                    });
+                    return false;
+                });
+            }
+        });
+    </script>
+}

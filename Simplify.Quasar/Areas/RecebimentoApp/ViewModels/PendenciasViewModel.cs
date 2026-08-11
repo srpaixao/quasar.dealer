@@ -14,12 +14,14 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.ViewModels
         public string Locacao { get; set; }
         public decimal Quantidade { get; set; }
         public DateTime DtHr { get; set; }
+        public string DtHrTexto { get; set; }
         public string VolumeNr { get; set; }
         public int StatusId { get; set; }
         public string Origem { get; set; }
         public string Status { get; set; }
         public string Usuario { get; set; }
         public DateTime? CriadoEm { get; set; }
+        public string CriadoEmTexto { get; set; }
 
         public DateTime? ModificadoEm { get; set; }
         

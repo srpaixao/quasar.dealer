@@ -1,0 +1,113 @@
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Materiais";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string permissoes = ViewBag.Permissoes as string ?? string.Empty;
+    bool podeIncluir = permissoes.Contains("[add]");
+}
+
+<style>
+    .material-search {
+        max-width: 900px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="form-group material-search">
+                        <label for="materialCodigo">Item Nr</label>
+                        <input id="materialCodigo"
+                               type="text"
+                               class="form-control"
+                               maxlength="100"
+                               autocomplete="off"
+                               autofocus
+                               placeholder="Digite o Item Nr e pressione Enter" />
+                    </div>
+                </div>
+                <div class="col-md-2 text-right">
+                    @if (podeIncluir)
+                    {
+                        <a href="@Url.Action("Create", "Material", new { area = "ConfiguracaoApp" })"
+                           class="btn btn-primary"
+                           style="margin-top: 25px;">
+                            <i class="fa fa-plus fa-fw"></i> Novo
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(function () {
+            var summaryUrl = '@Url.Action("ObterResumo", "Material", new { area = "ConfiguracaoApp" })';
+            var editUrl = '@Url.Action("Edit", "Material", new { area = "ConfiguracaoApp" })';
+            var flashMessage = @Html.Raw(Json.Encode(TempData["Flash.Message"]));
+            var flashType = @Html.Raw(Json.Encode(TempData["Flash.Type"]));
+
+            function showMaterialPopup(message, type) {
+                var content = document.createElement('div');
+                var text = document.createElement('h4');
+                text.className = type === 'success' ? 'swal-text-success' : 'swal-text-warning';
+                text.textContent = message;
+                content.appendChild(text);
+
+                return swal({
+                    title: 'Cadastro de Materiais',
+                    content: content,
+                    buttons: {
+                        confirm: {
+                            text: 'OK',
+                            className: 'swal-btn-info',
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                });
+            }
+
+            if (flashMessage) {
+                showMaterialPopup(flashMessage, flashType);
+            }
+
+            $('#materialCodigo').on('keydown', function (event) {
+                if (event.key !== 'Enter' && event.which !== 13) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                var codigo = $.trim($(this).val());
+
+                if (!codigo) {
+                    return;
+                }
+
+                $.getJSON(summaryUrl, { codigo: codigo })
+                    .done(function (response) {
+                        if (!response.success) {
+                            showMaterialPopup(response.msg || 'Material não encontrado.', 'warning');
+                            return;
+                        }
+
+                        window.location.href =
+                            editUrl + '?codigo=' + encodeURIComponent(response.data.Codigo);
+                    })
+                    .fail(function () {
+                        showMaterialPopup('Não foi possível consultar o material.', 'warning');
+                    });
+            });
+        });
+    </script>
+}

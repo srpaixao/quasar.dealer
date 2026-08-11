@@ -1,0 +1,197 @@
+﻿@using System.Linq
+@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioViewModel
+@{
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "Não Gerados";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li><a href="@Url.Action("Index", "Romaneio", new { area = "SeparacaoApp" })">Separação</a></li>
+                <li><a href="@Url.Action("Conferencia", "Romaneio", new { area = "SeparacaoApp" })">Conferência</a></li>
+                <li><a href="@Url.Action("Administracao", "Romaneio", new { area = "SeparacaoApp" })">Finalizado</a></li>
+                <li class="active"><a href="@Url.Action("AnaliseNaoGerados", "Romaneio", new { area = "SeparacaoApp" })">Não Gerados</a></li>
+                <li><a href="@Url.Action("Atualizacao", "Romaneio", new { area = "SeparacaoApp" })">Atualização</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="box-body">
+                        @if (TempData["Flash.Message"] != null)
+                        {
+                            <div class="alert alert-@TempData["Flash.Type"]" style="margin-top:12px;">
+                                @TempData["Flash.Message"]
+                            </div>
+                        }
+
+                        @using (Html.BeginForm("ExportarNaoGeradosAnalise", "Romaneio", new { area = "SeparacaoApp" }, FormMethod.Post, new { @class = "row", style = "margin-top:12px;", id = "frmExportarNaoGerados" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Romaneio Início</label>
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" id="romaneioInicio" name="romaneioInicio" value="@(Model.RomaneioInicio > 0 ? Model.RomaneioInicio.ToString() : string.Empty)" />
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label>Romaneio Final</label>
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" class="form-control" id="romaneioFinal" name="romaneioFinal" value="@(Model.RomaneioFinal > 0 ? Model.RomaneioFinal.ToString() : string.Empty)" />
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div style="margin-top:25px;">
+                                    <button type="submit" id="btnExportarNaoGerados" class="btn btn-default">
+                                        <i class="fa fa-search"></i> Pesquisar
+                                    </button>
+                                    @if (Model.CanFinalizarNaoGeradosExportados)
+                                    {
+                                        <button type="button"
+                                                id="btnFinalizarNaoGerados"
+                                                class="btn btn-success"
+                                                style="margin-left:8px;">
+                                            <i class="fa fa-check"></i> Finalizar
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.CanFinalizarNaoGeradosExportados)
+                        {
+                            <form id="frmFinalizarNaoGerados"
+                                  action="@Url.Action("FinalizarNaoGerados", "Romaneio", new { area = "SeparacaoApp" })"
+                                  method="post"
+                                  style="display:none;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="romaneioInicio" value="@Model.RomaneioInicio" />
+                                <input type="hidden" name="romaneioFinal" value="@Model.RomaneioFinal" />
+                            </form>
+                        }
+
+                        <div class="table-responsive" style="margin-top:18px;">
+                            <table class="table table-bordered table-striped" id="tb-romaneios-nao-gerados">
+                                <thead>
+                                    <tr>
+                                        <th>Romaneio Nr</th>
+                                        <th>Criado Em</th>
+                                        <th>Criado Por</th>
+                                        <th>Alterado Em</th>
+                                        <th>Alterado Por</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.GridItems != null && Model.GridItems.Any())
+                                    {
+                                        foreach (var item in Model.GridItems)
+                                        {
+                                            <tr>
+                                                <td>@item.RomaneioNr</td>
+                                                <td data-order="@(item.CriadoEm.HasValue ? item.CriadoEm.Value.ToString("yyyyMMddHHmmss") : string.Empty)">@(item.CriadoEm.HasValue ? item.CriadoEm.Value.ToString("dd/MM/yyyy HH:mm") : string.Empty)</td>
+                                                <td>@item.CriadoPor</td>
+                                                <td data-order="@(item.ModificadoEm.HasValue ? item.ModificadoEm.Value.ToString("yyyyMMddHHmmss") : string.Empty)">@(item.ModificadoEm.HasValue ? item.ModificadoEm.Value.ToString("dd/MM/yyyy HH:mm") : string.Empty)</td>
+                                                <td>@item.ModificadoPor</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script>
+        function iniciarDownloadNaoGerados() {
+            var downloadLink = document.createElement('a');
+            downloadLink.href = '@Url.Action("DownloadNaoGeradosAnalise", "Romaneio", new { area = "SeparacaoApp" })' + '?_=' + new Date().getTime();
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            setTimeout(function () {
+                if (downloadLink.parentNode) {
+                    downloadLink.parentNode.removeChild(downloadLink);
+                }
+            }, 250);
+        }
+
+        $(function () {
+            $('#tb-romaneios-nao-gerados').DataTable({
+                paging: true,
+                info: true,
+                lengthChange: true,
+                pageLength: 50,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Todos']],
+                ordering: true,
+                order: [[1, 'desc'], [0, 'desc']],
+                language: {
+                    search: "Pesquisar:",
+                    lengthMenu: "Exibir _MENU_ itens",
+                    emptyTable: "Nenhum romaneio localizado.",
+                    zeroRecords: "Nenhum romaneio encontrado",
+                    info: "Exibindo _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 a 0 de 0 registros",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            var triggerDownload = @(Model.TriggerDownloadNaoGerados ? "true" : "false");
+            var $frmFinalizarNaoGerados = $('#frmFinalizarNaoGerados');
+
+            $('#btnFinalizarNaoGerados').on('click', function () {
+                if (!$frmFinalizarNaoGerados.length) {
+                    return;
+                }
+
+                var div = document.createElement('div');
+                div.innerHTML = '<span>Deseja finalizar os romaneios exportados?</span>';
+
+                swal({
+                    title: "Romaneios Não Gerados",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then(function (confirm) {
+                    if (confirm) {
+                        $frmFinalizarNaoGerados.trigger('submit');
+                    }
+                });
+            });
+
+            if (triggerDownload) {
+                iniciarDownloadNaoGerados();
+            }
+        });
+    </script>
+}

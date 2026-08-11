@@ -1,0 +1,219 @@
+@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioViewModel
+@using System
+@using System.Linq
+@using System.Web
+@{
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "Consulta por Romaneio Nr";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var header = Model.ConsultaDetalhe;
+    var itens = Model.ConsultaItensDetalhe ?? Enumerable.Empty<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioConsultaItemViewModel>();
+}
+
+@functions {
+    public string FormatDateTime(DateTime? value)
+    {
+        return value.HasValue ? value.Value.ToString("dd/MM/yyyy HH:mm:ss") : "-";
+    }
+
+    public string FormatText(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+}
+
+<style>
+    .consulta-romaneio .box {
+        margin-bottom: 18px;
+    }
+
+    .consulta-romaneio .filtro-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 16px;
+    }
+
+    .consulta-romaneio .filtro-field {
+        min-width: 280px;
+        max-width: 480px;
+        flex: 1 1 380px;
+    }
+
+    .consulta-romaneio .header-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px 18px;
+    }
+
+    .consulta-romaneio .info-card {
+        border: 1px solid #e5edf4;
+        border-radius: 10px;
+        padding: 12px 14px;
+        background: #fbfdff;
+        min-height: 76px;
+    }
+
+    .consulta-romaneio .info-label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #6e7f91;
+        margin-bottom: 6px;
+    }
+
+    .consulta-romaneio .info-value {
+        font-size: 17px;
+        font-weight: 600;
+        color: #12395d;
+        word-break: break-word;
+    }
+
+    .consulta-romaneio .table th {
+        white-space: nowrap;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content consulta-romaneio">
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Filtro de Pesquisa</h3>
+        </div>
+        <div class="box-body">
+            @if (TempData["Flash.Message"] != null)
+            {
+                <div class="alert alert-@TempData["Flash.Type"]" style="margin-bottom:16px;">
+                    @TempData["Flash.Message"]
+                </div>
+            }
+
+            @using (Html.BeginForm("Consulta", "Romaneio", new { area = "SeparacaoApp" }, FormMethod.Get))
+            {
+                <div class="filtro-row">
+                    <div class="form-group filtro-field">
+                        <label>Romaneio Nr</label>
+                        @Html.TextBoxFor(m => m.RomaneioNr, new { @class = "form-control", @autocomplete = "off", @placeholder = "Digite o romaneio nr" })
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-search"></i> Pesquisar
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.ConsultaRealizada)
+    {
+        if (header == null)
+        {
+            <div class="alert alert-warning">
+                @(string.IsNullOrWhiteSpace(Model.ConsultaMensagem) ? HttpUtility.HtmlDecode("Romaneio n&atilde;o localizado.") : Model.ConsultaMensagem)
+            </div>
+        }
+        else
+        {
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Dados do Romaneio</h3>
+                </div>
+                <div class="box-body">
+                    <div class="header-grid">
+                        <div class="info-card">
+                            <span class="info-label">Romaneio Nr</span>
+                            <div class="info-value">@FormatText(header.RomaneioNr)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Contato Nr</span>
+                            <div class="info-value">@FormatText(header.ContatoNr)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Status</span>
+                            <div class="info-value">@FormatText(header.Status)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Vendedor</span>
+                            <div class="info-value">@FormatText(header.Vendedor)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Criado em</span>
+                            <div class="info-value">@FormatDateTime(header.CriadoEm)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Criado por</span>
+                            <div class="info-value">@FormatText(header.CriadoPor)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Separador</span>
+                            <div class="info-value">@FormatText(header.Separador)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">@Html.Raw("Dt Separa&ccedil;&atilde;o")</span>
+                            <div class="info-value">@FormatDateTime(header.DataSeparacao)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Conferente</span>
+                            <div class="info-value">@FormatText(header.Conferente)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">@Html.Raw("Dt Confer&ecirc;ncia")</span>
+                            <div class="info-value">@FormatDateTime(header.DataConferencia)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Modificado em</span>
+                            <div class="info-value">@FormatDateTime(header.ModificadoEm)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Modificado por</span>
+                            <div class="info-value">@FormatText(header.ModificadoPor)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Itens do Romaneio</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Item Nr</th>
+                                    <th>@Html.Raw("Descri&ccedil;&atilde;o")</th>
+                                    <th class="text-center">Qtde</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (itens.Any())
+                                {
+                                    foreach (var item in itens)
+                                    {
+                                        <tr>
+                                            <td>@FormatText(item.ItemNr)</td>
+                                            <td>@FormatText(item.Descricao)</td>
+                                            <td class="text-center">@(item.Qtde.HasValue ? item.Qtde.Value.ToString() : "-")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">Nenhum item vinculado ao romaneio.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</section>

@@ -1,0 +1,412 @@
+@model Simplify.Quasar.Areas.DevolucaoApp.ViewModels.DevolucaoPrintViewModel
+@{
+    ViewBag.Title = "Devolu&ccedil;&atilde;o";
+    ViewBag.Description = "Detalhes do Processo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var itens = Model.Itens ?? new List<Simplify.Quasar.Areas.DevolucaoApp.ViewModels.DevolucaoPrintItemViewModel>();
+    int totalItens = itens.Count;
+    int totalQuantidade = itens.Sum(x => x.Quantidade);
+    decimal valorTotal = itens.Sum(x => x.Quantidade * x.ValorUnitario);
+}
+
+<style>
+    .devolucao-detalhe-box {
+        border-top: 3px solid #1f5a7d;
+    }
+
+    .devolucao-detalhe-actions {
+        margin-top: 4px;
+    }
+
+    .devolucao-detalhe-label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 700;
+    }
+
+    .devolucao-detalhe-value {
+        min-height: 34px;
+        padding: 7px 10px;
+        border: 1px solid #d2d6de;
+        background: #f9fafc;
+    }
+
+    .devolucao-detalhe-table th,
+    .devolucao-detalhe-table td {
+        vertical-align: middle !important;
+    }
+
+    .devolucao-detalhe-table th.text-right,
+    .devolucao-detalhe-table td.text-right {
+        text-align: right !important;
+    }
+
+    .devolucao-detalhe-table th.text-center,
+    .devolucao-detalhe-table td.text-center {
+        text-align: center !important;
+    }
+
+    .devolucao-detalhe-total {
+        margin-top: 10px;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .devolucao-detalhe-error {
+        margin-top: 5px;
+        color: #dd4b39;
+    }
+</style>
+
+<section class="content-header clearfix">
+    <div class="pull-right devolucao-detalhe-actions">
+        <a href="@Url.Action("Print", "Home", new { area = "DevolucaoApp", id = Model.Id })" class="btn btn-primary" target="_blank">
+            <i class="fa fa-fw fa-print"></i> Reimprimir Autoriza&ccedil;&atilde;o de Devolu&ccedil;&atilde;o
+        </a>
+    </div>
+    <h1>
+        @Html.Raw(ViewBag.Title)<small>@Html.Raw(ViewBag.Description)</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default devolucao-detalhe-box">
+        <div class="box-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @Html.ValidationSummary(false)
+                </div>
+            }
+
+            @using (Html.BeginForm("Excluir", "Home", new { area = "DevolucaoApp" }, FormMethod.Post, new { id = "devolucao-excluir-form", style = "display:none;" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("id", Model.Id)
+            }
+
+            @using (Html.BeginForm("Detalhe", "Home", new { area = "DevolucaoApp" }, FormMethod.Post, new { id = "devolucao-detalhe-form", data_current_status_id = Model.OriginalStatusId ?? 0 }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Controle Nr</label>
+                            <div class="devolucao-detalhe-value">@Model.ControleNr</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Status</label>
+                            @Html.DropDownListFor(m => m.StatusId, Model.StatusDDL, new { @class = "form-control", id = "StatusId", required = "required" })
+                            @Html.ValidationMessageFor(m => m.StatusId, null, new { @class = "devolucao-detalhe-error" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Tipo de Movimento</label>
+                            @Html.DropDownListFor(m => m.Movimento, Model.MovimentoDDL, new { @class = "form-control", id = "Movimento", required = "required" })
+                            @Html.ValidationMessageFor(m => m.Movimento, null, new { @class = "devolucao-detalhe-error" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Efetuar Retirada</label>
+                            @Html.DropDownListFor(m => m.Retirar, Model.RetirarDDL, new { @class = "form-control", id = "Retirar", required = "required" })
+                            @Html.ValidationMessageFor(m => m.Retirar, null, new { @class = "devolucao-detalhe-error" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Cliente</label>
+                            <div class="devolucao-detalhe-value">@Model.Cliente</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Vendedor</label>
+                            <div class="devolucao-detalhe-value">@Model.Vendedor</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Transportadora</label>
+                            @Html.DropDownListFor(m => m.TransportadoraId, Model.TransportadoraDDL, new { @class = "form-control", id = "TransportadoraId", required = "required" })
+                            @Html.ValidationMessageFor(m => m.TransportadoraId, null, new { @class = "devolucao-detalhe-error" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Motivo</label>
+                            @Html.DropDownListFor(m => m.MotivoId, Model.MotivoDDL, new { @class = "form-control", id = "MotivoId", required = "required" })
+                            @Html.ValidationMessageFor(m => m.MotivoId, null, new { @class = "devolucao-detalhe-error" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Sinistro</label>
+                            @Html.TextBoxFor(m => m.Sinistro, new { @class = "form-control", maxlength = "50", id = "Sinistro" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Placa</label>
+                            @Html.TextBoxFor(m => m.PlacaVeiculo, new { @class = "form-control", maxlength = "20", id = "PlacaVeiculo" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">NFiscal de Venda</label>
+                            <div class="devolucao-detalhe-value">@Model.NFVenda</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Dt NFiscal</label>
+                            <div class="devolucao-detalhe-value">@(Model.DataVenda.HasValue ? Model.DataVenda.Value.ToString("dd/MM/yyyy") : string.Empty)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">NFiscal de Devolu&ccedil;&atilde;o</label>
+                            @Html.TextBoxFor(m => m.NFDevolucao, new { @class = "form-control", maxlength = "30", id = "NFDevolucao", required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Filial</label>
+                            <div class="devolucao-detalhe-value">@Model.FilialNome</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Usu&aacute;rio do Cadastro</label>
+                            <div class="devolucao-detalhe-value">@Model.UsuarioCadastro</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Data / Hora do Cadastro</label>
+                            <div class="devolucao-detalhe-value">@(Model.DataCadastro.HasValue ? Model.DataCadastro.Value.ToString("dd/MM/yyyy HH:mm:ss") : string.Empty)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="devolucao-detalhe-label">Observa&ccedil;&otilde;es</label>
+                            @Html.TextAreaFor(m => m.Observacao, 3, 1, new { @class = "form-control", maxlength = "500", id = "Observacao" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-responsive">
+                            <table class="table table-condensed table-bordered table-hover devolucao-detalhe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item Nr</th>
+                                        <th>Descri&ccedil;&atilde;o</th>
+                                        <th class="text-center">Qtde</th>
+                                        <th class="text-right">Valor Unit&aacute;rio</th>
+                                        <th class="text-right">Valor Total</th>
+                                        <th>Observa&ccedil;&atilde;o</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (itens.Count > 0)
+                                    {
+                                        foreach (var item in itens)
+                                        {
+                                            <tr>
+                                                <td><b>@item.ItemNr</b></td>
+                                                <td>@item.Descricao</td>
+                                                <td class="text-center">@item.Quantidade</td>
+                                                <td class="text-right">@item.ValorUnitario.ToString("N2")</td>
+                                                <td class="text-right">@((item.Quantidade * item.ValorUnitario).ToString("N2"))</td>
+                                                <td>@item.Observacao</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="6">Nenhum item localizado.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="devolucao-detalhe-total">
+                            @totalItens Item(s) | Qtde Total: @totalQuantidade | Valor Total: R$@valorTotal.ToString("N2")
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 text-right">
+                        <button type="button" class="btn btn-danger pull-left" id="devolucao-excluir-button">
+                            <i class="fa fa-trash"></i> EXCLUIR
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-save"></i> Salvar Altera&ccedil;&otilde;es
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+    (function ($) {
+        var form = $("#devolucao-detalhe-form");
+        var deleteForm = $("#devolucao-excluir-form");
+        var deleteButton = $("#devolucao-excluir-button");
+
+        deleteButton.on("click", function () {
+            var confirmDelete = function () {
+                deleteForm[0].submit();
+            };
+
+            if (typeof swal === "function") {
+                var div = document.createElement("div");
+                div.innerHTML = "<span>Confirma a exclus\u00E3o deste processo de devolu\u00E7\u00E3o?</span>";
+
+                swal({
+                    title: "Cadastro de Devolu\u00E7\u00F5es",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "N\u00E3o",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then(function (confirmed) {
+                    if (confirmed) {
+                        confirmDelete();
+                    }
+                });
+                return;
+            }
+        });
+
+        if (!form.length) {
+            return;
+        }
+
+        function showMessage(type, message, title) {
+            if (typeof swal === 'function') {
+                var div = document.createElement('div');
+                div.innerHTML = "<h4 class='swal-text-" + (type || 'warning') + "'>" + $('<div/>').text(message || '').html() + "</h4>";
+
+                swal({
+                    title: title || 'Devolução',
+                    content: div,
+                    buttons: {
+                        confirm: {
+                            className: type === 'error' ? 'swal-btn-danger' : 'swal-btn-info'
+                        }
+                    }
+                });
+                return;
+            }
+
+            alert(message);
+        }
+
+        form.on("submit", function (e) {
+            var currentStatusId = (form.data("current-status-id") || "").toString();
+            var statusId = ($("#StatusId").val() || "").toString();
+            var movimento = ($("#Movimento").val() || "").toString();
+            var retirar = ($("#Retirar").val() || "").toString();
+            var motivoId = ($("#MotivoId").val() || "").toString();
+            var transportadoraId = ($("#TransportadoraId").val() || "").toString();
+            var nfDevolucao = ($("#NFDevolucao").val() || "").trim();
+            var allowedStatusIds = $("#StatusId option").map(function () {
+                return $(this).val();
+            }).get().filter(function (value) {
+                return value !== "";
+            });
+
+            var errors = [];
+
+            if (!statusId) {
+                errors.push("Informe o status.");
+            }
+
+            if (!movimento) {
+                errors.push("Informe o tipo de movimento.");
+            }
+
+            if (!retirar) {
+                errors.push("Informe se deve efetuar retirada.");
+            }
+
+            if (!motivoId) {
+                errors.push("Informe o motivo.");
+            }
+
+            if (!transportadoraId) {
+                errors.push("Informe a transportadora.");
+            }
+
+            if (!nfDevolucao) {
+                errors.push("Informe a NFiscal de devolução.");
+            }
+
+            if (statusId && allowedStatusIds.indexOf(statusId) === -1) {
+                errors.push("Neste formul\u00E1rio o status pode ser alterado para Cancelado.");
+            }
+
+            if (currentStatusId && allowedStatusIds.indexOf(currentStatusId) === -1) {
+                errors.push("Neste formul\u00E1rio a devolu\u00E7\u00E3o pode ser alterada para Cancelado.");
+            }
+
+            if (errors.length) {
+                e.preventDefault();
+                showMessage('warning', errors[0]);
+            }
+        });
+    })(jQuery);
+</script>
+}

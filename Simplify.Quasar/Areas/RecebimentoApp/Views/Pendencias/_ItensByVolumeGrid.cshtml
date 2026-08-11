@@ -1,0 +1,84 @@
+@model IEnumerable<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.ItensByVolumeViewModel>
+@using System.Globalization
+
+<style>
+    #tbItensByVolume th, #tbItensByVolume td { vertical-align: middle; }
+    #tbItensByVolume .qtd-conferencia-acoes { display: flex; align-items: center; gap: 8px; min-width: 245px; }
+    #tbItensByVolume .qtd-conferida-pendencia { width: 125px; min-width: 125px; }
+    #tbItensByVolume .confirmar-pendencia { white-space: nowrap; }
+    #tbItensByVolume .auditoria-item { color: #777; font-size: 11px; white-space: nowrap; }
+</style>
+
+<div class="table-responsive">
+    <table class="table table-condensed table-bordered table-hover" style="width:100%" id="tbItensByVolume">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Descri&ccedil;&atilde;o</th>
+                <th>Loca&ccedil;&atilde;o</th>
+                <th class="text-right">Qtde NF</th>
+                <th>Qtde Conferida</th>
+                <th class="text-right">Diferen&ccedil;a</th>
+                <th>Nota Fiscal</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                string quantidade = item.Quantidade.ToString("0.###", CultureInfo.InvariantCulture);
+                string quantidadeConferida = item.QtdConferida.HasValue
+                    ? item.QtdConferida.Value.ToString("0.###", CultureInfo.GetCultureInfo("pt-BR"))
+                    : string.Empty;
+                string modificadoEm = item.ModificadoEm.HasValue ? item.ModificadoEm.Value.ToString("o") : string.Empty;
+
+                <tr data-id="@item.NfItemId" data-quantidade="@quantidade" data-modificado-em="@modificadoEm">
+                    <td>
+                        <div>@item.ItemNr</div>
+                        @if (item.ItemCritico)
+                        {
+                            <div class="text-orange text-bold small" style="margin-top:4px">
+                                <i class="fa fa-exclamation-triangle"></i>
+                                @(string.IsNullOrWhiteSpace(item.ObservacaoItemCritico)
+                                    ? "Item crítico sem observação cadastrada."
+                                    : item.ObservacaoItemCritico)
+                            </div>
+                        }
+                    </td>
+                    <td>@item.ItemDescricao</td>
+                    <td>@item.Locacao</td>
+                    <td class="text-right qtd-nf">@item.Quantidade.ToString("N3")</td>
+                    <td>
+                        <div class="qtd-conferencia-acoes">
+                            <input type="text"
+                                   inputmode="decimal"
+                                   class="form-control input-sm qtd-conferida-pendencia"
+                                   value="@quantidadeConferida"
+                                   oninput="atualizarDiferencaConferenciaVolume(this);"
+                                   @(!item.HabilitarCheckbox ? "disabled=\"disabled\"" : null) />
+                            <button type="button"
+                                    class="btn btn-success btn-sm confirmar-pendencia"
+                                    onclick="confirmarItemConferenciaVolume(this);"
+                                    @(!item.HabilitarCheckbox ? "disabled=\"disabled\"" : null)>
+                                <i class="fa fa-check"></i> Confirmar
+                            </button>
+                        </div>
+                    </td>
+                    <td class="text-right diferenca-pendencia">@(item.Diferenca.HasValue ? item.Diferenca.Value.ToString("+0.###;-0.###;0") : "-")</td>
+                    <td>@item.NumeroNF</td>
+                    <td class="situacao-pendencia">
+                        <strong>@item.SituacaoConferencia</strong>
+                        @if (!string.IsNullOrWhiteSpace(item.UsuarioConferencia) || item.DtHrConferencia.HasValue)
+                        {
+                            <div class="auditoria-item">Confer&ecirc;ncia: @(item.UsuarioConferencia ?? "-") &middot; @(item.DtHrConferencia.HasValue ? item.DtHrConferencia.Value.ToString("dd/MM/yyyy HH:mm:ss") : "-")</div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.UsuarioArmazenagem) || item.DtHrArmazenagem.HasValue)
+                        {
+                            <div class="auditoria-item">Armazenagem: @(item.UsuarioArmazenagem ?? "-") &middot; @(item.DtHrArmazenagem.HasValue ? item.DtHrArmazenagem.Value.ToString("dd/MM/yyyy HH:mm:ss") : "-")</div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

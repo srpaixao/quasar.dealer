@@ -1,0 +1,70 @@
+@model Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.PerfilViewModel
+@{
+    ViewBag.Title = "Create Perfil";
+    Layout = null;
+}
+
+@if (ViewBag.Exception == null)
+{
+    using (Html.BeginForm())
+    {
+        <div class="modal-header bg-blue-gradient">
+            <span><i class="fa-solid fa-user-tag fa-lg fa-fw"></i>&nbsp;&nbsp;Cadastrar Perfil de Acesso</span>
+        </div>
+
+        @Html.AntiForgeryToken()
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", @autocomplete = "off" })
+                        <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.Nome)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label class="form-label">Descri&ccedil;&atilde;o</label>
+                        @Html.TextAreaFor(m => m.Descricao, new { @class = "form-control", @rows = "3", @autocomplete = "off" })
+                        <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.Descricao)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-lg-6">
+                    <div class="form-group">
+                        <label class="form-label">Filial</label>
+                        @Html.DropDownListFor(m => m.FilialId, Model.FilialDDL, "-- Selecione --", new { @class = "form-control" })
+                        <div class="invalid-feedback text-nowrap">@Html.ValidationMessageFor(m => m.FilialId)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="pull-right">
+                <button type="submit" id="btnSave" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+            </div>
+        </div>
+    }
+}
+else
+{
+    @Html.Partial("~/Views/Shared/ErrorModal.cshtml")
+}
+
+<script>
+    $(document).ready(function () {
+        $('.input-validation-error').each(function () {
+            $(this).addClass('is-invalid')
+        }).on('focus', function () {
+            $(this).removeClass('is-invalid')
+        })
+    });
+</script>

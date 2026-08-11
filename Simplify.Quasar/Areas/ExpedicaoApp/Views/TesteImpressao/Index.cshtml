@@ -19,15 +19,16 @@
             <div class="row">
                 <div class="col-xs-12 col-lg-6">
 
-                    <form action="localhost" id="formulario" method="POST">
+                    <form action="" id="formulario" method="POST">
 
                         <label>IP Servidor Impressão</label><input type="text" name="ipServidorImpressao" id="ipServidorImpressao"
-                                                                   value="127.0.0.1" /><br />
+                                                                   value="@ViewBag.PrinterServerIP" /><br />
                         <label>Porta Servidor de Impressão</label><input type="number" name="portaServidorImpressao"
-                                                                         id="portaServidorImpressao" value="8085" /><br />
-                        <label>IP impressora</label><input type="text" name="ipImpressora" id="ipImpressora" value="127.0.0.1"><br />
+                                                                         id="portaServidorImpressao" value="@ViewBag.PrinterServerPort" /><br />
+                        <label>Nome impressora</label><input type="text" name="nomeImpressora" id="nomeImpressora" value="@ViewBag.PrinterName"><br />
+                        <label>IP impressora</label><input type="text" name="ipImpressora" id="ipImpressora" value="@ViewBag.PrinterIP"><br />
                         <label>Porta impressora</label><input type="number" name="portaImpressora" id="portaImpressora"
-                                                              value="9100" /><br />
+                                                              value="@ViewBag.PrinterPort" /><br />
                         <label>Comandos ZPL</label><br />
                         <textarea name="comandosZPL" id="comandosZPL" rows="5" cols="50">^XA^FO50,50^BQ,2,10^FDMA,Teste de Impressao^FS^FO300,50^GB300,100,2^FS^FO310,80^A0N,50,50^FD^FS^XZ</textarea>
                         <br /><br />
@@ -59,6 +60,7 @@
                 let ipServidorImpressao = document.getElementById("ipServidorImpressao").value;
                 let portaServidorImpressao = document.getElementById("portaServidorImpressao").value;
                 let comandosZPL = document.getElementById("comandosZPL").value;
+                let nomeImpressora = document.getElementById("nomeImpressora").value;
                 let ipImpressora = document.getElementById("ipImpressora").value;
                 let portaImpressora = document.getElementById("portaImpressora").value;
 
@@ -75,6 +77,7 @@
                     mensagem = JSON.stringify({
                         ipServidorImpressao: ipServidorImpressao,
                         portaServidorImpressao: portaServidorImpressao,
+                        nomeImpressora: nomeImpressora,
                         ipImpressora: ipImpressora,
                         portaImpressora: portaImpressora,
                         comandosZPL: comandosZPL

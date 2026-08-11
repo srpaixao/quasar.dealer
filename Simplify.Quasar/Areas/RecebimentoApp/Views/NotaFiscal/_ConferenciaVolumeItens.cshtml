@@ -1,0 +1,38 @@
+@Html.AntiForgeryToken()
+
+<div class="modal fade" id="modalConferenciaVolumeItens" tabindex="-1" role="dialog" aria-labelledby="tituloConferenciaVolumeItens">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-blue">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="tituloConferenciaVolumeItens">Confer&ecirc;ncia do Volume <span id="numeroConferenciaVolume"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    Informe a quantidade encontrada, marque <strong>Conferido</strong> e confirme cada item.
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="tabelaConferenciaVolumeItens">
+                        <thead>
+                            <tr>
+                                <th>NF</th>
+                                <th>Item</th>
+                                <th class="text-right">Qtde NF</th>
+                                <th style="min-width:130px">Qtde Conferida</th>
+                                <th class="text-right">Qtde Armazenada</th>
+                                <th class="text-right">Diferen&ccedil;a</th>
+                                <th>Conferido</th>
+                                <th>Situa&ccedil;&atilde;o</th>
+                                <th>A&ccedil;&atilde;o</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>

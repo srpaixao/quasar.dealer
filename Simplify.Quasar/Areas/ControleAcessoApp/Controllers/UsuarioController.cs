@@ -13,13 +13,30 @@ using Simplify.Quasar.Areas.ControleAcessoApp.ViewModels;
 namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
 {
     [ValidateSession]
+    [AuthorizeFunction]
     public class UsuarioController : Controller
     {
         Quasar_Entities db = new Quasar_Entities();
 
+        int filialId = Util.GetCurrentFilial();
+
+        private const string AdminProfileMessage = "Somente o usuário admin pode atribuir o perfil admin.";
+
         // GET: Estoque/Contagem
         public ActionResult Index()
         {
+            var atividades = OnlineUserTracker.GetLatestActivities();
+            var menus = db.AppMenu
+                .Where(m => m.Status)
+                .Select(m => new
+                {
+                    m.Titulo,
+                    m.Area,
+                    m.Controller,
+                    m.Action
+                })
+                .ToList();
+
             var vm = (from u in db.Usuario
                       where u.Login.ToLower() != "admin"
                       select new UsuarioViewModel
@@ -27,7 +44,7 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
                           Id = u.Id,
                           Login = u.Login,
                           Nome = u.Nome,
-                          NomePerfil = (from p in db.PerfilUsuario where p.Id == u.PerfilId select p.Nome).FirstOrDefault(),
+                          NomePerfil = (from p in db.PerfilUsuario where p.Id == u.PerfilId select p.Descricao).FirstOrDefault(),
                           Email = u.Email,
                           Telefone = u.Telefone,
                           EmpresaId = u.EmpresaId ?? 0,
@@ -45,17 +62,64 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
                           ModificadoPor = u.ModificadoPor
                       }).ToList();
 
+            foreach (UsuarioViewModel usuario in vm)
+            {
+                OnlineUserActivity atividade;
+                if (!atividades.TryGetValue(usuario.Id, out atividade))
+                {
+                    continue;
+                }
+
+                usuario.UsuarioLogado = true;
+                usuario.UltimaAtividade = Util.ConvertUtcToApplicationTime(atividade.ActivityAtUtc);
+                usuario.RotaAtual = BuildRoute(atividade.Area, atividade.Controller, atividade.Action);
+
+                var menu = menus.FirstOrDefault(m =>
+                    SameRoutePart(m.Area, atividade.Area)
+                    && SameRoutePart(m.Controller, atividade.Controller)
+                    && SameRoutePart(m.Action, atividade.Action));
+
+                string funcionalidade = OnlineUserTracker.ResolveFunctionalityName(
+                    atividade.Area,
+                    atividade.Controller,
+                    atividade.Action,
+                    atividade.Functionality);
+
+                usuario.FuncionalidadeAtual = !string.IsNullOrWhiteSpace(funcionalidade)
+                    ? funcionalidade
+                    : menu != null && !string.IsNullOrWhiteSpace(menu.Titulo)
+                        ? menu.Titulo
+                        : usuario.RotaAtual;
+            }
+
             // Obtem lista de permissões
-            //   ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString());
+            //   ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString(), ControllerContext.RouteData.DataTokens["area"] as string);
             return View(vm);
+        }
+
+        private static bool SameRoutePart(string left, string right)
+        {
+            return string.Equals(
+                left ?? string.Empty,
+                right ?? string.Empty,
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string BuildRoute(string area, string controller, string action)
+        {
+            return string.Join(
+                " / ",
+                new[] { area, controller, action }
+                    .Where(part => !string.IsNullOrWhiteSpace(part)));
         }
 
         public ActionResult Create()
         {
             UsuarioViewModel vm = new UsuarioViewModel();
-            vm.EmpresaDDL = Util.GetEmpresas(null);
+            vm.EmpresaId = Util.GetEmpresaSorocabaId();
+            vm.EmpresaDDL = Util.GetEmpresas(vm.EmpresaId);
             //vm.AreaDDL = Util.GetAreas(null);
-            vm.PerfilDDL = Util.GetPerfisUsuario(null);
+            vm.PerfilDDL = Util.GetPerfisUsuario(null, Util.IsAdminUser());
             return PartialView("_Create", vm);
         }
 
@@ -69,7 +133,15 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
             {
                 vm.EmpresaDDL = Util.GetEmpresas(vm.EmpresaId);
                 //vm.AreaDDL = Util.GetAreas(vm.AreaId);
-                vm.PerfilDDL = Util.GetPerfisUsuario(vm.PerfilId);
+                vm.PerfilDDL = Util.GetPerfisUsuario(vm.PerfilId, Util.IsAdminUser());
+                return PartialView("_Create", vm);
+            }
+
+            if (!Util.IsAdminUser() && vm.PerfilId == 1)
+            {
+                ModelState.AddModelError("PerfilId", AdminProfileMessage);
+                vm.EmpresaDDL = Util.GetEmpresas(vm.EmpresaId);
+                vm.PerfilDDL = Util.GetPerfisUsuario(null, false);
                 return PartialView("_Create", vm);
             }
 
@@ -79,7 +151,7 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
                 ModelState.AddModelError("Login", "Já existe um usuário cadastrado com este login");
                 vm.EmpresaDDL = Util.GetEmpresas(vm.EmpresaId);
                 vm.AreaDDL = Util.GetAreas(vm.FilialId, vm.AreaId);
-                vm.PerfilDDL = Util.GetPerfisUsuario(vm.PerfilId);
+                vm.PerfilDDL = Util.GetPerfisUsuario(vm.PerfilId, Util.IsAdminUser());
                 return PartialView("_Create", vm);
             }
 
@@ -90,6 +162,7 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
             usuario.Nome = vm.Nome;
             usuario.Email = vm.Email;
             usuario.Telefone = vm.Telefone;
+            usuario.EmpresaId = vm.EmpresaId;
             usuario.FilialId = vm.EmpresaId;
             //usuario.FuncaoId = vm.FuncaoId;
             usuario.SenhaExpirada = true;
@@ -156,12 +229,14 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
             vm.Id = usuario.Id;
             vm.Login = usuario.Login;
             vm.PerfilId = usuario.PerfilId;
-            vm.PerfilDDL = Util.GetPerfisUsuario(usuario.PerfilId);
+            vm.PerfilSomenteLeitura = !Util.IsAdminUser() && usuario.PerfilId == 1;
+            vm.PerfilDDL = Util.GetPerfisUsuario(usuario.PerfilId, Util.IsAdminUser() || usuario.PerfilId == 1);
             vm.Nome = usuario.Nome;
             vm.Email = usuario.Email;
             vm.Telefone = usuario.Telefone;
+            vm.EmpresaId = usuario.FilialId ?? usuario.EmpresaId;
             vm.FilialId = usuario.FilialId;
-            vm.EmpresaDDL = Util.GetEmpresas(usuario.FilialId);
+            vm.EmpresaDDL = Util.GetEmpresas(vm.EmpresaId);
             //vm.FuncaoId = usuario.FuncaoId;
             //vm.NomeFuncao = (from a in db.Funcao where a.Id == usuario.FuncaoId select a.Nome).FirstOrDefault();
             vm.SenhaExpirada = usuario.SenhaExpirada;
@@ -188,7 +263,8 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
             {
                 vm.EmpresaDDL = Util.GetEmpresas(vm.EmpresaId);
                 //vm.AreaDDL = Util.GetAreas(vm.AreaId);
-                vm.PerfilDDL = Util.GetPerfisUsuario(vm.PerfilId);
+                vm.PerfilDDL = Util.GetPerfisUsuario(vm.PerfilId, Util.IsAdminUser() || vm.PerfilId == 1);
+                vm.PerfilSomenteLeitura = !Util.IsAdminUser() && vm.PerfilId == 1;
                 return PartialView("_Edit", vm);
             }
 
@@ -198,10 +274,23 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
                 return HttpNotFound();
             }
 
+            if (!Util.IsAdminUser()
+                && vm.PerfilId != usuario.PerfilId
+                && (vm.PerfilId == 1 || usuario.PerfilId == 1))
+            {
+                ModelState.AddModelError("PerfilId", AdminProfileMessage);
+                vm.PerfilId = usuario.PerfilId;
+                vm.EmpresaDDL = Util.GetEmpresas(vm.EmpresaId);
+                vm.PerfilDDL = Util.GetPerfisUsuario(usuario.PerfilId, Util.IsAdminUser() || usuario.PerfilId == 1);
+                vm.PerfilSomenteLeitura = !Util.IsAdminUser() && usuario.PerfilId == 1;
+                return PartialView("_Edit", vm);
+            }
+
             usuario.PerfilId = vm.PerfilId;
             usuario.Nome = vm.Nome;
             usuario.Email = vm.Email;
             usuario.Telefone = vm.Telefone;
+            usuario.EmpresaId = vm.EmpresaId;
             usuario.FilialId = vm.EmpresaId;
             //usuario.FuncaoId = vm.FuncaoId;
             //usuario.NomeFuncao = (from a in db.Funcao where a.Id == vm.FuncaoId select a.Nome).FirstOrDefault();
@@ -322,7 +411,7 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.Controllers
                           Id = u.Id,
                           Login = u.Login,
                           Nome = u.Nome,
-                          NomePerfil = p.Nome,
+                          NomePerfil = p.Descricao,
                           Email = u.Email,
                           Telefone = u.Telefone,
                           EmpresaId = u.EmpresaId,

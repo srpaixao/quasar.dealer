@@ -1,0 +1,325 @@
+@model IEnumerable<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.AreaRomaneioViewModel>
+@{
+    ViewBag.Title = "Cadastros";
+    ViewBag.Description = "Prioridades";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string currentController = ViewContext.RouteData.Values["controller"].ToString();
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    th, td {
+        vertical-align: middle !important;
+    }
+
+    td.actions {
+        width: 80px;
+        text-align: center;
+    }
+
+    td.flag-cell {
+        text-align: center;
+    }
+
+    .flag-badge {
+        display: inline-block;
+        min-width: 32px;
+    }
+
+    .flag-badge i {
+        font-size: 12px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li class="@(currentController == "AreaPedido" ? "active" : string.Empty)">
+                    <a href="@Url.Action("Index", "AreaPedido", new { area = "SeparacaoApp" })">Origens</a>
+                </li>
+                <li class="@(currentController == "AreaRomaneio" ? "active" : string.Empty)">
+                    <a href="@Url.Action("Index", "AreaRomaneio", new { area = "SeparacaoApp" })">Prioridades</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="box-body">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "delete-token-form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                        }
+
+                        <div class="row" style="margin-top:12px;">
+                            <div class="col-xs-12">
+                                <a href="#" class="btn btn-primary create"><i class="fa fa-fw fa-plus"></i> Novo</a>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top:12px;">
+                            <div class="col-xs-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped" id="tb-area-romaneio">
+                                        <thead>
+                                            <tr>
+                                                <th>Área</th>
+                                                <th>Prioridade</th>
+                                                <th>Alocar</th>
+                                                <th>Separar</th>
+                                                <th>Conferir</th>
+                                                <th>Mapa</th>
+                                                <th class="actions"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td><a href="#" class="edit" data-id="@item.Id"><b>@item.Area</b></a></td>
+                                                    <td>@(item.Prioridade.HasValue ? item.Prioridade.Value.ToString() : "-")</td>
+                                                    <td class="flag-cell">
+                                                        <button type="button"
+                                                                class="btn btn-xs @(item.Alocar ? "btn-success" : "btn-default") flag-badge toggle-alocar"
+                                                                data-id="@item.Id"
+                                                                aria-pressed="@(item.Alocar.ToString().ToLowerInvariant())"
+                                                                title="@(item.Alocar ? "Marcado" : "Desmarcado")">
+                                                            <i class="fa @(item.Alocar ? "fa-check" : "fa-times")" aria-hidden="true"></i>
+                                                            <span class="sr-only">@(item.Alocar ? "Marcado" : "Desmarcado")</span>
+                                                        </button>
+                                                    </td>
+                                                    <td class="flag-cell">
+                                                        <button type="button"
+                                                                class="btn btn-xs @(item.Separar ? "btn-success" : "btn-default") flag-badge toggle-separar"
+                                                                data-id="@item.Id"
+                                                                aria-pressed="@(item.Separar.ToString().ToLowerInvariant())"
+                                                                title="@(item.Separar ? "Marcado" : "Desmarcado")">
+                                                            <i class="fa @(item.Separar ? "fa-check" : "fa-times")" aria-hidden="true"></i>
+                                                            <span class="sr-only">@(item.Separar ? "Marcado" : "Desmarcado")</span>
+                                                        </button>
+                                                    </td>
+                                                    <td class="flag-cell">
+                                                        <button type="button"
+                                                                class="btn btn-xs @(item.Conferir ? "btn-success" : "btn-default") flag-badge toggle-conferir"
+                                                                data-id="@item.Id"
+                                                                aria-pressed="@(item.Conferir.ToString().ToLowerInvariant())"
+                                                                title="@(item.Conferir ? "Marcado" : "Desmarcado")">
+                                                            <i class="fa @(item.Conferir ? "fa-check" : "fa-times")" aria-hidden="true"></i>
+                                                            <span class="sr-only">@(item.Conferir ? "Marcado" : "Desmarcado")</span>
+                                                        </button>
+                                                    </td>
+                                                    <td class="flag-cell">
+                                                        <button type="button"
+                                                                class="btn btn-xs @(item.Mapa ? "btn-success" : "btn-default") flag-badge toggle-mapa"
+                                                                data-id="@item.Id"
+                                                                aria-pressed="@(item.Mapa.ToString().ToLowerInvariant())"
+                                                                title="@(item.Mapa ? "Marcado" : "Desmarcado")">
+                                                            <i class="fa @(item.Mapa ? "fa-check" : "fa-times")" aria-hidden="true"></i>
+                                                            <span class="sr-only">@(item.Mapa ? "Marcado" : "Desmarcado")</span>
+                                                        </button>
+                                                    </td>
+                                                    <td class="actions">
+                                                        <a href="#" class="delete" data-id="@item.Id" data-name="@item.Area"><i class="fa fa-lg fa-trash-o text-red"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            var token = $('#delete-token-form input[name="__RequestVerificationToken"]').val();
+
+            $('#tb-area-romaneio').DataTable({
+                pageLength: 25,
+                columnDefs: [
+                    { orderable: false, targets: -1 }
+                ],
+                order: [[1, 'asc'], [0, 'asc']],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por Página",
+                    search: "Pesquisar:",
+                    zeroRecords: "Nenhum registro localizado",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            $.ajaxSetup({ cache: false });
+
+            $('a.create').click(function () {
+                $('#myModalContent').load('@Url.Action("Create", "AreaRomaneio", new { area = "SeparacaoApp" })', function () {
+                    $('#myModal').modal({ backdrop: 'static', keyboard: true }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            $('#tb-area-romaneio').on('click', 'a.edit', function () {
+                var id = $(this).attr('data-id');
+                var url = '@Url.Action("Edit", "AreaRomaneio", new { area = "SeparacaoApp", id = "_id" })';
+                $('#myModalContent').load(url.replace('_id', id), function () {
+                    $('#myModal').modal({ backdrop: 'static', keyboard: true }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            $('#tb-area-romaneio').on('click', 'a.delete', function () {
+                var id = $(this).attr('data-id');
+                var nome = $(this).attr('data-name');
+                var div = document.createElement('div');
+                div.innerHTML = '<span>Confirma a exclusão da área <b>' + nome + '</b> ?</span>';
+
+                swal({
+                    title: "Cadastro de Área Romaneio",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then(function (confirm) {
+                    if (!confirm) {
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Delete", "AreaRomaneio", new { area = "SeparacaoApp" })',
+                        data: {
+                            __RequestVerificationToken: token,
+                            id: id
+                        },
+                        success: function (data) {
+                            if (data.success) {
+                                location.reload();
+                                return;
+                            }
+
+                            swal("Cadastro de Área Romaneio", data.msg || "Não foi possível excluir o registro.", "error");
+                        },
+                        error: function () {
+                            swal("Cadastro de Área Romaneio", "Não foi possível excluir o registro.", "error");
+                        }
+                    });
+                });
+
+                return false;
+            });
+
+            $('#tb-area-romaneio').on('click', '.toggle-separar', function () {
+                toggleFlag($(this), '@Url.Action("ToggleSeparar", "AreaRomaneio", new { area = "SeparacaoApp" })');
+            });
+
+            $('#tb-area-romaneio').on('click', '.toggle-alocar', function () {
+                toggleFlag($(this), '@Url.Action("ToggleAlocar", "AreaRomaneio", new { area = "SeparacaoApp" })');
+            });
+
+            $('#tb-area-romaneio').on('click', '.toggle-conferir', function () {
+                toggleFlag($(this), '@Url.Action("ToggleConferir", "AreaRomaneio", new { area = "SeparacaoApp" })');
+            });
+
+            $('#tb-area-romaneio').on('click', '.toggle-mapa', function () {
+                toggleFlag($(this), '@Url.Action("ToggleMapa", "AreaRomaneio", new { area = "SeparacaoApp" })');
+            });
+
+            function bindForm(dialog) {
+                $('form', dialog).submit(function () {
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: $(this).serialize(),
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                                location.reload();
+                                return;
+                            }
+
+                            $('#myModalContent').html(result);
+                            bindForm($('#myModalContent'));
+                        },
+                        error: function () {
+                            swal("Cadastro de Área Romaneio", "Não foi possível salvar o registro.", "error");
+                        }
+                    });
+                    return false;
+                });
+            }
+
+            function toggleFlag(button, url) {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        __RequestVerificationToken: token,
+                        id: button.data('id')
+                    },
+                    success: function (data) {
+                        if (!data.success) {
+                            swal("Cadastro de Área Romaneio", data.msg || "Não foi possível atualizar o registro.", "error");
+                            return;
+                        }
+
+                        button
+                            .toggleClass('btn-success', data.value)
+                            .toggleClass('btn-default', !data.value)
+                            .attr('aria-pressed', data.value ? 'true' : 'false')
+                            .attr('title', data.value ? 'Marcado' : 'Desmarcado');
+
+                        button.find('i')
+                            .toggleClass('fa-check', data.value)
+                            .toggleClass('fa-times', !data.value);
+
+                        button.find('.sr-only').text(data.value ? 'Marcado' : 'Desmarcado');
+                    },
+                    error: function () {
+                        swal("Cadastro de Área Romaneio", "Não foi possível atualizar o registro.", "error");
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -22,7 +23,8 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels
         public string ModificadoPor { get; set; }
         public string ModificadoPorNome { get; set; }
         public DateTime? ModificadoEm { get; set; }
-        public int QtdeArmazenagem { get; set; }
-        public int QtdeSeparacao { get; set; }
+        public int? TipoAreaId { get; set; }
+        public string NomeTipoArea { get; set; }
+        public IEnumerable<SelectListItem> TipoAreaDDL { get; set; }
     }
 }

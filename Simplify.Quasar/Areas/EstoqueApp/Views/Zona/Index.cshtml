@@ -1,97 +1,89 @@
-﻿@model IEnumerable<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.FornecedorViewModel>
+@model IEnumerable<Simplify.Quasar.Areas.EstoqueApp.ViewModels.ZonaViewModel>
 @{
-    ViewBag.Title = "Recebimento";
-    ViewBag.Description = "Fornecedores";
+    ViewBag.Title = "Cadastro Zona";
+    ViewBag.Description = string.Empty;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
 
 <style>
-    .datatable_filter {
-        padding-bottom: 15px;
-    }
-
-    select.filter {
-        margin-right: 15px;
-        border: 1px solid #eee;
-    }
-
-    div.filter-option, a > span.text {
-        font-size: 13px !important;
-    }
-
-    select.selected {
-        border: 2px solid #00a65a;
-    }
-
-    th, td {
+    td.flag-cell {
         text-align: center;
-        vertical-align: middle;
+    }
+
+    .flag-badge {
+        display: inline-block;
+        min-width: 32px;
     }
 </style>
 
 <section class="content-header">
-    <h1>
-        @ViewBag.Title<small>@ViewBag.Description</small>
-    </h1>
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
 </section>
 
 <section class="content">
     <div class="box box-default">
-
         <div class="box-body">
             @if (ViewBag.Permissoes.Contains("[add]"))
             {
                 <div class="row">
                     <div class="col-xs-12">
-                        <a href="@Url.Action("Create", "Fornecedor")" class="btn btn-primary create"> <i class="fa fa-fw fa-plus"></i> Novo</a>
+                        <a href="@Url.Action("Create", "Zona", new { area = "EstoqueApp" })" class="btn btn-primary create">
+                            <i class="fa fa-fw fa-plus"></i> Nova
+                        </a>
                     </div>
                 </div>
+                <br />
             }
-            <br />
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="table-responsive">
-                        <table class="table table-condensed table-bordered table-hover table-small" id="tbFornecedor">
-                            <thead>
-                                <tr>
-                                    <th>CNPJ</th>
-                                    <th>Razão Social</th>
-                                    <th>Cidade</th>
-                                    <th>Estado</th>
-                                    @if (ViewBag.Permissoes.Contains("[delete]"))
-                                    {
-                                        <th></th>
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model)
+
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered table-hover" id="tbZona">
+                    <thead>
+                        <tr>
+                            <th>Zona</th>
+                            <th>Descri&ccedil;&atilde;o</th>
+                            <th>Linhas</th>
+                            <th>R$</th>
+                            <th>Clientes</th>
+                            <th>Pronto para despacho</th>
+                            @if (ViewBag.Permissoes.Contains("[delete]"))
+                            {
+                                <th></th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="#" class="@(ViewBag.Permissoes.Contains("[update]") ? "edit" : string.Empty)" data-id="@item.Id">
+                                        <b>@item.Nome</b>
+                                    </a>
+                                </td>
+                                <td>@item.AreaNome</td>
+                                <td>@(item.QtdeLinha.HasValue ? item.QtdeLinha.Value.ToString() : "-")</td>
+                                <td>@(item.ValorPedido.HasValue ? item.ValorPedido.Value.ToString("N2") : "-")</td>
+                                <td>@(item.QtdeCliente.HasValue ? item.QtdeCliente.Value.ToString() : "-")</td>
+                                <td class="flag-cell">
+                                    <span class="btn btn-xs @(item.ProntoDespacho ? "btn-success" : "btn-default") flag-badge" title="@(item.ProntoDespacho ? "Marcado" : "Desmarcado")">
+                                        <i class="fa @(item.ProntoDespacho ? "fa-check" : "fa-times")" aria-hidden="true"></i>
+                                    </span>
+                                </td>
+                                @if (ViewBag.Permissoes.Contains("[delete]"))
                                 {
-                                    <tr>
-                                        <td><a href="#" class="@(ViewBag.Permissoes.Contains("[update]") ? "edit" : "" )" data-id="@item.Id"><b>@item.CNPJ</b></a></td>
-                                        <td>@item.Nome</td>
-                                        <td>@item.Endereco_Cidade</td>
-                                        <td>@item.Endereco_UF</td>
-                                        @if (ViewBag.Permissoes.Contains("[delete]"))
-                                        {
-                                            <td><a href="#" class="delete" data-id="@item.Id"> <i class="fa fa-lg fa-trash-o text-red"></i></a></td>
-                                        }
-                                    </tr>
+                                    <td><a href="#" class="delete" data-id="@item.Id"><i class="fa fa-lg fa-trash-o text-red"></i></a></td>
                                 }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
-
         </div>
-
     </div>
 </section>
 
-<!-- Modal  -->
-<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div id="myModalContent"></div>
@@ -102,32 +94,22 @@
 @section Scripts {
     <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
     <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
-
-    <script src="~/Scripts/moment/moment.min.js"></script>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-            var table = $('#tbFornecedor').DataTable({
-                processing: true,
-                deferRender: true,
+    <script>
+        $(function () {
+            $('#tbZona').DataTable({
                 pageLength: 25,
-                columnDefs: [
-                    { orderable: false, targets: -1 }
-                ],
+                columnDefs: [{ orderable: false, targets: -1 }],
                 language: {
-                    processing: "Carregando dados...",
-                    lengthMenu: "Exibir _MENU_ registros por página",
+                    lengthMenu: "Exibir _MENU_ registros por P&aacute;gina",
                     search: "Procurar:",
                     zeroRecords: "Nenhum registro localizado",
                     info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
                     infoEmpty: "Exibindo 0 de 0 registros",
                     infoFiltered: "",
-                    thousands: ".",
-                    decimal: ",",
                     paginate: {
                         first: "Primeira",
-                        last: "Última",
-                        next: "Próxima",
+                        last: "&Uacute;ltima",
+                        next: "Pr&oacute;xima",
                         previous: "Anterior"
                     }
                 }
@@ -135,73 +117,45 @@
 
             $.ajaxSetup({ cache: false });
 
-            $("a.create").click(function () {
-                //if (!$('div.modal-dialog').hasClass('modal-lg')) {
-                //    $('div.modal-dialog').addClass('modal-lg');
-                //}
-                var url = '@Url.Action("Create", "Fornecedor")';
+            $('a.create').click(function () {
+                $('#myModalContent').load(this.href, function () {
+                    $('#myModal').modal({ backdrop: 'static', keyboard: true }, 'show');
+                    initZonaFlags(this);
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            $('#tbZona').on('click', 'a.edit', function () {
+                var id = $(this).data('id');
+                var url = '@Url.Action("Edit", "Zona", new { area = "EstoqueApp", id = "__id__" })'.replace('__id__', id);
                 $('#myModalContent').load(url, function () {
-                    $('#myModal').modal({
-                        backdrop: 'static',
-                        keyboard: true
-                    }, 'show');
+                    $('#myModal').modal({ backdrop: 'static', keyboard: true }, 'show');
+                    initZonaFlags(this);
                     bindForm(this);
                 });
                 return false;
             });
 
-            $("#tbFornecedor").on("click", "a.edit", function (e) {
-                //if (!$('div.modal-dialog').hasClass('modal-lg')) {
-                //    $('div.modal-dialog').addClass('modal-lg');
-                //}
-                var id = $(this).attr("data-id");
-                var url = '@Url.Action("Edit", "Fornecedor", new { id = "_id" })';
-                $('#myModalContent').load(url.replace("_id", id), function () {
-                    $('#myModal').modal({
-                        backdrop: 'static',
-                        keyboard: true
-                    }, 'show');
-                    bindForm(this);
-                });
-                return false;
-            });
-
-            $("#tbFornecedor").on("click", "a.delete", function (e) {
-                var fornecedorId = $(this).attr("data-id");
-
+            $('#tbZona').on('click', 'a.delete', function () {
+                var id = $(this).data('id');
                 swal({
-                    title: "Cadastro de Fornecedores",
-                    text: "Confirma a exclusão do fornecedor ?",
+                    title: 'Cadastro de Zonas',
+                    text: 'Confirma a exclusão da zona?',
                     buttons: {
-                        cancel: {
-                            text: "Não",
-                            className: "swal-btn-danger",
-                            closeModal: true,
-                            visible: true,
-                        },
-                        confirm: {
-                            text: "Sim",
-                            className: "swal-btn-success",
-                            closeModal: true,
-                            visible: true
-                        }
+                        cancel: { text: 'Não', className: 'swal-btn-danger', closeModal: true, visible: true },
+                        confirm: { text: 'Sim', className: 'swal-btn-success', closeModal: true, visible: true }
                     }
-                }).then((confirm) => {
-                    if (confirm) {
-                        $.ajax({
-                            cache: false,
-                            type: "POST",
-                            url: '@Url.Action("Delete", "Fornecedor", new { area = "RecebimentoApp" })',
-                            data: { id: fornecedorId },
-                        success: function (data) {
-                            location.reload();
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            console.log('erro');
-                        }
-                    })
+                }).then(function (confirm) {
+                    if (!confirm) {
+                        return;
                     }
+
+                    $.post('@Url.Action("Delete", "Zona", new { area = "EstoqueApp" })', { id: id })
+                        .done(function () { location.reload(); })
+                        .fail(function () { console.log('erro'); });
                 });
+                return false;
             });
 
             function bindForm(dialog) {
@@ -213,21 +167,31 @@
                         success: function (result) {
                             if (result.success) {
                                 $('#myModal').modal('hide');
-                                //Refresh
                                 location.reload();
                             } else {
                                 $('#myModalContent').html(result);
-                                bindForm();
+                                initZonaFlags($('#myModalContent'));
+                                bindForm($('#myModalContent'));
                             }
-                        },
-                        error: function (data) {
-                            console.log('erro', data);
                         }
                     });
                     return false;
                 });
             }
+
+            function initZonaFlags(dialog) {
+                $('.js-zona-flag', dialog).each(function () {
+                    var $checkbox = $(this);
+
+                    if ($checkbox.parent('.icheckbox_flat-green').length) {
+                        $checkbox.iCheck('destroy');
+                    }
+
+                    $checkbox.iCheck({
+                        checkboxClass: 'icheckbox_flat-green'
+                    });
+                });
+            }
         });
     </script>
 }
-

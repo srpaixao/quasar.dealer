@@ -1,11 +1,13 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 
 using Simplify.Quasar.Custom;
 using Simplify.Quasar.Models;
 using Simplify.Quasar.ViewModels;
-using System.Data.Entity;
 
 namespace Simplify.Quasar.Controllers
 {
@@ -13,12 +15,17 @@ namespace Simplify.Quasar.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
+        int filialId = Util.GetCurrentFilial();
+
         // GET: Account
         public ActionResult Login()
         {
+            ApplyNoCacheHeaders();
+
             LoginViewModel vm = new LoginViewModel();
             vm.SenhaExpirada = false;
             vm.Id = null;
+            PrepareLoginView(vm);
 
             return View(vm);
         }
@@ -28,6 +35,24 @@ namespace Simplify.Quasar.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Login(LoginViewModel vm)
         {
+            ApplyNoCacheHeaders();
+
+            if (string.IsNullOrWhiteSpace(vm.Usuario))
+            {
+                ModelState.AddModelError("Usuario", "Informe o usuário");
+            }
+
+            if (string.IsNullOrWhiteSpace(vm.Senha))
+            {
+                ModelState.AddModelError("Senha", "Informe a senha");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                PrepareLoginView(vm);
+                return View(vm);
+            }
+
             Usuario user = (from u in db.Usuario
                             where u.Login.ToUpper() == vm.Usuario.ToUpper() && u.FilialId == vm.IdFilial
                             select u).FirstOrDefault();
@@ -80,18 +105,27 @@ namespace Simplify.Quasar.Controllers
                                                      where f.Id == user.FilialId
                                                      select f.Nome).FirstOrDefault();
 
+                            OnlineUserTracker.Track(
+                                Session.SessionID,
+                                user.Id,
+                                user.FilialId ?? 0,
+                                Session.Timeout);
+
                             return RedirectToAction("Index", "Home");
                         }
                     }
                 }
             }
 
+            PrepareLoginView(vm);
             return View(vm);
         }
 
         // GET: Account/AtualizarSenha
         public ActionResult AtualizarSenha(int id)
         {
+            ApplyNoCacheHeaders();
+
             NewPasswordViewModel vm = new NewPasswordViewModel();
             vm.UsuarioId = id;
             return PartialView("_NovaSenha", vm);
@@ -99,8 +133,11 @@ namespace Simplify.Quasar.Controllers
 
         // POST: Account/AtualizarSenha
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AtualizarSenha(NewPasswordViewModel vm)
         {
+            ApplyNoCacheHeaders();
+
             if (!ModelState.IsValid)
             {
                 return PartialView("_NovaSenha", vm);
@@ -118,7 +155,6 @@ namespace Simplify.Quasar.Controllers
                 {
                     usuario.Senha = Util.HashPassword(vm.NovaSenha);
                     usuario.SenhaExpirada = false;
-                    usuario.PerfilId = Util.GetPerfilId();
                     usuario.ModificadoEm = Util.GetCurrentDateTime();
                     db.Entry(usuario).State = EntityState.Modified;
                     db.SaveChanges();
@@ -139,9 +175,53 @@ namespace Simplify.Quasar.Controllers
         // GET: Account/Logout
         public ActionResult Logout()
         {
-            Session["userid"] = null;
-            Session["displayname"] = null;
+            OnlineUserTracker.Unregister(Session.SessionID);
+            Session.Clear();
+            Session.Abandon();
             return RedirectToAction("Login");
+        }
+
+        private void PrepareLoginView(LoginViewModel vm)
+        {
+            vm.Usuario = string.Empty;
+            vm.Senha = string.Empty;
+            ViewBag.ApplicationVersion = typeof(AccountController).Assembly.GetName().Version.ToString();
+
+            ResetLoginFieldState("Usuario");
+            ResetLoginFieldState("Senha");
+        }
+
+        private void ResetLoginFieldState(string fieldName)
+        {
+            if (!ModelState.ContainsKey(fieldName))
+            {
+                return;
+            }
+
+            List<string> errors = ModelState[fieldName]
+                .Errors
+                .Select(item => item.ErrorMessage)
+                .Where(message => !string.IsNullOrWhiteSpace(message))
+                .ToList();
+
+            ModelState.Remove(fieldName);
+
+            foreach (string error in errors)
+            {
+                ModelState.AddModelError(fieldName, error);
+            }
+        }
+
+        private void ApplyNoCacheHeaders()
+        {
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.Cache.SetNoStore();
+            Response.Cache.SetExpires(DateTime.UtcNow.AddMinutes(-1));
+            Response.Cache.SetMaxAge(TimeSpan.Zero);
+            Response.Cache.SetRevalidation(HttpCacheRevalidation.AllCaches);
+            Response.Cache.AppendCacheExtension("must-revalidate, proxy-revalidate");
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
         }
 
         protected override void Dispose(bool disposing)

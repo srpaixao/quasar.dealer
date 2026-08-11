@@ -8,7 +8,6 @@
 
 <link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
 <link href="~/Content/icheck/flat/red.css" rel="stylesheet" />
-<link href="~/Content/typeahead/typeaheadjs.css" rel="stylesheet" />
 
 <style>
     th, td {
@@ -63,6 +62,7 @@
     </div>
 </div>
 
+@* Processo "Definir Locação" desativado temporariamente.
 <div class="modal fade" id="modalLocacao" data-backdrop="static" tabindex="-1" aria-labelledby="modalLocacao" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -84,9 +84,10 @@
                     <div class="row">
                         <div class="col-xs-12">
                             <div class="form-group">
-                                <div id="scrollable-dropdown-menu">
-                                    <input type="text" class="form-control typeahead" id="input-locacao" name="input-locacao" placeholder="Locação" required>
-                                </div>
+                                <label for="input-locacao">Locação disponível</label>
+                                <select class="form-control" id="input-locacao" name="input-locacao" required>
+                                    <option value="">Selecione</option>
+                                </select>
                                 <div style="margin-top:5px">
                                     <span class="loading-suggestions" style="display:none;"><i class="fa fa-spinner fa-pulse fa-fw"></i> Pesquisando...</span>
                                 </div>
@@ -135,6 +136,7 @@
         </div>
     </div>
 </div>
+*@
 
 @section Scripts {
 
@@ -142,8 +144,6 @@
     <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
     <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
     <script src="~/Scripts/DataTables/plugins/dataRender/datetime.js"></script>
-    <script src="~/Scripts/typeahead/typeahead.bundle.min.js"></script>
-
     <script>
 
         function LoadDataTable() {
@@ -186,9 +186,8 @@
                         data: 'Locacao',
                         title: 'Locação',
                         render: function (data, type, row) {
-                            if (data.trim() == '') {
-                                var id = row['Id'];
-                                return '<a href="#" class="edit-locacao" data-id="' + id + '" style="color:orange">*** Não definida ***</a>';
+                            if ((data || '').trim() == '') {
+                                return '<span class="text-orange">*** Não definida ***</span>';
                             } else {
                                 let strLocacao = data.replace(/\s+/g, '');
                                 return strLocacao;
@@ -284,7 +283,7 @@
             //    }
             //});
 
-            // Editar locação
+            /* Processo "Definir Locação" desativado temporariamente.
             $("#tbEstoque").on("click", "a.edit-locacao", function (e) {
                 var id = $(this).attr('data-id');
                 var codigo = $(this).closest('tr').find('td:eq(0)').text().trim();
@@ -293,6 +292,7 @@
                 $('#modal-item').text(codigo + ' - ' + descricao);
                 $('#modalLocacao').modal('show');
             });
+            */
 
             table.columns.adjust().draw(false);
 
@@ -322,7 +322,8 @@
 
         $(document).ready(function () {
 
-            const lookup_url = '@Url.Action("GetLocacoesDisponiveis", "Locacao", new { area="EstoqueApp", query = "_query"})';
+            // Processo "Definir Locação" desativado temporariamente.
+            // const lookup_url = '@Url.Action("GetLocacoesDisponiveis", "Locacao", new { area="EstoqueApp" })';
 
             LoadDataTable();
 
@@ -349,70 +350,59 @@
                 $('#Valor').focus();
             })
 
-            // Selecionar locação
-            // Instantiate the Bloodhound suggestion engine
-            var locacoes = new Bloodhound({
-                datumTokenizer: function (datum) {
-                    return Bloodhound.tokenizers.whitespace(datum.value);
-                },
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                limit: 10,
-                remote: {
-                    wildcard: '%QUERY',
-                    url: lookup_url.replace('_query', '%QUERY'),
-                    transform: function (response) {
-                        return $.map(response.results, function (locacao) {
-                            return {
-                                key: locacao.codigo,
-                                value: locacao.codigo,
-                                tipo: locacao.tipo,
-                                area: locacao.area,
-                                equipamento: locacao.equipamento,
-                            };
-                        });
-                    }
-                }
+            /* Processo "Definir Locação" desativado temporariamente.
+            $('#input-locacao').on('change', function () {
+                var option = $(this).find('option:selected');
+                var codigo = option.val();
+
+                $('#codigo-locacao').text(codigo);
+                $('#tipo-locacao').text(option.data('tipo') || '');
+                $('#area-locacao').text(option.data('area') || '');
+                $('#equip-locacao').text(option.data('equipamento') || '');
+                $('#divLocacao').toggleClass('hide', !codigo);
+                $('#btnConfirmarLocacao').toggleClass('hide', !codigo);
             });
 
-            // Instantiate the Typeahead UI
-            $('#scrollable-dropdown-menu .typeahead').typeahead(null, {
-                display: 'value',
-                source: locacoes,
-                minLength: 3,
-                limit: 15
-            }).on("typeahead:selected", function (obj, selectedItem) {
-                $('#codigo-locacao').text(selectedItem.key);
-                $('#tipo-locacao').text(selectedItem.tipo);
-                $('#area-locacao').text(selectedItem.area);
-                $('#equip-locacao').text(selectedItem.equipamento);
-                $('.typeahead').typeahead('val', '');
-                $('#divLocacao').removeClass('hide');
-                $('#btnConfirmarLocacao').removeClass('hide');
-            }).on('typeahead:asyncrequest', function (e) {
-                $('#divLocacao').addClass('hide');
-                $('#btnConfirmarLocacao').addClass('hide');
+            function carregarLocacoesDisponiveis() {
+                var ddl = $('#input-locacao');
+                ddl.empty().append($('<option>', { value: '', text: 'Carregando...' }));
+                ddl.prop('disabled', true);
                 $('.loading-suggestions').show();
-                $('#codigo-locacao').text('');
-                $('#tipo-locacao').text('');
-                $('#area-locacao').text('');
-                $('#equip-locacao').text('');
-            }).on('typeahead:asynccancel typeahead:asyncreceive', function (e) {
-                $('.loading-suggestions').hide();
-            });
 
-            $('#input-locacao').on('blur', function () {
-                var input = $('#input-locacao').val().trim();
-                $('#input-locacao').val(input);
-                if (input.length === 0) {
-                    $('#divLocacao').addClass('hide');
-                    $('#btnConfirmarLocacao').addClass('hide');
-                    $('#codigo-locacao').text('');
-                    $('#tipo-locacao').text('');
-                    $('#area-locacao').text('');
-                    $('#equip-locacao').text('');
-                    $('.typeahead').typeahead('val', '');
-                }
-            })
+                $.getJSON(lookup_url)
+                    .done(function (response) {
+                        ddl.empty().append($('<option>', { value: '', text: 'Selecione' }));
+
+                        $.each(response.results || [], function (_, locacao) {
+                            ddl.append(
+                                $('<option>', {
+                                    value: locacao.codigo,
+                                    text: locacao.codigo
+                                })
+                                .data('tipo', locacao.tipo)
+                                .data('area', locacao.area)
+                                .data('equipamento', locacao.equipamento)
+                            );
+                        });
+
+                        if (!response.results || response.results.length === 0) {
+                            ddl.empty().append($('<option>', {
+                                value: '',
+                                text: 'Nenhuma locação disponível'
+                            }));
+                        }
+                    })
+                    .fail(function () {
+                        ddl.empty().append($('<option>', {
+                            value: '',
+                            text: 'Não foi possível carregar as locações'
+                        }));
+                    })
+                    .always(function () {
+                        ddl.prop('disabled', false);
+                        $('.loading-suggestions').hide();
+                    });
+            }
 
             $("#modalLocacao").on('show.bs.modal', function () {
                 $('#divLocacao').addClass('hide');
@@ -422,12 +412,16 @@
                 $('#tipo-locacao').text('');
                 $('#area-locacao').text('');
                 $('#equip-locacao').text('');
-                $('#input-locacao').val('');
+                $('#input-locacao').empty().append($('<option>', {
+                    value: '',
+                    text: 'Carregando...'
+                }));
+                carregarLocacoesDisponiveis();
             });
 
             $('#btnConfirmarLocacao').click(function () {
                 var itemId = $('#modal-item-id').val();
-                var codigolocacao = $('#codigo-locacao').text().trim();
+                var codigolocacao = ($('#input-locacao').val() || '').trim();
 
                 $.ajax({
                     type: 'POST',
@@ -477,6 +471,7 @@
                     })
                 })
             })
+            */
         });
 
     </script>

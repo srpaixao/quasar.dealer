@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'C:\Simplify\Quasar.Dealer\Dev\Nova\Simplify.Quasar.Dealer.Nova\Simplify.Quasar\Models\Model_Quasar.edmx'. 
+﻿// T4 code generation is enabled for model 'C:\Simplify\Quasar.Dealer\Dev\Automec\web\Simplify.Quasar\Models\Model_Quasar.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.

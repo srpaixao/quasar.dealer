@@ -1,0 +1,127 @@
+@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.EquipamentoCadastroViewModel
+
+@Html.ValidationSummary(true, null, new { @class = "alert alert-danger" })
+@Html.HiddenFor(m => m.Id)
+
+<style>
+    .equipamento-zonas {
+        width: 100%;
+        min-height: 220px;
+        padding: 6px;
+    }
+
+    .equipamento-zonas option {
+        padding: 7px 9px;
+    }
+
+    .equipamento-checkbox {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding-left: 0 !important;
+        cursor: pointer;
+    }
+
+    .equipamento-checkbox input[type="checkbox"] {
+        position: static !important;
+        width: 18px;
+        height: 18px;
+        margin: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        cursor: pointer;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Nome)
+            @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", maxlength = "100", autocomplete = "off" })
+            @Html.ValidationMessageFor(m => m.Nome, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Tipo)
+            @Html.TextBoxFor(m => m.Tipo, new { @class = "form-control", maxlength = "100", autocomplete = "off" })
+            @Html.ValidationMessageFor(m => m.Tipo, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Qtde)
+            @Html.TextBoxFor(m => m.Qtde, new { @class = "form-control", type = "number", min = "0", step = "1" })
+            @Html.ValidationMessageFor(m => m.Qtde, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Descricao)
+            @Html.TextBoxFor(m => m.Descricao, new { @class = "form-control", maxlength = "100", autocomplete = "off" })
+            @Html.ValidationMessageFor(m => m.Descricao, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.ZonasSelecionadas)
+            @Html.ListBoxFor(
+                m => m.ZonasSelecionadas,
+                Model.ZonasDDL,
+                new
+                {
+                    @class = "form-control equipamento-zonas",
+                    size = Math.Max(6, Model.ZonasDDL.Count())
+                })
+            <p class="help-block">Use Ctrl para selecionar ou remover zonas individualmente.</p>
+            @Html.ValidationMessageFor(m => m.ZonasSelecionadas, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Comp)
+            @Html.TextBoxFor(m => m.Comp, new { @class = "form-control", inputmode = "decimal" })
+            @Html.ValidationMessageFor(m => m.Comp, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Larg)
+            @Html.TextBoxFor(m => m.Larg, new { @class = "form-control", inputmode = "decimal" })
+            @Html.ValidationMessageFor(m => m.Larg, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Altu)
+            @Html.TextBoxFor(m => m.Altu, new { @class = "form-control", inputmode = "decimal" })
+            @Html.ValidationMessageFor(m => m.Altu, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-9">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Observacoes)
+            @Html.TextAreaFor(m => m.Observacoes, new { @class = "form-control", maxlength = "500", rows = "3" })
+            @Html.ValidationMessageFor(m => m.Observacoes, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group" style="margin-top: 28px;">
+            <div class="checkbox">
+                <label class="equipamento-checkbox">
+                    @Html.CheckBoxFor(m => m.Bloqueado)
+                    <strong>Bloqueado</strong>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

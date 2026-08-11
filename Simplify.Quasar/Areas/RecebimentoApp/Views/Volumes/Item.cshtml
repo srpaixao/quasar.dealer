@@ -1,0 +1,251 @@
+@model Simplify.Quasar.Areas.RecebimentoApp.ViewModels.ItemConsultaViewModel
+@using System
+@using System.Linq
+@using System.Web
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Consulta por Item Nr";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var header = Model.Header;
+    var itens = Model.Itens ?? Enumerable.Empty<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.ItemConsultaItemViewModel>();
+}
+
+@functions {
+    public string FormatDateTime(DateTime? value)
+    {
+        return value.HasValue ? value.Value.ToString("dd/MM/yyyy HH:mm:ss") : "-";
+    }
+
+    public string FormatText(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+
+    public string FormatDecimal(decimal? value)
+    {
+        return value.HasValue ? value.Value.ToString("N2") : "-";
+    }
+}
+
+<style>
+    .consulta-item .box {
+        margin-bottom: 18px;
+    }
+
+    .consulta-item .filtro-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 16px;
+    }
+
+    .consulta-item .filtro-field {
+        min-width: 280px;
+        max-width: 480px;
+        flex: 1 1 380px;
+    }
+
+    .consulta-item .header-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px 18px;
+    }
+
+    .consulta-item .info-card {
+        border: 1px solid #e5edf4;
+        border-radius: 10px;
+        padding: 12px 14px;
+        background: #fbfdff;
+        min-height: 76px;
+    }
+
+    .consulta-item .info-label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #6e7f91;
+        margin-bottom: 6px;
+    }
+
+    .consulta-item .info-value {
+        font-size: 17px;
+        font-weight: 600;
+        color: #12395d;
+        word-break: break-word;
+    }
+
+    .consulta-item .table th {
+        white-space: nowrap;
+    }
+
+    .consulta-item .table td,
+    .consulta-item .table th {
+        vertical-align: middle !important;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content consulta-item">
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Filtro de Pesquisa</h3>
+        </div>
+        <div class="box-body">
+            @using (Html.BeginForm("Item", "Volumes", new { area = "RecebimentoApp" }, FormMethod.Get))
+            {
+                <div class="filtro-row">
+                    <div class="form-group filtro-field">
+                        <label>Item Nr</label>
+                        @Html.TextBoxFor(m => m.ItemNr, new { @class = "form-control", @autocomplete = "off", @placeholder = "Digite o item nr" })
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-search"></i> Pesquisar
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.ConsultaRealizada)
+    {
+        if (header == null)
+        {
+            <div class="alert alert-warning">
+                @(string.IsNullOrWhiteSpace(Model.ConsultaMensagem) ? HttpUtility.HtmlDecode("Item n&atilde;o localizado.") : Html.Raw(Model.ConsultaMensagem))
+            </div>
+        }
+        else
+        {
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Dados do Item</h3>
+                </div>
+                <div class="box-body">
+                    <div class="header-grid">
+                        <div class="info-card">
+                            <span class="info-label">Item Nr</span>
+                            <div class="info-value">@FormatText(header.ItemNr)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Descri&ccedil;&atilde;o</span>
+                            <div class="info-value">@FormatText(header.Descricao)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Notas Fiscais</span>
+                            <div class="info-value">@header.QuantidadeNotasFiscais</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Volumes</span>
+                            <div class="info-value">@header.QuantidadeVolumes</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Pe&ccedil;as</span>
+                            <div class="info-value">@header.QuantidadePecas.ToString("N2")</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">&Uacute;ltima Movimenta&ccedil;&atilde;o</span>
+                            <div class="info-value">@FormatDateTime(header.UltimaMovimentacao)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Movimenta&ccedil;&otilde;es do Item</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="tbConsultaItem">
+                            <thead>
+                                <tr>
+                                    <th>Nota Fiscal</th>
+                                    <th>Volume Nr</th>
+                                    <th class="text-right">Faturado</th>
+                                    <th class="text-right">Conferido</th>
+                                    <th>Conferente</th>
+                                    <th class="text-right">Diferen&ccedil;a</th>
+                                    <th class="text-right">Armazenado</th>
+                                    <th>Estoquista</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (itens.Any())
+                                {
+                                    foreach (var item in itens)
+                                    {
+                                        <tr>
+                                            <td>@FormatText(item.NotaFiscal)</td>
+                                            <td>@FormatText(item.VolumeNr)</td>
+                                            <td class="text-right">@item.Quantidade.ToString("N2")</td>
+                                            <td class="text-right">@FormatDecimal(item.QtdConferida)</td>
+                                            <td>
+                                                <div>@FormatText(item.UsuarioConferencia)</div>
+                                                <small>@FormatDateTime(item.DtHrConferencia)</small>
+                                            </td>
+                                            <td class="text-right @(item.Diferenca.HasValue && item.Diferenca.Value != 0 ? "text-danger" : string.Empty)">@FormatDecimal(item.Diferenca)</td>
+                                            <td class="text-right">@FormatDecimal(item.QtdArmazenada)</td>
+                                            <td>
+                                                <div>@FormatText(item.UsuarioArmazenagem)</div>
+                                                <small>@FormatDateTime(item.DtHrArmazenagem)</small>
+                                            </td>
+                                            <td>@FormatText(item.SituacaoConferencia)</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="9" class="text-center">Nenhuma movimenta&ccedil;&atilde;o localizada para o item.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</section>
+
+@section scripts {
+    <script>
+        $(function () {
+            var table = $('#tbConsultaItem');
+            if (!table.length) {
+                return;
+            }
+
+            table.DataTable({
+                processing: false,
+                deferRender: true,
+                autoWidth: false,
+                pageLength: 25,
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item localizado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}

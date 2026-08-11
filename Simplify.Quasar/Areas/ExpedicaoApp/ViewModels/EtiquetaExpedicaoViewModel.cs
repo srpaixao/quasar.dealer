@@ -23,6 +23,10 @@ namespace Simplify.Quasar.Areas.ExpedicaoApp.ViewModels
         public string Transportadora { get; set; }
         public string Data { get; set; }
         public string Hora { get; set; }
+        public string VolumeNr { get; set; }
+        public string Sequencia { get; set; }
+        public string CodigoBarrasVolumeSvg { get; set; }
+        public string CodigoBarrasContatoSvg { get; set; }
         public int TranportadoraNotaFiscalStatusId { get; set; }
     }
 }

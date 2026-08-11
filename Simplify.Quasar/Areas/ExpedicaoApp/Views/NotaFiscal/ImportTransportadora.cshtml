@@ -1,0 +1,1176 @@
+@model Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.NotaFiscalTransportadoraImportViewModel
+
+@{
+    ViewBag.Title = "Expedi&ccedil;&atilde;o";
+    ViewBag.Description = "Importar arquivo de Transportadora";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/jquery-filestyle/jquery-filestyle.min.css" rel="stylesheet" />
+
+<style>
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+
+    th {
+        white-space: nowrap;
+    }
+
+    .transportadora-select-column {
+        width: 52px;
+    }
+
+    .transportadora-select,
+    #btn-marcar-todos,
+    #btn-desmarcar-todos {
+        cursor: pointer;
+    }
+
+    .selection-toolbar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    div.jfilestyle.jfilestyle-theme-quasar input {
+        border: none;
+        background: #eee;
+    }
+
+    div.jfilestyle.jfilestyle-theme-quasar label {
+        border: none;
+        background: #3c8dbc;
+        color: #fff;
+    }
+
+    .action-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+        min-height: 74px;
+        padding-bottom: 15px;
+    }
+
+    .toolbar-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-start;
+        min-height: 74px;
+    }
+
+    .toolbar-panel .form-group {
+        margin-bottom: 8px;
+        text-align: right;
+    }
+
+    .upload-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .upload-row .bootstrap-filestyle,
+    .upload-row .group-span-filestyle,
+    .upload-row .jfilestyle {
+        flex: 1 1 auto;
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .upload-row .jfilestyle {
+        display: flex;
+        align-items: stretch;
+    }
+
+    .upload-row .jfilestyle .focus-jfilestyle {
+        display: flex;
+        flex: 0 0 auto;
+    }
+
+    .upload-row .jfilestyle label {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        margin: 0 !important;
+    }
+
+    .upload-row .form-control {
+        width: 100% !important;
+    }
+
+    .upload-row .bootstrap-filestyle input,
+    .upload-row .group-span-filestyle .form-control,
+    .upload-row .jfilestyle input[type="text"] {
+        flex: 1 1 auto;
+        width: 100% !important;
+        min-width: 0;
+        margin: 0 !important;
+    }
+
+    #scrollable-dropdown-menu .tt-menu {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+</style>
+
+<section class="content-header">
+    <h1>
+        @Html.Raw(ViewBag.Title)<small>@ViewBag.Description</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <p id="processing">Loading...</p>
+            <div class="data-container hide">
+                <div class="row">
+                    <div class="col-xs-12 col-lg-6">
+                        <div class="row">
+                            <div class="col-xs-12 col-lg-6">
+                                <div class="form-group">
+                                    <label class="text-muted">Tipo de lan&ccedil;amento</label>
+                                    @Html.DropDownListFor(m => m.TipoMovimentoId, Model.TipoMovimentoDDL, new { @class = "form-control", @disabled = "disabled" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-lg-6">
+                                <div class="form-group">
+                                    <label class="text-muted">Transportadora</label>
+                                    @Html.DropDownListFor(m => m.TransportadoraId, Model.TransportadoraDDL, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-6">
+                        <div class="toolbar-panel">
+                            <div class="form-group">
+                                <label class="text-muted">M&eacute;todo de impress&atilde;o</label>
+                                <p class="form-control-static">@(Html.Raw(Model.ImprimirDireto ? "Autom&aacute;tico" : "Manual"))</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-lg-6">
+                        <div class="form-group">
+                            <label class="text-muted">Importar arquivo de Transportadora</label>
+                            <div class="upload-row">
+                                <input type="file" id="uploadarquivo" class="jfilestyle"
+                                       accept=".pdf,application/pdf"
+                                       data-theme="quasar"
+                                       data-text="<i class='fa-solid fa-folder'></i> Selecionar"
+                                       data-buttonBefore="true"
+                                       data-inputSize="100%"
+                                       data-placeholder="Selecione o PDF da transportadora">
+                                <button type="button" id="btn-importar-arquivo" class="btn btn-success hide" style="margin-left:5px">
+                                    <i class="fa fa-fw fa-upload"></i> Importar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-lg-6">
+                        <div class="action-toolbar">
+                            <button type="button" id="btn-imprimir-transportadora" class="btn btn-primary hide">
+                                <i class="fa fa-fw fa-print"></i> Imprimir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="selection-toolbar">
+                            <button type="button" id="btn-marcar-todos" class="btn btn-default btn-sm">
+                                <i class="fa fa-check-square-o fa-fw"></i> Marcar Todos
+                            </button>
+                            <button type="button" id="btn-desmarcar-todos" class="btn btn-default btn-sm">
+                                <i class="fa fa-square-o fa-fw"></i> Desmarcar Todos
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-condensed table-bordered table-hover table-small" id="tbNotaFiscalTransportadora" style="font-size:13px"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="printModal" data-backdrop="static" tabindex="-1" aria-labelledby="printModal" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-gradient">
+                <span id="textImprimir"><i class="fa-solid fa-print fa-fw"></i>&nbsp;&nbsp;Imprimir Etiquetas de Expedi&ccedil;&atilde;o</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="ip" />
+                <input type="hidden" id="porta" />
+                <input type="hidden" id="zpl-etiqueta" value="@Model.ZPL_Etiqueta" />
+                <input type="hidden" id="ps-ip" value="@Model.PrinterServerIP" />
+                <input type="hidden" id="ps-port" value="@Model.PrinterServerPort" />
+                <input type="hidden" id="imprimir-direto" value="@Model.ImprimirDireto.ToString().ToLower()" />
+                <input type="hidden" id="default-printer-name" value="@Model.ImpressoraPadraoNome" />
+                <input type="hidden" id="default-printer-ip" value="@Model.ImpressoraPadraoIP" />
+                <input type="hidden" id="default-printer-port" value="@Model.ImpressoraPadraoPorta" />
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label>Quantidade de etiquetas</label>
+                            <p id="qtd-etiquetas-imprimir" class="text-muted"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="row-printer">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label>Impressora</label>
+                            @Html.DropDownList("ImpressoraDDL", ViewBag.ImpressoraDDL as IEnumerable<SelectListItem>, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row hide">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label>Iframe</label>
+                            <div>
+                                <iframe src="" name="dummyframe" id="dummyframe" height="130" width="200"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="text-center">
+                    <button type="button" class="btn btn-success" id="btnConfirmaImpressaoEtiquetas"><i class="fa fa-fw fa-print"></i> Imprimir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/DataTables/plugins/sorting/datetime-moment.js"></script>
+    <script src="~/Scripts/jquery-filestyle/jquery-filestyle.min.js"></script>
+
+    <script>
+        let ps_ip = $('#ps-ip').val();
+        let ps_port = $('#ps-port').val();
+        let imprimirDireto = ($('#imprimir-direto').val() || '') === 'true';
+        let transportadoraSelecionados = {};
+
+        function GetTransportadoraSelectedIds() {
+            return Object.keys(transportadoraSelecionados)
+                .filter(function (id) {
+                    return transportadoraSelecionados[id] === true;
+                })
+                .map(function (id) {
+                    return parseInt(id, 10);
+                })
+                .filter(function (id) {
+                    return !isNaN(id) && id > 0;
+                });
+        }
+
+        function UpdateTransportadoraSelectionControls(table) {
+            var total = table ? table.rows().count() : 0;
+            var selecionados = GetTransportadoraSelectedIds().length;
+
+            $('#btn-imprimir-transportadora').toggleClass('hide', total === 0);
+            $('#btn-imprimir-transportadora').prop('disabled', selecionados === 0);
+            $('#btn-marcar-todos, #btn-desmarcar-todos').prop('disabled', total === 0);
+            $('#btn-imprimir-transportadora').html(
+                '<i class="fa fa-fw fa-print"></i> Imprimir selecionadas (' + selecionados + ')');
+        }
+
+        function ApplyTransportadoraTableTexts() {
+            var $wrapper = $('#tbNotaFiscalTransportadora_wrapper');
+            var $lengthLabel = $wrapper.find('.dataTables_length label');
+            var $select = $lengthLabel.find('select');
+
+            if ($lengthLabel.length && $select.length) {
+                $select.detach();
+                $lengthLabel.empty()
+                    .append('Exibir ')
+                    .append($select)
+                    .append(' itens por página');
+            }
+
+        }
+
+        function LoadDataTable() {
+            $('#processing').removeClass('hide');
+            $('.data-container').addClass('hide');
+
+            if ($.fn.DataTable.isDataTable('#tbNotaFiscalTransportadora')) {
+                $('#tbNotaFiscalTransportadora').DataTable().destroy();
+            }
+
+            $('#tbNotaFiscalTransportadora tbody').empty();
+
+            var table = $('#tbNotaFiscalTransportadora').DataTable({
+                deferRender: true,
+                autoWidth: false,
+                pageLength: 25,
+                order: [],
+                ajax: {
+                    url: '@Url.Action("GetTransportadoraData", "NotaFiscal", new { area = "ExpedicaoApp" })',
+                    type: 'GET',
+                    dataType: 'json',
+                    dataSrc: function (json) {
+                        transportadoraSelecionados = {};
+                        $.each(json.data || [], function (_, item) {
+                            transportadoraSelecionados[item.Id] = true;
+                        });
+                        return json.data || [];
+                    }
+                },
+                columns: [
+                    {
+                        data: 'Id',
+                        title: 'Imprimir',
+                        className: 'transportadora-select-column',
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type) {
+                            if (type !== 'display') {
+                                return data;
+                            }
+
+                            return '<input type="checkbox" class="transportadora-select" data-id="' + data + '" checked="checked" />';
+                        }
+                    },
+                    { data: 'VolumeNr', title: 'Volume Nr' },
+                    { data: 'NotaFiscalNr', title: 'NFiscal Nr' },
+                    { data: 'NomeCliente', title: 'Cliente' }
+                ],
+                rowCallback: function (row, data) {
+                    $(row).find('.transportadora-select').prop(
+                        'checked',
+                        transportadoraSelecionados[data.Id] === true);
+                },
+                drawCallback: function () {
+                    UpdateTransportadoraSelectionControls(this.api());
+                    ApplyTransportadoraTableTexts();
+                },
+                fnInitComplete: function () {
+                    $('#processing').addClass('hide');
+                    $('.data-container').removeClass('hide');
+                    ApplyTransportadoraTableTexts();
+                },
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item encontrado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            table.columns.adjust().draw(false);
+        }
+
+        function LogPrintIssue(etapa, detalhe) {
+            return $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: '@Url.Action("LogTransportadoraPrintIssue", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                data: {
+                    etapa: etapa,
+                    detalhe: detalhe
+                }
+            }).fail(function () {
+            });
+        }
+
+        function BuildPrintDiagnostic(baseMessage, printerName, printerIp, printerPort) {
+            return baseMessage
+                + " | Servidor de impress\u00e3o: " + (ps_ip || "(n\u00e3o informado)") + ":" + (ps_port || "(n\u00e3o informado)")
+                + " | Impressora: " + (printerName || "(n\u00e3o informada)") + " - " + (printerIp || "(n\u00e3o informado)") + ":" + (printerPort || "(n\u00e3o informado)");
+        }
+
+        function ImprimirEtiqueta(zpl, printerIp, printerPort, printerName) {
+            var deferred = $.Deferred();
+            var printer_ip = $.trim(printerIp || $('#ip').val() || '');
+            var printer_port = $.trim(printerPort || $('#porta').val() || '');
+            var printer_name = $.trim(printerName || $('#ImpressoraDDL option:selected').text() || '');
+            var zplCommands = zpl || '';
+            var iframe = document.getElementById("dummyframe");
+
+            function rejectPrint(baseMessage, userMessage) {
+                var detalhe = BuildPrintDiagnostic(baseMessage, printer_name, printer_ip, printer_port);
+                LogPrintIssue("ImprimirEtiqueta", detalhe);
+                deferred.reject(userMessage || detalhe);
+            }
+
+            if (!zplCommands) {
+                rejectPrint("O ZPL não foi gerado para envio.", "O ZPL não foi gerado para impressão.");
+                return deferred.promise();
+            }
+
+            if (!ps_ip || !ps_port) {
+                rejectPrint("Servidor de impressão não configurado.", "Servidor de impressão não configurado.");
+                return deferred.promise();
+            }
+
+            if (!printer_name || !printer_ip || !printer_port || printer_port === '0') {
+                rejectPrint("Nome, IP ou porta da impressora não configurados.", "A impressora selecionada não está configurada corretamente.");
+                return deferred.promise();
+            }
+
+            if (!iframe) {
+                rejectPrint("Iframe de impressão não localizado.", "Não foi possível preparar o envio ao servidor de impressão.");
+                return deferred.promise();
+            }
+
+            var url = "https://" + ps_ip + ":" + ps_port + "/quasardealer/impressora/iframeImpressao";
+            var completed = false;
+            var $iframe = $("#dummyframe");
+            var timeoutId = window.setTimeout(function () {
+                if (completed) {
+                    return;
+                }
+
+                completed = true;
+                $iframe.off(".transportadoraPrint");
+                rejectPrint("Tempo limite ao carregar o servidor de impressão.", "Não foi possível conectar ao servidor de impressão.");
+            }, 8000);
+
+            $iframe.off(".transportadoraPrint");
+            $iframe.on("load.transportadoraPrint", function () {
+                if (completed) {
+                    return;
+                }
+
+                window.setTimeout(function () {
+                    if (completed) {
+                        return;
+                    }
+
+                    try {
+                        var iframeWin = iframe.contentWindow;
+                        if (!iframeWin) {
+                            completed = true;
+                            window.clearTimeout(timeoutId);
+                            $iframe.off(".transportadoraPrint");
+                            rejectPrint("Janela de impressão não disponível.", "Não foi possível acessar o servidor de impressão.");
+                            return;
+                        }
+
+                        var mensagem = JSON.stringify({
+                            ipServidorImpressao: ps_ip,
+                            portaServidorImpressao: ps_port,
+                            nomeImpressora: printer_name,
+                            ipImpressora: printer_ip,
+                            portaImpressora: printer_port,
+                            comandosZPL: zplCommands
+                        });
+
+                        iframeWin.postMessage(mensagem, "*");
+
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            url: '@Url.Action("LogPrintZpl", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                            data: { zpl: zplCommands }
+                        }).done(function (response) {
+                            if (!response.success) {
+                                LogPrintIssue("LogPrintZpl", response.msg || "Falha ao gravar o log de impressão do ZPL.");
+                            }
+                        }).always(function () {
+                            if (completed) {
+                                return;
+                            }
+
+                            completed = true;
+                            window.clearTimeout(timeoutId);
+                            $iframe.off(".transportadoraPrint");
+                            deferred.resolve();
+                        });
+                    } catch (e) {
+                        completed = true;
+                        window.clearTimeout(timeoutId);
+                        $iframe.off(".transportadoraPrint");
+                        rejectPrint("Falha ao enviar o comando ZPL: " + (e.message || e.toString()), "Não foi possível enviar o comando ZPL ao servidor de impressão.");
+                    }
+                }, 250);
+            });
+
+            $iframe.attr("src", url);
+            return deferred.promise();
+        }
+
+        function EnviarEtiquetaTransportadora(zpl, printerIp, printerPort, printerName) {
+            var deferred = $.Deferred();
+            var printer_ip = $.trim(printerIp || $('#ip').val() || '');
+            var printer_port = $.trim(printerPort || $('#porta').val() || '');
+            var printer_name = $.trim(printerName || $('#ImpressoraDDL option:selected').text() || '');
+            var zplCommands = zpl || '';
+            var iframe = document.getElementById("dummyframe");
+            var $iframe = $("#dummyframe");
+            var completed = false;
+            var sendStarted = false;
+
+            function rejectPrint(baseMessage, userMessage) {
+                var detalhe = BuildPrintDiagnostic(baseMessage, printer_name, printer_ip, printer_port);
+                LogPrintIssue("EnviarEtiquetaTransportadora", detalhe);
+                deferred.reject(userMessage || detalhe);
+            }
+
+            function finalizeSuccess() {
+                if (completed) {
+                    return;
+                }
+
+                completed = true;
+                $iframe.off(".transportadoraPrintRobusta");
+                deferred.resolve();
+            }
+
+            if (!zplCommands) {
+                rejectPrint("O ZPL não foi gerado para envio.", "O ZPL não foi gerado para impressão.");
+                return deferred.promise();
+            }
+
+            if (!ps_ip || !ps_port) {
+                rejectPrint("Servidor de impressão não configurado.", "Servidor de impressão não configurado.");
+                return deferred.promise();
+            }
+
+            if (!printer_name || !printer_ip || !printer_port || printer_port === '0') {
+                rejectPrint("Nome, IP ou porta da impressora não configurados.", "A impressora selecionada não está configurada corretamente.");
+                return deferred.promise();
+            }
+
+            if (!iframe) {
+                rejectPrint("Iframe de impressão não localizado.", "Não foi possível preparar o envio ao servidor de impressão.");
+                return deferred.promise();
+            }
+
+            var url = "https://" + ps_ip + ":" + ps_port + "/quasardealer/impressora/iframeImpressao";
+            var timeoutId = window.setTimeout(function () {
+                if (completed) {
+                    return;
+                }
+
+                completed = true;
+                $iframe.off(".transportadoraPrintRobusta");
+                rejectPrint("Tempo limite ao carregar o servidor de impressão.", "Não foi possível conectar ao servidor de impressão.");
+            }, 30000);
+
+            function trySend(origem) {
+                if (completed || sendStarted) {
+                    return;
+                }
+
+                try {
+                    var iframeWin = iframe.contentWindow;
+                    if (!iframeWin) {
+                        return;
+                    }
+
+                    sendStarted = true;
+
+                    var mensagem = JSON.stringify({
+                        ipServidorImpressao: ps_ip,
+                        portaServidorImpressao: ps_port,
+                        nomeImpressora: printer_name,
+                        ipImpressora: printer_ip,
+                        portaImpressora: printer_port,
+                        comandosZPL: zplCommands
+                    });
+
+                    iframeWin.postMessage(mensagem, "*");
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '@Url.Action("LogPrintZpl", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                        data: { zpl: zplCommands }
+                    }).done(function (response) {
+                        if (!response.success) {
+                            LogPrintIssue("LogPrintZpl", response.msg || "Falha ao gravar o log de impressão do ZPL.");
+                        }
+                    }).fail(function (xhr) {
+                        LogPrintIssue("LogPrintZpl", "Falha ao registrar o ZPL após o envio (" + origem + "): " + xhr.status + ": " + xhr.statusText);
+                    }).always(function () {
+                        window.clearTimeout(timeoutId);
+                        finalizeSuccess();
+                    });
+                } catch (e) {
+                    completed = true;
+                    window.clearTimeout(timeoutId);
+                    $iframe.off(".transportadoraPrintRobusta");
+                    rejectPrint("Falha ao enviar o comando ZPL: " + (e.message || e.toString()), "Não foi possível enviar o comando ZPL ao servidor de impressão.");
+                }
+            }
+
+            $iframe.off(".transportadoraPrintRobusta");
+            $iframe.one("load.transportadoraPrintRobusta", function () {
+                window.setTimeout(function () {
+                    trySend("load");
+                }, 3000);
+            });
+
+            // O servidor de impressao nao devolve confirmacao. Por isso, o ZPL
+            // somente pode ser enviado depois do carregamento da URL real. O
+            // carregamento previo de about:blank disparava o evento load antes
+            // da hora e fazia o comando se perder em ambientes mais lentos.
+            $iframe.attr("src", url);
+
+            return deferred.promise();
+        }
+
+        function FinalizarImpressaoTransportadora(onSuccess, onError, ids, inicioId, fimId, reimpressao) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: '@Url.Action("FinalizeTransportadoraPrint", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                traditional: true,
+                data: {
+                    ids: ids || [],
+                    inicioId: inicioId || null,
+                    fimId: fimId || null,
+                    reimpressao: reimpressao === true
+                }
+            }).done(function (response) {
+                if (response.success) {
+                    if (onSuccess) {
+                        onSuccess(response);
+                    }
+                } else if (onError) {
+                    onError(response.msg || "Não foi possível finalizar a impressão.");
+                }
+            }).fail(function (xhr) {
+                if (onError) {
+                    onError(xhr.status + ": " + xhr.statusText);
+                }
+            });
+        }
+
+        function ShowError(title, detail) {
+            var div = document.createElement("div");
+            div.innerHTML = "<h4 class='swal-text-error'>" + title + "</h4><p class='swal-text-error-detail'>" + detail + "</p>";
+            swal({
+                title: "Importar arquivo de Transportadora",
+                content: div,
+                buttons: {
+                    confirm: {
+                        visible: false
+                    },
+                    cancel: {
+                        text: "Fechar",
+                        className: "swal-btn-danger",
+                        closeModal: true,
+                        visible: true
+                    }
+                }
+            });
+        }
+
+        function ShowNenhumaEtiquetaGerada() {
+            var div = document.createElement("div");
+            div.innerHTML = "<h4 class='swal-text-success'>Nenhuma etiqueta foi gerada.</h4>";
+
+            swal({
+                title: "Atualizar arquivo de Transportadora",
+                content: div,
+                buttons: {
+                    confirm: {
+                        className: "swal-btn-info"
+                    }
+                }
+            });
+        }
+
+        function ShowSelecaoDisponivel(quantidade) {
+            var qtd = parseInt(quantidade || 0, 10);
+            var div = document.createElement("div");
+            var texto = document.createElement("h4");
+            texto.className = "swal-text-success";
+            texto.textContent = qtd + (qtd === 1
+                ? " etiqueta foi importada. Revise a seleção antes de imprimir."
+                : " etiquetas foram importadas. Revise a seleção antes de imprimir.");
+            div.appendChild(texto);
+
+            swal({
+                title: "Importar arquivo de Transportadora",
+                content: div,
+                buttons: {
+                    confirm: {
+                        text: "OK",
+                        className: "swal-btn-info"
+                    }
+                }
+            });
+        }
+
+        function ShowEtiquetasEnviadas(quantidade, transportadora) {
+            var qtd = parseInt(quantidade || 0, 10);
+            var descricaoEtiqueta = qtd === 1 ? " etiqueta foi enviada para impress\u00e3o" : " etiquetas foram enviadas para impress\u00e3o";
+            var mensagem = qtd + descricaoEtiqueta + " para a transportadora";
+            if (transportadora) {
+                mensagem += " " + transportadora;
+            }
+            mensagem += ".";
+
+            var div = document.createElement("div");
+            var texto = document.createElement("h4");
+            texto.className = "swal-text-success";
+            texto.textContent = mensagem;
+            div.appendChild(texto);
+
+            swal({
+                title: "Atualizar arquivo de Transportadora",
+                content: div,
+                buttons: {
+                    confirm: {
+                        className: "swal-btn-info"
+                    }
+                }
+            });
+        }
+
+        function CarregarEtiquetasManuais(inicioId, fimId, ids) {
+            var deferred = $.Deferred();
+            var iframe = document.getElementById('manual-label-print-frame');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'manual-label-print-frame';
+                iframe.setAttribute('title', 'Etiquetas de expedi&ccedil;&atilde;o');
+                iframe.style.position = 'fixed';
+                iframe.style.left = '-10000px';
+                iframe.style.top = '0';
+                iframe.style.width = '1px';
+                iframe.style.height = '1px';
+                iframe.style.border = '0';
+                iframe.style.opacity = '0';
+                iframe.style.pointerEvents = 'none';
+                document.body.appendChild(iframe);
+            }
+
+            var completed = false;
+            var $iframe = $(iframe);
+            var timeoutId = window.setTimeout(function () {
+                if (completed) {
+                    return;
+                }
+
+                completed = true;
+                $iframe.off('.manualLabelPrint');
+                deferred.reject('Tempo limite ao preparar as etiquetas para impress\u00e3o.');
+            }, 30000);
+
+            $iframe.off('.manualLabelPrint').one('load.manualLabelPrint', function () {
+                if (completed) {
+                    return;
+                }
+
+                try {
+                    var printDocument = iframe.contentDocument || iframe.contentWindow.document;
+                    if (!printDocument || !printDocument.getElementById('manual-label-document')) {
+                        completed = true;
+                        window.clearTimeout(timeoutId);
+                        $iframe.off('.manualLabelPrint');
+                        deferred.reject('Nenhuma etiqueta foi localizada para impress\u00e3o manual.');
+                        return;
+                    }
+
+                    completed = true;
+                    window.clearTimeout(timeoutId);
+                    $iframe.off('.manualLabelPrint');
+                    deferred.resolve(iframe);
+                } catch (e) {
+                    completed = true;
+                    window.clearTimeout(timeoutId);
+                    $iframe.off('.manualLabelPrint');
+                    deferred.reject(e.message || e.toString());
+                }
+            });
+
+            var url = '@Url.Action("PrintTransportadoraManual", "NotaFiscal", new { area = "ExpedicaoApp" })';
+            var parametros = [];
+            if (inicioId) {
+                parametros.push('inicioId=' + encodeURIComponent(inicioId));
+            }
+            if (fimId) {
+                parametros.push('fimId=' + encodeURIComponent(fimId));
+            }
+            $.each(ids || [], function (_, id) {
+                parametros.push('ids=' + encodeURIComponent(id));
+            });
+            parametros.push('_=' + new Date().getTime());
+            iframe.src = url + '?' + parametros.join('&');
+
+            return deferred.promise();
+        }
+
+        function AbrirDialogoImpressaoManual(iframe) {
+            var deferred = $.Deferred();
+
+            window.setTimeout(function () {
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                    deferred.resolve();
+                } catch (e) {
+                    deferred.reject(e.message || e.toString());
+                }
+            }, 250);
+
+            return deferred.promise();
+        }
+
+        $(document).ready(function () {
+            LoadDataTable();
+
+            $('#tbNotaFiscalTransportadora').on('change', '.transportadora-select', function () {
+                var id = parseInt($(this).attr('data-id'), 10);
+                if (!isNaN(id) && id > 0) {
+                    transportadoraSelecionados[id] = this.checked;
+                }
+
+                UpdateTransportadoraSelectionControls($('#tbNotaFiscalTransportadora').DataTable());
+            });
+
+            function SetAllTransportadoraRows(checked) {
+                var table = $('#tbNotaFiscalTransportadora').DataTable();
+
+                table.rows().every(function () {
+                    var item = this.data();
+                    transportadoraSelecionados[item.Id] = checked;
+                });
+
+                $('.transportadora-select', table.rows().nodes()).prop('checked', checked);
+                UpdateTransportadoraSelectionControls(table);
+            }
+
+            $('#btn-marcar-todos').on('click', function () {
+                SetAllTransportadoraRows(true);
+            });
+
+            $('#btn-desmarcar-todos').on('click', function () {
+                SetAllTransportadoraRows(false);
+            });
+
+            $('#uploadarquivo').on('change', function () {
+                if ($(this).get(0).files.length === 0) {
+                    $('#btn-importar-arquivo').addClass('hide');
+                } else {
+                    $('#btn-importar-arquivo').removeClass('hide');
+                }
+            });
+
+            $('#ImpressoraDDL').on('change', function () {
+                var impressoraId = $(this).val();
+
+                $('#ip').val('');
+                $('#porta').val('');
+
+                if (!impressoraId) {
+                    return;
+                }
+
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    url: '@Url.Action("GetPrinterData", "NotaFiscal", new { area = "ExpedicaoApp" })',
+                    data: { id: impressoraId },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#ip').val(response.data.IP);
+                            $('#porta').val(response.data.Porta);
+                        }
+                    },
+                    error: function (xhr) {
+                        alert(xhr.status + ': ' + xhr.statusText);
+                    }
+                });
+            }).change();
+
+            $('#btn-importar-arquivo').click(function (e) {
+                e.preventDefault();
+
+                if ($("#uploadarquivo").val() == '') {
+                    ShowError("Arquivo obrigat&oacute;rio", "Selecione o PDF da transportadora para continuar.");
+                    return;
+                }
+
+                if (!$('#TransportadoraId').val()) {
+                    ShowError("Transportadora obrigat&oacute;ria", "Selecione a transportadora para continuar.");
+                    return;
+                }
+
+                var fileName = $("#uploadarquivo").val().toLowerCase();
+                if (!fileName.endsWith('.pdf')) {
+                    ShowError("Arquivo inv&aacute;lido", "O arquivo da transportadora deve ser enviado em PDF.");
+                    return;
+                }
+
+                /*
+                 * Confirmacao desativada: depois das validacoes, a importacao
+                 * deve iniciar diretamente. Manter este bloco comentado para
+                 * eventual uso futuro.
+                swal({
+                    title: "Atualizar arquivo de Transportadora",
+                    text: "Confirma a importa\u00e7\u00e3o do arquivo ?",
+                    buttons: {
+                        cancel: {
+                            text: "N\u00e3o",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then((confirm) => {
+                    if (!confirm) {
+                        return;
+                    }
+                */
+
+                    $('#btn-importar-arquivo').html("<i class='fa fa-fw fa-pulse fa-spinner'></i> Importando arquivo...");
+
+                    var fileUpload = $("#uploadarquivo").get(0);
+                    var files = fileUpload.files;
+                    var form = new FormData();
+                    form.append("Arquivo", files[0]);
+                    form.append("TransportadoraId", $('#TransportadoraId').val());
+                    form.append("TipoMovimentoId", $('#TipoMovimentoId').val());
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("UploadTransportadoraFile", "NotaFiscal", new { area = "ExpedicaoApp" })',
+                        contentType: false,
+                        processData: false,
+                        data: form
+                    }).done(function (response) {
+                        $('#btn-importar-arquivo').html("<i class='fa fa-fw fa-upload'></i> Importar");
+
+                        if (!response.erro) {
+                            if (response.imprimirDireto) {
+                                if (!response.zpl || !response.defaultPrinterIp || !response.defaultPrinterPort) {
+                                    LogPrintIssue("UploadTransportadoraFile", "Resposta de impressão automática incompleta após a importação.");
+                                    ShowError("N\u00e3o foi poss\u00edvel imprimir automaticamente!", "A impressora padr\u00e3o n\u00e3o est\u00e1 configurada corretamente.");
+                                    return;
+                                }
+
+                                $.ajax({
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    url: '@Url.Action("LogZplGenerated", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                                    data: { zpl: response.zpl, tipo: 'Impress\u00e3o Autom\u00e1tica' }
+                                }).done(function (logResponse) {
+                                    if (!logResponse.success) {
+                                        alert(logResponse.msg);
+                                    }
+                                });
+
+                                ps_ip = $.trim(response.printerServerIp || '');
+                                ps_port = $.trim(response.printerServerPort || '');
+                                EnviarEtiquetaTransportadora(response.zpl, response.defaultPrinterIp, response.defaultPrinterPort, response.defaultPrinterName).done(function () {
+                                    FinalizarImpressaoTransportadora(function () {
+                                        LoadDataTable();
+                                        ShowEtiquetasEnviadas(response.countImpressao, response.transportadora);
+                                    }, function (msg) {
+                                        ShowError("N&atilde;o foi poss&iacute;vel finalizar o envio para impress&atilde;o!", msg);
+                                    }, null, response.inicioId, response.fimId);
+                                }).fail(function (msg) {
+                                    ShowError("N\u00e3o foi poss\u00edvel enviar as etiquetas para impress\u00e3o!", msg);
+                                });
+                            } else {
+                                if ((response.qtd_linhas || 0) > 0) {
+                                    LoadDataTable();
+                                    ShowSelecaoDisponivel(response.qtd_linhas);
+                                    return;
+                                }
+
+                                LoadDataTable();
+                                ShowNenhumaEtiquetaGerada();
+                            }
+                        } else {
+                            ShowError("N\u00e3o foi poss\u00edvel importar o arquivo selecionado!", response.mensagem);
+                        }
+                    }).fail(function (jqXHR) {
+                        $('#btn-importar-arquivo').html("<i class='fa fa-fw fa-upload'></i> Importar");
+                        ShowError("N\u00e3o foi poss\u00edvel importar o arquivo selecionado!", jqXHR.status + ": " + jqXHR.statusText);
+                    });
+                /*
+                });
+                */
+            });
+
+            $('#btn-imprimir-transportadora').click(function (e) {
+                e.preventDefault();
+
+                var ids = GetTransportadoraSelectedIds();
+                if (ids.length === 0) {
+                    ShowError("Nenhuma etiqueta selecionada", "Marque ao menos um registro para imprimir.");
+                    return;
+                }
+
+                if (imprimirDireto) {
+                    var defaultPrinterName = $.trim($('#default-printer-name').val() || '');
+                    var defaultPrinterIp = $.trim($('#default-printer-ip').val() || '');
+                    var defaultPrinterPort = $.trim($('#default-printer-port').val() || '');
+
+                    if (!defaultPrinterName || !defaultPrinterIp || !defaultPrinterPort || defaultPrinterPort === '0') {
+                        ShowError(
+                            "N&atilde;o foi poss&iacute;vel reimprimir automaticamente!",
+                            "A impressora padr&atilde;o n&atilde;o est&aacute; configurada corretamente.");
+                        return;
+                    }
+
+                    $('#btn-imprimir-transportadora')
+                        .prop('disabled', true)
+                        .html("<i class='fa fa-fw fa-pulse fa-spinner'></i> Reimprimindo...");
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        url: '@Url.Action("PrintTransportadora", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                        traditional: true,
+                        data: { ids: ids }
+                    }).done(function (response) {
+                        if (!response.success || !response.zpl) {
+                            ShowError(
+                                "N&atilde;o foi poss&iacute;vel reimprimir as etiquetas!",
+                                response.msg || "Nenhuma etiqueta foi gerada.");
+                            UpdateTransportadoraSelectionControls($('#tbNotaFiscalTransportadora').DataTable());
+                            return;
+                        }
+
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            url: '@Url.Action("LogZplGenerated", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                            data: { zpl: response.zpl, tipo: 'Reimpress\u00e3o Autom\u00e1tica' }
+                        }).done(function (logResponse) {
+                            if (!logResponse.success) {
+                                LogPrintIssue("LogZplGenerated", logResponse.msg || "Falha ao registrar o ZPL da reimpress\u00e3o autom\u00e1tica.");
+                            }
+                        });
+
+                        EnviarEtiquetaTransportadora(
+                            response.zpl,
+                            defaultPrinterIp,
+                            defaultPrinterPort,
+                            defaultPrinterName
+                        ).done(function () {
+                            FinalizarImpressaoTransportadora(function () {
+                                LoadDataTable();
+                                ShowEtiquetasEnviadas(response.countImpressao, '');
+                            }, function (msg) {
+                                ShowError("N&atilde;o foi poss&iacute;vel finalizar a reimpress&atilde;o!", msg);
+                                UpdateTransportadoraSelectionControls($('#tbNotaFiscalTransportadora').DataTable());
+                            }, ids, null, null, true);
+                        }).fail(function (msg) {
+                            ShowError("N&atilde;o foi poss&iacute;vel reimprimir as etiquetas!", msg);
+                            UpdateTransportadoraSelectionControls($('#tbNotaFiscalTransportadora').DataTable());
+                        });
+                    }).fail(function (xhr) {
+                        ShowError(
+                            "N&atilde;o foi poss&iacute;vel reimprimir as etiquetas!",
+                            xhr.status + ": " + xhr.statusText);
+                        UpdateTransportadoraSelectionControls($('#tbNotaFiscalTransportadora').DataTable());
+                    });
+
+                    return;
+                }
+
+                CarregarEtiquetasManuais(null, null, ids).done(function (iframe) {
+                    AbrirDialogoImpressaoManual(iframe).done(function () {
+                        FinalizarImpressaoTransportadora(function () {
+                            LoadDataTable();
+                        }, function (msg) {
+                            ShowError("N&atilde;o foi poss&iacute;vel finalizar a impress&atilde;o!", msg);
+                        }, ids, null, null, true);
+                    }).fail(function (msg) {
+                        ShowError("N&atilde;o foi poss&iacute;vel abrir a impress&atilde;o!", msg);
+                    });
+                }).fail(function (msg) {
+                    ShowError("N&atilde;o foi poss&iacute;vel preparar a impress&atilde;o!", msg);
+                });
+            });
+
+            $('#btnConfirmaImpressaoEtiquetas').click(function () {
+                var ids = GetTransportadoraSelectedIds();
+                if (ids.length === 0) {
+                    ShowError("Nenhuma etiqueta selecionada", "Marque ao menos um registro para imprimir.");
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '@Url.Action("PrintTransportadora", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                    traditional: true,
+                    data: { ids: ids }
+                }).done(function (response) {
+                    if (response.success) {
+                        if (response.zpl) {
+                            $.ajax({
+                                type: 'POST',
+                                dataType: 'json',
+                                url: '@Url.Action("LogZplGenerated", "NotaFiscal", new { area = "ExpedicaoApp"})',
+                                data: { zpl: response.zpl, tipo: 'Impress\u00e3o' }
+                            }).done(function (logResponse) {
+                                if (!logResponse.success) {
+                                    alert(logResponse.msg);
+                                }
+                            });
+
+                            EnviarEtiquetaTransportadora(response.zpl).done(function () {
+                                FinalizarImpressaoTransportadora(function () {
+                                    $('#qtd-etiquetas-imprimir').text(response.countImpressao || 0);
+                                    $('#printModal').modal('hide');
+                                    LoadDataTable();
+                                }, function (msg) {
+                                    ShowError("N&atilde;o foi poss&iacute;vel finalizar a impress&atilde;o!", msg);
+                                }, ids, null, null);
+                            }).fail(function (msg) {
+                                ShowError("N\u00e3o foi poss\u00edvel imprimir as etiquetas!", msg);
+                            });
+                        }
+                    } else {
+                        ShowError("N\u00e3o foi poss\u00edvel imprimir as etiquetas!", response.msg);
+                    }
+                }).fail(function (xhr) {
+                    ShowError("N\u00e3o foi poss\u00edvel imprimir as etiquetas!", xhr.status + ": " + xhr.statusText);
+                });
+            });
+        });
+    </script>
+}

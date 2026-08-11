@@ -124,32 +124,27 @@
 
             var table = $('#tbNotaFiscal').DataTable({
                 deferRender: true,
+                serverSide: true,
+                processing: true,
                 autoWidth: false,
                 pageLength: 25,
                 order: [],
                 ajax: {
                     url: action,
-                    type: 'GET',
-                    dataType: 'json'
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: function (d) { return JSON.stringify(d); }
                 },
                 columns: [
-                            { data: 'Numero', title: 'Número NF' },
                             {
-                                data: 'DataEmissao', title: 'Dt Entrada/Saída', visible: true, render: function (data, type) {
-                                    if (data) {
-                                        return moment(data).format('DD/MM/YYYY');
-                                    } else {
-                                        return data;
-                                    }
+                                data: 'Numero', title: 'Nota Fiscal', render: function (data, type, row) {
+                                    return '<a href="#" class="historico" data-id="' + row.Id + '">' + data + '</a>';
                                 }
                             },
-                           { data: 'Classificacao', title: 'Nome Depto' },
-                           { data: 'Controle', title: 'Contato' },
                            { data: 'Vendedor', title: 'Vendedor' },
-                           //{ data: 'CodigoCliente', title: 'Cód. Cliente' },
                            { data: 'NomeCliente', title: 'Cliente' },
-                           { data: 'Cidade', title: 'Cidade' },
-                           { data: 'Estado', title: 'Estado' },
+                           { data: 'ModificadoPor', title: 'Usuário' },
                            {
                                 data: null, name: 'btnActions', render: function (data, type, row) {
                                     var btnGroup = '<div class="btn-group">' +
@@ -192,7 +187,6 @@
             });
 
             table.columns.adjust().draw(false);
-            table.columns([5]).visible(false); //Código Cliente
         }
 
         $(document).ready(function () {
@@ -311,6 +305,19 @@
                         }
                     });
                 }
+            });
+
+            $('#tbNotaFiscal').on('click', 'a.historico', function (e) {
+                e.preventDefault();
+
+                var id = $(this).data('id');
+                var url = '@Url.Action("Historico", "NotaFiscal", new { area = "ExpedicaoApp", id = "_id" })';
+                $('#myModalContent').load(url.replace('_id', id), function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                });
             });
 
             $('#tbNotaFiscal').on('click', 'a.btn-cancel', function (e) {

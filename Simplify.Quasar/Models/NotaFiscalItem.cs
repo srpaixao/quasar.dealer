@@ -18,7 +18,13 @@ namespace Simplify.Quasar.Models
         public int NotaFiscalId { get; set; }
         public string Item { get; set; }
         public decimal Quantidade { get; set; }
+        public Nullable<decimal> QtdConferida { get; set; }
         public Nullable<decimal> QtdArmazenada { get; set; }
+        public bool Conferido { get; set; }
+        public string UsuarioConferencia { get; set; }
+        public Nullable<System.DateTime> DtHrConferencia { get; set; }
+        public string UsuarioArmazenagem { get; set; }
+        public Nullable<System.DateTime> DtHrArmazenagem { get; set; }
         public string Volume { get; set; }
         public string Pedido { get; set; }
         public Nullable<int> StatusId { get; set; }

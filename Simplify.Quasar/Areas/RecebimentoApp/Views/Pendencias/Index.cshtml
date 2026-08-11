@@ -159,27 +159,24 @@
             if (tableId === '#tbNotaFiscal') {
                 var dt_table = $(tableId).DataTable({
                     deferRender: true,
+                    serverSide: true,
                     autoWidth: false,
                     processing: true,
                     pageLength: 25,
                     order: [],
                     ajax: {
                         url: '@Url.Action("GetNotasFiscais", "Pendencias", new {area="RecebimentoApp"})',
-                        type: 'GET',
-                        dataType: 'json'
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: function (d) { return JSON.stringify(d); }
                     },
                     columns: [
                         { data: 'NFiscal', title: 'NFiscal Nr' },
                         { data: 'Status', title: 'Status' },
                         { data: 'Origem', title: 'Origem' },
                         {
-                            data: 'DtHr', title: 'Data/Hora', render: function (data, type) {
-                                if (data) {
-                                    return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                                } else {
-                                    return data;
-                                }
-                            }
+                            data: 'DtHrTexto', title: 'Data/Hora'
                         },
                         { data: 'Usuario', title: 'Usuário' }
                     ],
@@ -213,14 +210,17 @@
             if (tableId === '#tbVolume') {
                 var dt_table = $(tableId).DataTable({
                     deferRender: true,
+                    serverSide: true,
                     autoWidth: false,
                     processing: true,
                     pageLength: 25,
                     order: [],
                     ajax: {
                         url: '@Url.Action("GetVolumes", "Pendencias", new {area="RecebimentoApp"})',
-                        type: 'GET',
-                        dataType: 'json'
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: function (d) { return JSON.stringify(d); }
                     },
                     columns: [
                         {
@@ -254,13 +254,7 @@
                             //}
                         },
                         {
-                            data: 'CriadoEm', title: 'Data/Hora', render: function (data, type) {
-                                if (data) {
-                                    return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                                } else {
-                                    return data;
-                                }
-                            }
+                            data: 'CriadoEmTexto', title: 'Data/Hora'
                         },
                         {
                             data: 'Usuario',
@@ -297,14 +291,17 @@
             if (tableId === '#tbItem') {
                 var dt_table = $(tableId).DataTable({
                     deferRender: true,
+                    serverSide: true,
                     autoWidth: false,
                     processing: true,
                     pageLength: 25,
                     order: [],
                     ajax: {
                         url: '@Url.Action("GetItens","Pendencias", new {area="RecebimentoApp"})',
-                        type: 'GET',
-                        dataType: 'json'
+                        type: 'POST',
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        data: function (d) { return JSON.stringify(d); }
                     },
                     columns: [
                         {
@@ -340,15 +337,8 @@
                             }
                         },
                         {
-                            data: 'DtHr',
-                            title: 'Data/Hora',
-                            render: function (data, type) {
-                                if (data) {
-                                    return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                                } else {
-                                    return data;
-                                }
-                            }
+                            data: 'DtHrTexto',
+                            title: 'Data/Hora'
                         },
                         {
                             data: 'Usuario',
@@ -451,6 +441,7 @@
 
         });
     </script>
+    @Html.Partial("_ItensByVolumeGridScript")
 }
 
 

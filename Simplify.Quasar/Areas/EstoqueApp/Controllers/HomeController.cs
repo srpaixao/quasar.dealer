@@ -31,6 +31,13 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             return View();
         }
 
+        public ActionResult Dashboard(DateTime? dataInicial, DateTime? dataFinal)
+        {
+            return View(
+                "~/Views/Shared/ProcessDashboard.cshtml",
+                ProcessDashboardViewModel.Create("Estoque", "EstoqueApp", dataInicial, dataFinal));
+        }
+
         [HttpPost]
         public ActionResult GetDataEstoque()
         {
@@ -38,50 +45,90 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             {
                 var json = reader.ReadToEnd();
                 var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(json);
+                if (model == null)
+                {
+                    return Json(new
+                    {
+                        draw = 0,
+                        recordsFiltered = 0,
+                        recordsTotal = 0,
+                        data = new object[0]
+                    });
+                }
 
                 var draw = model.draw;
-                var start = model.start;
-                var length = model.length;
-                var searchValue = model.search.value;
-                var sortColumn = model.order[0].column;
-                var sortColumnDir = model.order[0].dir;
+                var start = Math.Max(model.start, 0);
+                var length = model.length > 0 ? Math.Min(model.length, 250) : 25;
+                var searchValue = model.search == null
+                    ? string.Empty
+                    : model.search.value ?? string.Empty;
+                var sortColumn = model.order != null && model.order.Length > 0
+                    ? model.order[0].column
+                    : 0;
+                var sortColumnDir = model.order != null && model.order.Length > 0
+                    ? model.order[0].dir
+                    : "asc";
 
-                var estoqueData = db.SP_GetItensEstoque(filialId).ToList();
+                var estoqueData = from estoque in db.Estoque.AsNoTracking()
+                                  from material in db.Material.Where(x => x.Codigo == estoque.ItemNr).DefaultIfEmpty()
+                                  where estoque.FilialId == filialId
+                                  select new EstoqueViewModel
+                                  {
+                                      Id = estoque.Id,
+                                      Locacao = estoque.Locacao ?? string.Empty,
+                                      ItemNr = estoque.ItemNr,
+                                      Descricao = material.Descricao ?? string.Empty,
+                                      Saldo = estoque.Saldo ?? 0,
+                                      Indisponivel = estoque.Indisponivel ?? 0,
+                                      PedidoPendente = estoque.PedidoPendente ?? 0,
+                                      ValorEstoque = estoque.ValorEstoque ?? 0,
+                                      Range = estoque.Range ?? string.Empty,
+                                      ModificadoEm = estoque.ModificadoEm
+                                  };
                 var recordsTotal = estoqueData.Count();
 
                 // Filtragem
                 if (!string.IsNullOrEmpty(searchValue))
                 {
-                    estoqueData = estoqueData.Where(m => m.ItemNr.ToLower().Contains(searchValue.ToLower()) ||
-                                                         m.Descricao.ToLower().Contains(searchValue.ToLower()) ||
-                                                         m.Locacao.ToLower().Contains(searchValue.ToLower())).ToList();
+                    searchValue = searchValue.Trim();
+                    estoqueData = estoqueData.Where(m =>
+                        (m.ItemNr ?? string.Empty).Contains(searchValue) ||
+                        (m.Descricao ?? string.Empty).Contains(searchValue) ||
+                        (m.Locacao ?? string.Empty).Contains(searchValue));
                 }
+
+                // Quantidade depois da pesquisa, usada pelo DataTables para
+                // recalcular a paginacao e o texto de total filtrado.
+                var recordsFiltered = estoqueData.Count();
 
                 // Ordenação
                 switch (sortColumn)
                 {
                     case 0:
-                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.ItemNr).ToList() : estoqueData.OrderBy(c => c.ItemNr).ToList();
+                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.ItemNr) : estoqueData.OrderBy(c => c.ItemNr);
                         break;
                     case 1:
-                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.Descricao).ToList() : estoqueData.OrderBy(c => c.Descricao).ToList();
+                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.Descricao) : estoqueData.OrderBy(c => c.Descricao);
                         break;
                     case 2:
-                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.Locacao).ToList() : estoqueData.OrderBy(c => c.Locacao).ToList();
+                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.Locacao) : estoqueData.OrderBy(c => c.Locacao);
                         break;
                     case 3:
-                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.Saldo).ToList() : estoqueData.OrderBy(c => c.Saldo).ToList();
+                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.Saldo) : estoqueData.OrderBy(c => c.Saldo);
                         break;
                     case 4:
-                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.Indisponivel).ToList() : estoqueData.OrderBy(c => c.Indisponivel).ToList();
+                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.Indisponivel) : estoqueData.OrderBy(c => c.Indisponivel);
                         break;
                     case 5:
-                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.PedidoPendente).ToList() : estoqueData.OrderBy(c => c.PedidoPendente).ToList();
+                        estoqueData = sortColumnDir == "desc" ? estoqueData.OrderByDescending(c => c.PedidoPendente) : estoqueData.OrderBy(c => c.PedidoPendente);
+                        break;
+                    default:
+                        estoqueData = estoqueData.OrderBy(c => c.ItemNr);
                         break;
                 }
 
                 var filteredData = estoqueData.Skip(start).Take(length).ToList();
-                var result = new { draw = draw, recordsFiltered = recordsTotal, recordsTotal = recordsTotal, data = filteredData };
+                var result = new { draw = draw, recordsFiltered, recordsTotal, data = filteredData };
 
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
@@ -123,18 +170,42 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
         [HttpPost]
         public ActionResult DefinirLocacaoItem(int id, string locacao)
         {
-            Estoque estoque = db.Estoque.Find(id);
+            string locacaoNormalizada = (locacao ?? string.Empty).Trim();
+            Estoque estoque = db.Estoque.FirstOrDefault(x => x.Id == id && x.FilialId == filialId);
             if (estoque == null)
             {
                 return Json(new { success = false, msg = "Item não encontrado" }, JsonRequestBehavior.AllowGet);
             }
 
+            if (string.IsNullOrWhiteSpace(locacaoNormalizada))
+            {
+                return Json(new { success = false, msg = "Selecione uma locação." }, JsonRequestBehavior.AllowGet);
+            }
+
+            bool locacaoDisponivel = db.Estoque.Any(x =>
+                    x.FilialId == filialId &&
+                    x.Locacao != null &&
+                    x.Locacao.Trim() == locacaoNormalizada) &&
+                !db.Estoque.Any(x =>
+                    x.FilialId == filialId &&
+                    x.Locacao != null &&
+                    x.Locacao.Trim() == locacaoNormalizada &&
+                    (x.Saldo ?? 0) > 0);
+
+            if (!locacaoDisponivel)
+            {
+                return Json(new
+                {
+                    success = false,
+                    msg = "A locação selecionada não está disponível ou possui item com saldo maior que zero."
+                }, JsonRequestBehavior.AllowGet);
+            }
+
             try
             {
-                estoque.Locacao = locacao;
+                estoque.Locacao = locacaoNormalizada;
                 estoque.ModificadoPor = Util.GetCurrentUser();
                 estoque.ModificadoEm = Util.GetCurrentDateTime();
-                estoque.FilialId = filialId;
 
                 db.Entry(estoque).State = EntityState.Modified;
                 db.SaveChanges();

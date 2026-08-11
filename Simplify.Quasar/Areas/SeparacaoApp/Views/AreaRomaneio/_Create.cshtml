@@ -1,0 +1,104 @@
+@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.AreaRomaneioViewModel
+@{
+    Layout = null;
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="modal-header bg-blue-gradient">
+        <span><i class="fa fa-plus fa-fw"></i>&nbsp;&nbsp;Cadastrar &Aacute;rea Romaneio</span>
+    </div>
+
+    <div class="modal-body">
+        @Html.ValidationSummary(false, string.Empty, new { @class = "text-red" })
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="form-label">&Aacute;rea</label>
+                    @Html.TextBoxFor(m => m.Area, new { @class = "form-control", @autocomplete = "off", @maxlength = "100" })
+                    @Html.ValidationMessageFor(m => m.Area, null, new { @class = "text-red text-nowrap" })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label class="form-label">Prioridade</label>
+                    @Html.TextBoxFor(m => m.Prioridade, new { @class = "form-control", @type = "number", @min = "0", @max = "9999" })
+                    @Html.ValidationMessageFor(m => m.Prioridade, null, new { @class = "text-red text-nowrap" })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-3">
+                <div class="checkbox">
+                    <label style="padding-left:0px !important;">@Html.CheckBoxFor(m => m.Alocar)<b>&nbsp;Alocar</b></label>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="checkbox">
+                    <label style="padding-left:0px !important;">@Html.CheckBoxFor(m => m.Separar)<b>&nbsp;Separar</b></label>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="checkbox">
+                    <label style="padding-left:0px !important;">@Html.CheckBoxFor(m => m.Conferir)<b>&nbsp;Conferir</b></label>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <div class="checkbox">
+                    <label style="padding-left:0px !important;">@Html.CheckBoxFor(m => m.Mapa)<b>&nbsp;Mapa</b></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div class="pull-right">
+            <button type="submit" class="btn btn-success"><i class="fa fa-check fa-fw"></i> Salvar</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times fa-fw"></i> Fechar</button>
+        </div>
+    </div>
+}
+
+<script>
+    $('.input-validation-error').parents('.form-group').addClass('has-error');
+
+    $('.form-control').on('change', function () {
+        $(this).parent().removeClass('has-error');
+        $(this).next().html('');
+    });
+
+    $('#Alocar').iCheck({
+        checkboxClass: 'icheckbox_flat-green'
+    });
+
+    $('#Mapa').iCheck({
+        checkboxClass: 'icheckbox_flat-green'
+    });
+
+    $('#Separar').iCheck({
+        checkboxClass: 'icheckbox_flat-green'
+    });
+
+    $('#Conferir').iCheck({
+        checkboxClass: 'icheckbox_flat-green'
+    });
+
+    function syncConferir() {
+        if (!$('#Separar').is(':checked')) {
+            $('#Conferir').iCheck('uncheck');
+        }
+    }
+
+    syncConferir();
+
+    $('#Separar').on('ifUnchecked', function () {
+        $('#Conferir').iCheck('uncheck');
+    });
+</script>

@@ -22,13 +22,18 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         // GET: Printer/Index
         public ActionResult Index()
         {
-            var vm = (from i in db.Impressora where i.FilialId == filialId
+            var vm = (from i in db.Impressora.AsNoTracking() where i.FilialId == filialId
                       select new ImpressoraViewModel
                       {
                           Id = i.Id,
                           Nome = i.Nome,
                           IP = i.IP,
                           Porta = i.Porta,
+                          FilialId = i.FilialId,
+                          FilialNome = db.Empresa
+                              .Where(e => e.Id == i.FilialId)
+                              .Select(e => e.Nome)
+                              .FirstOrDefault(),
                           Localizacao = i.Localizacao,
                           Fabricante = i.Fabricante,
                           Modelo =  i.Modelo,
@@ -39,7 +44,7 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
                       }).ToList();
 
             // Obtem lista de permissões
-            //   ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString());
+            //   ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString(), ControllerContext.RouteData.DataTokens["area"] as string);
             return View(vm);
         }
 
@@ -126,7 +131,7 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         // GET: Printer/Edit
         public ActionResult Edit(int id)
         {
-            Impressora impressora = db.Impressora.Find(id);
+            Impressora impressora = GetPrinterByFilial(id);
             if (impressora == null)
             {
                 return HttpNotFound();
@@ -159,7 +164,7 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
                 return PartialView("_Edit", vm);
             }
 
-            Impressora impressora = db.Impressora.Find(vm.Id);
+            Impressora impressora = GetPrinterByFilial(vm.Id);
             if (impressora == null)
             {
                 return HttpNotFound();
@@ -224,7 +229,7 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            Impressora impressora = db.Impressora.Find(id);
+            Impressora impressora = GetPrinterByFilial(id);
             if (impressora == null)
             {
                 return Json(new { success = false, msg = "Impressora não encontrada!" });
@@ -266,13 +271,26 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         {
             try
             {
-                var result = db.Impressora.Find(id);
+                var result = db.Impressora
+                    .AsNoTracking()
+                    .FirstOrDefault(x => x.Id == id && x.FilialId == filialId);
+
+                if (result == null)
+                {
+                    return Json(new { success = false, msg = "Impressora não encontrada!" }, JsonRequestBehavior.AllowGet);
+                }
+
                 return Json(new { data = result, success = true, }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        private Impressora GetPrinterByFilial(int id)
+        {
+            return db.Impressora.FirstOrDefault(x => x.Id == id && x.FilialId == filialId);
         }
 
         public ActionResult GetLabelData(int id)

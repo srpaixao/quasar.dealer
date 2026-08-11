@@ -9,6 +9,8 @@ namespace Simplify.Quasar.Areas.GarantiaApp.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
+        int filialId = Util.GetCurrentFilial();
+
         // GET: Admin/Home
         public ActionResult Index()
         {

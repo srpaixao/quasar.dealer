@@ -3,7 +3,7 @@
         autoclose: true
     });
 
-    $('input[type="checkbox"], input[type="radio"]').iCheck({
+    $('input[type="checkbox"]:not(.no-icheck), input[type="radio"]:not(.no-icheck)').iCheck({
         checkboxClass: "icheckbox_minimal-blue",
         radioClass: "iradio_minimal-blue"
     });

@@ -1,0 +1,41 @@
+@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.EquipamentoCadastroViewModel
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Excluir Equipamento";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool possuiVinculos = ViewBag.PossuiVinculos == true;
+}
+
+<section class="content-header"><h1>@ViewBag.Title<small>@ViewBag.Description</small></h1></section>
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            @if (TempData["Flash.Message"] != null)
+            {
+                <div class="alert alert-@TempData["Flash.Type"]">@TempData["Flash.Message"]</div>
+            }
+            <div class="alert alert-@(possuiVinculos ? "warning" : "danger")">
+                @(possuiVinculos
+                    ? "O equipamento não pode ser excluído porque possui registros relacionados."
+                    : "Confirma a exclusão deste equipamento?")
+            </div>
+            <dl class="dl-horizontal">
+                <dt>Nome</dt><dd>@Model.Nome</dd>
+                <dt>Descrição</dt><dd>@Model.Descricao</dd>
+                <dt>Zonas</dt><dd>@Model.Zonas</dd>
+            </dl>
+        </div>
+        <div class="box-footer text-right">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+                if (!possuiVinculos)
+                {
+                    <button class="btn btn-danger" type="submit"><i class="fa fa-trash fa-fw"></i> Excluir</button>
+                }
+                <a class="btn btn-default" href="@Url.Action("Index")"><i class="fa fa-arrow-left fa-fw"></i> Voltar</a>
+            }
+        </div>
+    </div>
+</section>

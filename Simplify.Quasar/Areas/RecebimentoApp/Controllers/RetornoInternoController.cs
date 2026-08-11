@@ -23,45 +23,79 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.Controllers
     public class RetornoInternoController : Controller
     {
         private Quasar_Entities db = new Quasar_Entities();
+
         int filialId = Util.GetCurrentFilial();
 
         // GET: RecebimentoApp/RetornoInterno
         public ActionResult Index()
         {
-            var vm = (from r in db.RetornoInterno where r.FilialId == filialId
-                      orderby r.Id descending
-                      select new RetornoInternoViewModel()
-                      {
-                          Id = r.Id,
-                          NrDocumento = r.NrDocumento,
-                          TipoDocumentoRetornoNome = (from t in db.TipoDocumentoRetorno
-                                                      where t.Id == r.TipoDocumentoRetornoId
-                                                      select t.Descricao).FirstOrDefault(),
-                          LocalOrigemNome = (from o in db.LocalOrigem
-                                             where o.Id == r.LocalOrigemId
-                                             select o.Nome).FirstOrDefault(),
-                          LocalDestinoNome = (from o in db.LocalDestino
-                                              where o.Id == r.LocalDestinoId
-                                              select o.Nome).FirstOrDefault(),
-                          Responsavel = r.Responsavel,
-                          QtdItens = (from i in db.RetornoInternoItem
-                                      where i.RetornoInternoId == r.Id
-                                      select i).Count(),
-                          FinalizadoEm = r.FinalizadoEm
-                      }).ToList();
+            return View(new List<RetornoInternoViewModel>());
+        }
 
-            foreach (var item in vm)
+        [HttpPost]
+        public ActionResult GetData()
+        {
+            DataTableAjaxPostModel model;
+            using (var reader = new StreamReader(Request.InputStream))
             {
-                item.AllowDelete = (from i in db.RetornoInternoItem
-                                    where i.RetornoInternoId == item.Id &&
-                                          i.QtdArmazenada != null && i.QtdArmazenada > 0
-                                    select i).Count() == 0;
-
-                item.StatusDocumentoRetornoNome = item.FinalizadoEm != null ? "Finalizado" :
-                                                  item.AllowDelete ? "Lançado" : "Em processamento";
+                model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(reader.ReadToEnd());
             }
 
-            return View(vm);
+            if (model == null)
+            {
+                return Json(new { draw = 0, recordsFiltered = 0, recordsTotal = 0, data = new object[0] });
+            }
+
+            var query = from r in db.RetornoInterno.AsNoTracking()
+                        where r.FilialId == filialId
+                        let permiteExcluir = !db.RetornoInternoItem.Any(i =>
+                            i.RetornoInternoId == r.Id && i.QtdArmazenada != null && i.QtdArmazenada > 0)
+                        select new RetornoInternoViewModel
+                        {
+                            Id = r.Id,
+                            NrDocumento = r.NrDocumento,
+                            TipoDocumentoRetornoNome = (from t in db.TipoDocumentoRetorno where t.Id == r.TipoDocumentoRetornoId select t.Descricao).FirstOrDefault(),
+                            LocalOrigemNome = (from o in db.LocalOrigem where o.Id == r.LocalOrigemId select o.Nome).FirstOrDefault(),
+                            LocalDestinoNome = (from o in db.LocalDestino where o.Id == r.LocalDestinoId select o.Nome).FirstOrDefault(),
+                            Responsavel = r.Responsavel,
+                            QtdItens = db.RetornoInternoItem.Count(i => i.RetornoInternoId == r.Id),
+                            FinalizadoEm = r.FinalizadoEm,
+                            AllowDelete = permiteExcluir,
+                            StatusDocumentoRetornoNome = r.FinalizadoEm != null ? "Finalizado" : permiteExcluir ? "Lançado" : "Em processamento"
+                        };
+
+            int recordsTotal = query.Count();
+            string termo = model.search == null ? string.Empty : (model.search.value ?? string.Empty).Trim();
+            if (!string.IsNullOrWhiteSpace(termo))
+            {
+                query = query.Where(x =>
+                    (x.NrDocumento ?? string.Empty).Contains(termo) ||
+                    (x.TipoDocumentoRetornoNome ?? string.Empty).Contains(termo) ||
+                    (x.LocalOrigemNome ?? string.Empty).Contains(termo) ||
+                    (x.LocalDestinoNome ?? string.Empty).Contains(termo) ||
+                    (x.Responsavel ?? string.Empty).Contains(termo) ||
+                    (x.StatusDocumentoRetornoNome ?? string.Empty).Contains(termo));
+            }
+
+            int recordsFiltered = query.Count();
+            int sortIndex = model.order != null && model.order.Length > 0 ? model.order[0].column : -1;
+            string sortField = sortIndex >= 0 && model.columns != null && sortIndex < model.columns.Length ? model.columns[sortIndex].data : string.Empty;
+            bool desc = model.order != null && model.order.Length > 0 && model.order[0].dir == "desc";
+            switch (sortField)
+            {
+                case "NrDocumento": query = desc ? query.OrderByDescending(x => x.NrDocumento) : query.OrderBy(x => x.NrDocumento); break;
+                case "TipoDocumentoRetornoNome": query = desc ? query.OrderByDescending(x => x.TipoDocumentoRetornoNome) : query.OrderBy(x => x.TipoDocumentoRetornoNome); break;
+                case "LocalOrigemNome": query = desc ? query.OrderByDescending(x => x.LocalOrigemNome) : query.OrderBy(x => x.LocalOrigemNome); break;
+                case "LocalDestinoNome": query = desc ? query.OrderByDescending(x => x.LocalDestinoNome) : query.OrderBy(x => x.LocalDestinoNome); break;
+                case "Responsavel": query = desc ? query.OrderByDescending(x => x.Responsavel) : query.OrderBy(x => x.Responsavel); break;
+                case "QtdItens": query = desc ? query.OrderByDescending(x => x.QtdItens) : query.OrderBy(x => x.QtdItens); break;
+                case "StatusDocumentoRetornoNome": query = desc ? query.OrderByDescending(x => x.StatusDocumentoRetornoNome) : query.OrderBy(x => x.StatusDocumentoRetornoNome); break;
+                default: query = query.OrderByDescending(x => x.Id); break;
+            }
+
+            int length = model.length > 0 ? model.length : 25;
+            var data = query.Skip(model.start).Take(length).ToList();
+            return Json(new { draw = model.draw, recordsFiltered, recordsTotal, data });
         }
 
         // Cadastrar documento
@@ -105,7 +139,6 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.Controllers
                         itemRetorno.QtdArmazenada = null;
                         itemRetorno.CriadoPor = Util.GetCurrentUser();
                         itemRetorno.CriadoEm = Util.GetCurrentDateTime();
-                        itemRetorno.FilialId = Util.GetCurrentFilial();
                         db.RetornoInternoItem.Add(itemRetorno);
                         db.SaveChanges();
                     }
@@ -231,7 +264,6 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.Controllers
                                 item.Quantidade = itemAtualizado.Quantidade;
                                 item.ModificadoPor = Util.GetCurrentUser();
                                 item.ModificadoEm = Util.GetCurrentDateTime();
-                                item.FilialId = Util.GetCurrentFilial();
                                 db.Entry(item).State = EntityState.Modified;
                                 db.SaveChanges();
                             }

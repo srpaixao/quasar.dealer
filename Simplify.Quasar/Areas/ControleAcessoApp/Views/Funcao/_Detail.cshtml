@@ -1,0 +1,94 @@
+@model Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.FuncaoViewModel
+@{
+    ViewBag.Title = "Detail Funcao";
+    Layout = null;
+}
+
+<div class="modal-header bg-blue-gradient">
+    <span><i class="fa-solid fa-eye fa-lg fa-fw"></i>&nbsp;&nbsp;Detalhes da Função</span>
+</div>
+
+<div class="modal-body">
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Código</label>
+                <input type="text" class="form-control" value="@Model.Codigo" readonly />
+            </div>
+        </div>
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Componente</label>
+                <input type="text" class="form-control" value="@Model.CodComponente" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="form-label">Descrição (PT-BR)</label>
+                <input type="text" class="form-control" value="@Model.DescPTBR" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="form-label">Descrição (ES)</label>
+                <input type="text" class="form-control" value="@Model.DescES" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Menu</label>
+                <input type="text" class="form-control" value="@Model.TituloMenu" readonly />
+            </div>
+        </div>
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Filial</label>
+                <input type="text" class="form-control" value="@Model.NomeFilial" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Controller</label>
+                <input type="text" class="form-control" value="@Model.Controller" readonly />
+            </div>
+        </div>
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Action</label>
+                <input type="text" class="form-control" value="@Model.Action" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-3">
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <input type="text" class="form-control" value="@(Model.Status ? "Ativo" : "Inativo")" readonly />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <div class="pull-right">
+        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+    });
+</script>

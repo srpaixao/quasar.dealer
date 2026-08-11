@@ -1,5 +1,19 @@
 ﻿@using System.Web.Optimization
 @using WebHelpers.Mvc5.Enum
+@{
+    var assemblyVersion = typeof(Simplify.Quasar.Controllers.AccountController).Assembly.GetName().Version;
+    var applicationVersion = string.Format(
+        "{0}.{1}.{2}",
+        assemblyVersion.Major,
+        assemblyVersion.Minor,
+        assemblyVersion.Build);
+    var sidebarMenuContext = string.Equals(
+        Convert.ToString(ViewContext.RouteData.Values["controller"]),
+        "Locacao",
+        StringComparison.OrdinalIgnoreCase)
+        ? "Locacao"
+        : string.Empty;
+}
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,20 +25,27 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     @*<link href="@Url.Content("~/Content/img/quasar.png")" rel="shortcut icon" type="image/x-icon" />*@
     @Styles.Render("~/Bundles/css")
+    <link href="@Url.Content("~/Content/Quasar.VisualPrototype.css")" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/img/quasar-dealer-favicon.ico")" rel="shortcut icon" type="image/x-icon" />
+    <style>
+        .main-sidebar .sidebar-login-thumb {
+            display: none;
+        }
+    </style>
 </head>
 
-<body class="hold-transition skin-purple sidebar-mini">
+<body class="hold-transition skin-purple sidebar-mini quasar-modern quasar-visual-prototype">
     <div class="wrapper" style="height: auto; min-height: 100%;">
         <header class="main-header">
             <a href="#" class="logo" style="pointer-events:none;">
-                <span class="logo-lg"><b>Quasar.</b>Dealer</span>
+                <span class="logo-lg"><img src="@Url.Content("~/Content/img/quasar-dealer-logo.svg")" alt="Quasar Dealer" /></span>
             </a>
             <nav class="navbar navbar-static-top" role="navigation">
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
                 <div class="nav navbar-nav navbar-title hidden-xs">
-                    <span>NOVA CHEVROLET<small>&nbsp;&nbsp;&nbsp;@(Session["filialnome"] != null ? Session["filialnome"].ToString() : string.Empty)</small></span>
+                    <span>AUTOMEC CHEVROLET<small>&nbsp;&nbsp;&nbsp;@(Session["filialnome"] != null ? Session["filialnome"].ToString() : string.Empty)</small></span>
                     @if (Simplify.Quasar.Custom.Util.IsTestEnvironment())
                     {
                         <span class="alert alert-warning">
@@ -34,7 +55,15 @@
                 </div>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
-
+                        <li>
+                            <a href="@Url.Action("Index", "Manual", new { area = "" })"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               title="Abrir o manual do sistema">
+                                <i class="fa fa-book"></i>
+                                <span class="hidden-xs"> Manual</span>
+                            </a>
+                        </li>
                         <li class="dropdown user user-menu">
                             <a href="@Url.Action("Index","Home", new { area = "Admin"})" class="dropdown-toggle" data-toggle="dropdown">
                                 <img src="~/Content/img/Avatar.PNG" class="user-image" alt="User Image">
@@ -51,25 +80,28 @@
             </nav>
         </header>
 
-        @Html.Action("Index", "Menu")
+        @Html.Action("Index", "Menu", new { menuContext = sidebarMenuContext })
 
         <div class="content-wrapper">
             @RenderBody()
         </div>
-    </div>
-
-    <footer style="padding-top:5px;padding-bottom:5px">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-xs-6">
-                    <span class="hidden-xs">Powered by <a href="https://simplifyse.com.br" target="_blank">Simplifyse</a></span>
-                </div>
-                <div class="col-xs-6 hidden-xs">
-                    <small class="pull-right"><strong>Copyright © 2014-2019 <a href="https://adminlte.io">AdminLTE</a>.</strong> All rights reserved. <b>  Version</b> 2.4.13</small>
+        <footer class="main-footer">
+            <div class="footer-shell">
+                <div class="row">
+                    <div class="col-sm-7">
+                        <span class="footer-kicker">Quasar Dealer</span>
+                        <div style="margin-top:6px;">
+                            Versão @applicationVersion
+                        </div>
+                    </div>
+                    <div class="col-sm-5 footer-meta">
+                        <div><strong>Powered by</strong> <a href="https://simplifyse.com.br" target="_blank">Simplify IT</a></div>
+                        <div style="margin-top:6px;">@DateTime.Now.Year &middot; Quasar Dealer</div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
+    </div>
 
     <script src="https://kit.fontawesome.com/d4c8df1d3e.js" crossorigin="anonymous"></script>
 
@@ -86,9 +118,6 @@
 
     <script>
         $(document).ready(function () {
-
-            
-
             var url = window.location;
 
             $('ul.sidebar-menu a').filter(function () {
@@ -100,5 +129,6 @@
             }).parentsUntil(".sidebar-menu > .treeview-menu").addClass('active')
         })
     </script>
+    @Html.Partial("~/Views/Shared/_ActivityTracker.cshtml")
 </body>
 </html>

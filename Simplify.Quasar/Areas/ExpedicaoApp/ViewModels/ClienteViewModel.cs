@@ -16,7 +16,7 @@ namespace Simplify.Quasar.Areas.ExpedicaoApp.ViewModels
         [StringLength(100, ErrorMessage = "O tamanho máximo permitido para o campo {0} é de {1} caracteres")]
         public string Nome { get; set; }
 
-        [Required]
+        [DisplayName("CPF/CNPJ")]
         public string CNPJ { get; set; }
 
         public string Codigo { get; set; }
@@ -46,26 +46,30 @@ namespace Simplify.Quasar.Areas.ExpedicaoApp.ViewModels
         [StringLength(8, ErrorMessage = "O tamanho máximo permitido para o campo {0} é de {1} caracteres")]
         public string Endereco_CEP { get; set; }
 
-        [StringLength(100, ErrorMessage = "O tamanho máximo permitido para o campo {0} é de {1} caracteres")]
         public string Telefone1 { get; set; }
+        public string Telefone2 { get; set; }
+        public string Telefone3 { get; set; }
 
         [StringLength(100, ErrorMessage = "O tamanho máximo permitido para o campo {0} é de {1} caracteres")]
         public string Email { get; set; }
+
+        [DisplayName("Transportadora")]
+        public int? TransportadoraId { get; set; }
+        public string NomeTransportadora { get; set; }
+        public IEnumerable<SelectListItem> TransportadoraDDL { get; set; }
 
         [DisplayName("Rota")]
         public int? RotaId { get; set; }
         public string NomeRota { get; set; }
         public IEnumerable<SelectListItem> RotaDDL { get; set; }
-
-        [DisplayName("Transportadora")]
-        public int? TransportadoraId { get; set; }
-        public string Nome_Fantasia { get; set; }
-        public IEnumerable<SelectListItem> TransportadoraDDL { get; set; }
-                
+               
         [DisplayName("Parada")]
         public int? ParadaId { get; set; }
         public string NomeParada { get; set; }
         public IEnumerable<SelectListItem> ParadaDDL { get; set; }
+
+        [DisplayName("Gerar etiqueta")]
+        public bool Etiqueta { get; set; }
 
         [DisplayName("Vendedor")]
         public int? IdVendedor { get; set; }

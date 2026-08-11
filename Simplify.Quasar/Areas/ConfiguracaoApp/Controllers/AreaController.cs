@@ -16,8 +16,6 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
-        //int perfilId = Util.GetPerfilId();
-
         int filialId = Util.GetCurrentFilial();
 
         // GET: Area/Index
@@ -29,13 +27,19 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
                           Id = u.Id,
                           Descricao = u.Descricao,
                           Etiqueta = (bool)u.Etiqueta,
-                          QtdeSeparacao = u.QtdeSeparacao ?? 0,
-                          QtdeArmazenagem = u.QtdeArmazenagem ?? 0,
+                          //QtdeSeparacao = u.QtdeSeparacao ?? 0,
+                          //QtdeArmazenagem = u.QtdeArmazenagem ?? 0,
                           Nome = u.Nome,
-                      }); //.ToList();
+                          TipoAreaId = u.TipoAreaId
+                      }).ToList();
+
+            foreach (var item in vm)
+            {
+                item.NomeTipoArea = (from t in db.TipoArea where t.Id == item.TipoAreaId select t.Descricao).FirstOrDefault();
+            }
 
             // Obtem lista de permissões mostra botão para criar/alterar/excluir ou não
-            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString());
+            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString(), ControllerContext.RouteData.DataTokens["area"] as string);
 
             return View(vm);
         }
@@ -44,6 +48,7 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         public ActionResult Create()
         {
             AreaViewModel vm = new AreaViewModel();
+            vm.TipoAreaDDL = Util.GetTipoAreaDDL(null, filialId);
             return PartialView("_Create", vm);
         }
 
@@ -52,20 +57,16 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(AreaViewModel vm)
         {
-
-            //if (perfilId > 1)
-            //{
-            //    return Json(new { success = false, msg = "Você não possui acesso para Cadastrar!" });
-            //}
-
             if (!ModelState.IsValid)
             {
+                vm.TipoAreaDDL = Util.GetTipoAreaDDL(vm.TipoAreaId, filialId);
                 return PartialView("_Create", vm);
             }
 
             // Verifica se a Area já existe 
             if (db.Area.Any(p => p.Nome.ToLower() == vm.Nome.ToLower()))
             {
+                vm.TipoAreaDDL = Util.GetTipoAreaDDL(vm.TipoAreaId, filialId);
                 ModelState.AddModelError("Nome", "Já existe área cadastrada com este nome");
                 return PartialView("_Create", vm);
             }
@@ -74,9 +75,10 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
             area.Nome = vm.Nome;
             area.Descricao = vm.Descricao;
             area.Etiqueta = vm.Etiqueta;
-            area.QtdeArmazenagem = vm.QtdeArmazenagem;
-            area.QtdeSeparacao = vm.QtdeSeparacao;
+            //area.QtdeArmazenagem = vm.QtdeArmazenagem;
+            //area.QtdeSeparacao = vm.QtdeSeparacao;
             area.FilialId = filialId;
+            area.TipoAreaId = vm.TipoAreaId;
             area.CriadoPor = Util.GetCurrentUser();
             area.CriadoEm = Util.GetCurrentDateTime();
 
@@ -128,12 +130,6 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         // GET: Area/Edit
         public ActionResult Edit(int id)
         {
-
-            //if (perfilId > 1)
-            //{
-            //    return Json(new { success = false, msg = "Você não possui acesso para Alterar!" });
-            //}
-
             Area area = db.Area.Find(id);
             if (area == null)
             {
@@ -145,11 +141,13 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
             vm.Nome = area.Nome;
             vm.Descricao = area.Descricao;
             vm.Etiqueta = (bool)area.Etiqueta;
-            vm.QtdeArmazenagem = area.QtdeArmazenagem ?? 0;
-            vm.QtdeSeparacao = area.QtdeSeparacao ?? 0;
+            //vm.QtdeArmazenagem = area.QtdeArmazenagem ?? 0;
+            //vm.QtdeSeparacao = area.QtdeSeparacao ?? 0;
             vm.CriadoEm = area.CriadoEm;
             vm.CriadoPor = area.CriadoPor;
             vm.FilialId = filialId;
+            vm.TipoAreaId = area.TipoAreaId;
+            vm.TipoAreaDDL = Util.GetTipoAreaDDL(area.TipoAreaId, filialId);
             vm.CriadoPorNome = (from u in db.Usuario where u.Login == area.CriadoPor select u.Nome).FirstOrDefault();
             vm.ModificadoEm = area.ModificadoEm;
             vm.ModificadoPor = area.ModificadoPor;
@@ -162,14 +160,9 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(AreaViewModel vm)
         {
-
-            //if (perfilId > 1)
-            //{
-            //    return Json(new { success = false, msg = "Você não possui acesso para Cadastrar!" });
-            //}
-
             if (!ModelState.IsValid)
             {
+                vm.TipoAreaDDL = Util.GetTipoAreaDDL(vm.TipoAreaId, filialId);
                 return PartialView("_Edit", vm);
             }
 
@@ -184,6 +177,7 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
             {
                 if (db.Area.Any(p => p.Nome.ToLower() == vm.Nome.ToLower()))
                 {
+                    vm.TipoAreaDDL = Util.GetTipoAreaDDL(area.TipoAreaId, filialId);
                     ModelState.AddModelError("Nome", "Já existe área cadastrada com este nome");
                     return PartialView("_Edit", vm);
                 }
@@ -192,9 +186,10 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
             area.Nome = vm.Nome;
             area.Descricao = vm.Descricao;
             area.Etiqueta = vm.Etiqueta;
-            area.QtdeArmazenagem = vm.QtdeArmazenagem;
-            area.QtdeSeparacao = vm.QtdeSeparacao;
+            //area.QtdeArmazenagem = vm.QtdeArmazenagem;
+            //area.QtdeSeparacao = vm.QtdeSeparacao;
             area.FilialId = filialId;
+            area.TipoAreaId = vm.TipoAreaId;
             area.ModificadoPor = Util.GetCurrentUser();
             area.ModificadoEm = Util.GetCurrentDateTime();
 
@@ -248,12 +243,6 @@ namespace Simplify.Quasar.Areas.ConfiguracaoApp.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
-
-            //if (perfilId > 1)
-            //{
-            //    return Json(new { success = false, msg = "Você não possui acesso para Excluir!" });
-            //}
-
             Area area = db.Area.Find(id);
             if (area == null)
             {

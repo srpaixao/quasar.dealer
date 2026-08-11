@@ -9,6 +9,8 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.ViewModels
     {
         public int Id { get; set; }
         public string Movimento { get; set; }
+        public int? DevolucaoId { get; set; }
+        public string ControleNr { get; set; }
 
         public string Numero { get; set; }
         public string Serie { get; set; }
@@ -36,9 +38,11 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.ViewModels
         public string RecebidoAdmPorNome { get; set; }
 
         public DateTime? CriadoEm { get; set; }
+        public string CriadoEmTexto { get; set; }
         public string CriadoPor { get; set; }
         public string CriadoPorNome { get; set; }
         public DateTime? ModificadoEm { get; set; }
+        public string ModificadoEmTexto { get; set; }
         public string ModificadoPor { get; set; }
         public string ModificadoPorNome { get; set; }
 

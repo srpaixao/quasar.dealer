@@ -85,7 +85,15 @@
                 <div class="col-12 col-lg-6">
                     <div class="form-group">
                         <label class="form-label">Perfil de Acesso</label>
-                        @Html.DropDownListFor(m => m.PerfilId, Model.PerfilDDL, "-- Selecione --", new { @class = "form-control" })
+                        @if (Model.PerfilSomenteLeitura)
+                        {
+                            @Html.DropDownListFor(m => m.PerfilId, Model.PerfilDDL, new { @class = "form-control", @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.PerfilId)
+                        }
+                        else
+                        {
+                            @Html.DropDownListFor(m => m.PerfilId, Model.PerfilDDL, "-- Selecione --", new { @class = "form-control" })
+                        }
                         <div class="invalid-feedback">@Html.ValidationMessageFor(m => m.PerfilId)</div>
                     </div>
                 </div>

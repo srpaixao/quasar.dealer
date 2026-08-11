@@ -30,13 +30,11 @@ namespace Simplify.Quasar.Models
         public virtual DbSet<Anomalia> Anomalia { get; set; }
         public virtual DbSet<AnomaliaItem> AnomaliaItem { get; set; }
         public virtual DbSet<AppComponente> AppComponente { get; set; }
-        public virtual DbSet<AppConfig> AppConfig { get; set; }
         public virtual DbSet<AppFuncao> AppFuncao { get; set; }
         public virtual DbSet<AppLogErro> AppLogErro { get; set; }
         public virtual DbSet<AppMenu> AppMenu { get; set; }
         public virtual DbSet<AppSQL> AppSQL { get; set; }
         public virtual DbSet<DocExpedicao> DocExpedicao { get; set; }
-        public virtual DbSet<Empresa> Empresa { get; set; }
         public virtual DbSet<Equipamento> Equipamento { get; set; }
         public virtual DbSet<Estado> Estado { get; set; }
         public virtual DbSet<Estoque> Estoque { get; set; }
@@ -85,38 +83,45 @@ namespace Simplify.Quasar.Models
         public virtual DbSet<EstoqueUpload_SERCON> EstoqueUpload_SERCON { get; set; }
         public virtual DbSet<LocalDestino> LocalDestino { get; set; }
         public virtual DbSet<LocalOrigem> LocalOrigem { get; set; }
-        public virtual DbSet<Romaneio> Romaneio { get; set; }
         public virtual DbSet<StatusRomaneio> StatusRomaneio { get; set; }
         public virtual DbSet<StatusRetorno> StatusRetorno { get; set; }
         public virtual DbSet<TipoDocumentoRetorno> TipoDocumentoRetorno { get; set; }
-        public virtual DbSet<RetornoInternoItem> RetornoInternoItem { get; set; }
         public virtual DbSet<RetornoInterno> RetornoInterno { get; set; }
-        public virtual DbSet<Locacao> Locacao { get; set; }
+        public virtual DbSet<Cliente> Cliente { get; set; }
+        public virtual DbSet<Romaneio> Romaneio { get; set; }
+        public virtual DbSet<AppConfig> AppConfig { get; set; }
+        public virtual DbSet<PerfilAreaAcesso> PerfilAreaAcesso { get; set; }
+        public virtual DbSet<Empresa> Empresa { get; set; }
         public virtual DbSet<Movimentacao> Movimentacao { get; set; }
         public virtual DbSet<MovimentacaoDestino> MovimentacaoDestino { get; set; }
+        public virtual DbSet<RetornoInternoItem> RetornoInternoItem { get; set; }
+        public virtual DbSet<NotaFiscalTransportadora> NotaFiscalTransportadora { get; set; }
+        public virtual DbSet<MotivoDevolucao> MotivoDevolucao { get; set; }
+        public virtual DbSet<StatusDevolucao> StatusDevolucao { get; set; }
+        public virtual DbSet<DevolucaoComplemento> DevolucaoComplemento { get; set; }
+        public virtual DbSet<Locacao> Locacao { get; set; }
+        public virtual DbSet<Ocorrencia> Ocorrencia { get; set; }
+        public virtual DbSet<Devolucao> Devolucao { get; set; }
+        public virtual DbSet<DevolucaoItem> DevolucaoItem { get; set; }
+        public virtual DbSet<TipoArea> TipoArea { get; set; }
+        public virtual DbSet<Zona> Zona { get; set; }
+        public virtual DbSet<AreaPedido> AreaPedido { get; set; }
+        public virtual DbSet<AreaRomaneio> AreaRomaneio { get; set; }
         public virtual DbSet<Area> Area { get; set; }
-        public virtual DbSet<Cliente> Cliente { get; set; }
+        public virtual DbSet<RomaneioItem> RomaneioItem { get; set; }
     
-        public virtual ObjectResult<SP_GetLocacoesDisponiveis_Result> SP_GetLocacoesDisponiveis(string param, Nullable<int> filialId)
+        public virtual ObjectResult<SP_GetLocacoesDisponiveis_Result> SP_GetLocacoesDisponiveis(string param)
         {
             var paramParameter = param != null ?
                 new ObjectParameter("param", param) :
                 new ObjectParameter("param", typeof(string));
     
-            var filialIdParameter = filialId.HasValue ?
-                new ObjectParameter("filialId", filialId) :
-                new ObjectParameter("filialId", typeof(int));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_GetLocacoesDisponiveis_Result>("SP_GetLocacoesDisponiveis", paramParameter, filialIdParameter);
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_GetLocacoesDisponiveis_Result>("SP_GetLocacoesDisponiveis", paramParameter);
         }
     
-        public virtual ObjectResult<SP_GetItensEstoque_Result> SP_GetItensEstoque(Nullable<int> filialId)
+        public virtual ObjectResult<SP_GetItensEstoque_Result> SP_GetItensEstoque()
         {
-            var filialIdParameter = filialId.HasValue ?
-                new ObjectParameter("filialId", filialId) :
-                new ObjectParameter("filialId", typeof(int));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_GetItensEstoque_Result>("SP_GetItensEstoque", filialIdParameter);
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<SP_GetItensEstoque_Result>("SP_GetItensEstoque");
         }
     
         public virtual ObjectResult<SP_GetHistorico_Result> SP_GetHistorico()

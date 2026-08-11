@@ -14,6 +14,8 @@ namespace Simplify.Quasar.Areas.AnomaliaApp.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
+        int filialId = Util.GetCurrentFilial();
+
         // GET: Admin/Home
         public ActionResult Index()
         {
@@ -36,7 +38,7 @@ namespace Simplify.Quasar.Areas.AnomaliaApp.Controllers
                           ModificadoEm = a.ModificadoEm
                       }).ToList();
 
-            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString());
+            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString(), ControllerContext.RouteData.DataTokens["area"] as string);
 
             return View(vm);
         }
@@ -78,7 +80,7 @@ namespace Simplify.Quasar.Areas.AnomaliaApp.Controllers
                              NotaFiscal = nf.Numero,
                              DataEmissao = nf.DataEmissao,
                              Origem = (from o in db.OrigemNotaFiscal 
-                                       where o.Codigo == nf.Observacoes
+                                       where o.Codigo == nf.Emissor
                                        select o.Descricao).FirstOrDefault() ?? string.Empty,
                              NumeroItem = i.Item,
                              DescricaoItem = (from m in db.Material

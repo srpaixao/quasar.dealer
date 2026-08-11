@@ -1,0 +1,222 @@
+@model Simplify.Quasar.Areas.EstoqueApp.ViewModels.HistoricoItemViewModel
+@using System
+@using System.Linq
+@using System.Web
+@{
+    ViewBag.Title = "Estoque";
+    ViewBag.Description = "Hist&oacute;rico do Item";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var cabecalho = Model.Cabecalho;
+    var historicos = Model.Historicos ?? Enumerable.Empty<Simplify.Quasar.Areas.EstoqueApp.ViewModels.HistoricoItemLinhaViewModel>();
+}
+
+@functions {
+    public string FormatDateTime(DateTime? value)
+    {
+        return value.HasValue ? value.Value.ToString("dd/MM/yyyy HH:mm:ss") : "-";
+    }
+
+    public string FormatText(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+
+    public string FormatInteger(int? value)
+    {
+        return value.HasValue ? value.Value.ToString("N0") : "-";
+    }
+
+    public string FormatDecimal(decimal value)
+    {
+        return value.ToString("N2");
+    }
+}
+
+<style>
+    .historico-item .box {
+        margin-bottom: 18px;
+    }
+
+    .historico-item .filtro-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 16px;
+    }
+
+    .historico-item .filtro-field {
+        min-width: 280px;
+        max-width: 480px;
+        flex: 1 1 380px;
+    }
+
+    .historico-item .header-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px 18px;
+    }
+
+    .historico-item .info-card {
+        border: 1px solid #e5edf4;
+        border-radius: 10px;
+        padding: 12px 14px;
+        background: #fbfdff;
+        min-height: 76px;
+    }
+
+    .historico-item .info-label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #6e7f91;
+        margin-bottom: 6px;
+    }
+
+    .historico-item .info-value {
+        font-size: 17px;
+        font-weight: 600;
+        color: #12395d;
+        word-break: break-word;
+    }
+
+    .historico-item .table th {
+        white-space: nowrap;
+    }
+
+    .historico-item .table td,
+    .historico-item .table th {
+        vertical-align: middle !important;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@Html.Raw(ViewBag.Description)</small></h1>
+</section>
+
+<section class="content historico-item">
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Filtro de Pesquisa</h3>
+        </div>
+        <div class="box-body">
+            @using (Html.BeginForm("Index", "Historico", new { area = "EstoqueApp" }, FormMethod.Get))
+            {
+                <div class="filtro-row">
+                    <div class="form-group filtro-field">
+                        <label>Item Nr</label>
+                        @Html.TextBoxFor(m => m.ItemNr, new { @class = "form-control", @autocomplete = "off", @placeholder = "Digite o item nr" })
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-search"></i> Pesquisar
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.ConsultaRealizada)
+    {
+        if (cabecalho == null)
+        {
+            <div class="alert alert-warning">
+                @(string.IsNullOrWhiteSpace(Model.ConsultaMensagem) ? HttpUtility.HtmlDecode("Item n&atilde;o localizado.") : Model.ConsultaMensagem)
+            </div>
+        }
+        else
+        {
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Dados B&aacute;sicos do Item</h3>
+                </div>
+                <div class="box-body">
+                    <div class="header-grid">
+                        <div class="info-card">
+                            <span class="info-label">Item Nr</span>
+                            <div class="info-value">@FormatText(cabecalho.ItemNr)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Descri&ccedil;&atilde;o</span>
+                            <div class="info-value">@FormatText(cabecalho.Descricao)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Loca&ccedil;&atilde;o</span>
+                            <div class="info-value">@FormatText(cabecalho.LocacaoCodigo)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Descri&ccedil;&atilde;o da Loca&ccedil;&atilde;o</span>
+                            <div class="info-value">@FormatText(cabecalho.LocacaoDescricao)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Saldo</span>
+                            <div class="info-value">@FormatInteger(cabecalho.Saldo)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Indispon&iacute;vel</span>
+                            <div class="info-value">@FormatInteger(cabecalho.Indisponivel)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Hist&oacute;rico do Item</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Processo</th>
+                                    <th>Documento Nr</th>
+                                    <th>Tipo Movimento</th>
+                                    <th class="text-right">Quantidade</th>
+                                    <th>Status</th>
+                                    <th>Usu&aacute;rio</th>
+                                    <th>Observa&ccedil;&atilde;o</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (historicos.Any())
+                                {
+                                    foreach (var item in historicos)
+                                    {
+                                        <tr>
+                                            <td>@FormatDateTime(item.Data)</td>
+                                            <td>@FormatText(item.Processo)</td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(item.DocumentoUrl))
+                                                {
+                                                    <a href="@item.DocumentoUrl">@FormatText(item.DocumentoNr)</a>
+                                                }
+                                                else
+                                                {
+                                                    @FormatText(item.DocumentoNr)
+                                                }
+                                            </td>
+                                            <td>@FormatText(item.TipoMovimento)</td>
+                                            <td class="text-right">@FormatDecimal(item.Quantidade)</td>
+                                            <td>@FormatText(item.Status)</td>
+                                            <td>@FormatText(item.Usuario)</td>
+                                            <td>@FormatText(item.Observacao)</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center">Nenhum hist&oacute;rico localizado para o item informado.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</section>

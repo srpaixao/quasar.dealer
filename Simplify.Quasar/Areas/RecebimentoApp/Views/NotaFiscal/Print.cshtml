@@ -25,7 +25,11 @@
                     <div class="form-inline">
                         <div class="form-group">
                             <label>Impressora</label>
-                            @Html.DropDownList("ImpressoraDDL", ViewBag.ImpressoraDDL as SelectList, new { @class = "form-control", @style = "margin-left:10px" })
+                            @Html.DropDownList(
+                                "ImpressoraDDL",
+                                ViewBag.ImpressoraDDL as System.Collections.Generic.IEnumerable<SelectListItem>
+                                    ?? System.Linq.Enumerable.Empty<SelectListItem>(),
+                                new { @class = "form-control", @style = "margin-left:10px" })
                             <input type="hidden" id="ip" />
                             <input type="hidden" id="porta" />
                         </div>
@@ -96,6 +100,27 @@
         let ps_port = $('#ps-port').val();
 
         console.log(ps_ip);
+
+        function mostrarErroImpressao(mensagem) {
+            var conteudo = document.createElement("div");
+            var texto = document.createElement("h4");
+            texto.className = "swal-text-warning";
+            texto.textContent = mensagem || "Não foi possível concluir a operação.";
+            conteudo.appendChild(texto);
+
+            return swal({
+                title: "Impressão de etiquetas",
+                content: conteudo,
+                buttons: {
+                    confirm: {
+                        text: "OK",
+                        className: "swal-btn-info",
+                        closeModal: true,
+                        visible: true
+                    }
+                }
+            });
+        }
 
         ////////////////////////////////////////////////////////////
         //Não está sendo utilizado no momento, deixado para backup//
@@ -214,7 +239,7 @@
                 $.ajax({
                     type: 'GET',
                     dataType: 'json',
-                    url: '@Url.Action("GetPrinterData", "Printer", new { area = "ConfiguracaoApp" })',
+                    url: '@Url.Action("GetPrinterData", "NotaFiscal", new { area = "RecebimentoApp" })',
                     data: { id: impressoraId },
                     success: function (response) {
                         // console.log(response.data);
@@ -225,7 +250,7 @@
                     },
                     error: function (xhr, status, error) {
                        var errorMessage = xhr.status + ': ' + xhr.statusText;
-                       alert(errorMessage)
+                       mostrarErroImpressao(errorMessage);
                     }
                 })
             }).change();
@@ -239,8 +264,7 @@
                     $(this).val('');
                     $('#material').val('');
 
-                    let isnum = /^\d+$/.test(input);
-                    if (isnum) {
+                    if (input && input.trim().length > 0) {
                         $.ajax({
                             type: 'GET',
                             dataType: 'json',
@@ -248,7 +272,15 @@
                             data: { volume: input}
                         }).done(function (response) {
                             console.log("resposta:", response)
-                            if (response.data.length == 0) {
+                            if (!response.success) {
+                                swal({
+                                    title: "Impressão de etiquetas",
+                                    text: response.msg || "Não foi possível gerar as etiquetas.",
+                                    icon: "error"
+                                }).then(function () {
+                                    $("#volume").focus();
+                                });
+                            } else if (response.data.length == 0) {
 
                                 var div = document.createElement("div");
                                 div.innerHTML = "<h4 class='swal-text-warning'>Volume não encontrado!</h4>";
@@ -290,7 +322,7 @@
                             }
                         }).fail(function (xhr, status, error) {
                             var errorMessage = xhr.status + ': ' + xhr.statusText
-                            alert(errorMessage)
+                            mostrarErroImpressao(errorMessage);
                         })
                     }
                 }
@@ -385,7 +417,9 @@
                         else {
                             $("#qtdItens").val("1");
                             $("#volume").focus();
-                            alert(response.msg);
+                            mostrarErroImpressao(response.msg).then(function () {
+                                $("#material").focus();
+                            });
                         }
                         //if (response.data.length == 0) {
 
@@ -416,7 +450,7 @@
                         //}
                     }).fail(function (xhr, status, error) {
                         var errorMessage = xhr.status + ': ' + xhr.statusText
-                        alert(errorMessage)
+                        mostrarErroImpressao(errorMessage);
                     })
                 }
             })

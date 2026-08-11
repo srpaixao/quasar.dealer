@@ -1,0 +1,35 @@
+@using System.Web
+@{
+    string activityName = Convert.ToString(ViewBag.ActivityName);
+    if (string.IsNullOrWhiteSpace(activityName))
+    {
+        activityName = Convert.ToString(ViewBag.Description);
+    }
+    if (string.IsNullOrWhiteSpace(activityName))
+    {
+        activityName = Convert.ToString(ViewBag.Title);
+    }
+
+    string activityArea = Convert.ToString(ViewContext.RouteData.DataTokens["area"]);
+    string activityController = Convert.ToString(ViewContext.RouteData.Values["controller"]);
+    string activityAction = Convert.ToString(ViewContext.RouteData.Values["action"]);
+}
+
+@if (!string.IsNullOrWhiteSpace(activityName))
+{
+    <script type="text/javascript">
+        $(function () {
+            $.ajax({
+                cache: false,
+                type: 'POST',
+                url: '@Url.Action("RegistrarAtividade", "Home", new { area = "" })',
+                data: {
+                    functionality: '@Html.Raw(HttpUtility.JavaScriptStringEncode(activityName))',
+                    activityArea: '@Html.Raw(HttpUtility.JavaScriptStringEncode(activityArea))',
+                    activityController: '@Html.Raw(HttpUtility.JavaScriptStringEncode(activityController))',
+                    activityAction: '@Html.Raw(HttpUtility.JavaScriptStringEncode(activityAction))'
+                }
+            });
+        });
+    </script>
+}

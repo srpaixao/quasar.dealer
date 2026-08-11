@@ -51,25 +51,7 @@
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td>
-                                            <a href="@Url.Action("Edit","RetornoInterno", new { area = "RecebimentoApp", id=item.Id })">@item.NrDocumento</a>
-                                        </td>
-                                        <td>@item.TipoDocumentoRetornoNome</td>
-                                        <td>@item.LocalOrigemNome</td>
-                                        <td>@item.LocalDestinoNome</td>
-                                        <td>@item.Responsavel</td>
-                                        <td>@item.QtdItens</td>
-                                        <td>@item.StatusDocumentoRetornoNome</td>
-                                        <td>
-                                            <a href="#" class="delete @(item.AllowDelete && item.FinalizadoEm == null ? string.Empty : "hide")" title="Excluir" data-id="@item.Id"><i class="fa-regular fa-trash-can fa-lg fa-fw text-red"></i></a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -101,9 +83,41 @@
             $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
 
             var tbRetorno = $('#tbRetorno').DataTable({
-                processing: false,
+                processing: true,
+                serverSide: true,
                 deferRender: true,
                 pageLength: 25,
+                ajax: {
+                    url: '@Url.Action("GetData", "RetornoInterno", new { area = "RecebimentoApp" })',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: function (d) { return JSON.stringify(d); }
+                },
+                columns: [
+                    {
+                        data: 'NrDocumento',
+                        render: function (data, type, row) {
+                            var url = '@Url.Action("Edit", "RetornoInterno", new { area = "RecebimentoApp", id = "_id" })';
+                            return '<a href="' + url.replace('_id', row.Id) + '">' + data + '</a>';
+                        }
+                    },
+                    { data: 'TipoDocumentoRetornoNome' },
+                    { data: 'LocalOrigemNome' },
+                    { data: 'LocalDestinoNome' },
+                    { data: 'Responsavel' },
+                    { data: 'QtdItens' },
+                    { data: 'StatusDocumentoRetornoNome' },
+                    {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        render: function (data, type, row) {
+                            if (!row.AllowDelete || row.FinalizadoEm) return '';
+                            return '<a href="#" class="delete" title="Excluir" data-id="' + row.Id + '"><i class="fa-regular fa-trash-can fa-lg fa-fw text-red"></i></a>';
+                        }
+                    }
+                ],
                 columnDefs: [
                     { orderable: false, targets: -1 }
                 ],

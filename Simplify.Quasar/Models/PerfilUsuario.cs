@@ -14,6 +14,12 @@ namespace Simplify.Quasar.Models
     
     public partial class PerfilUsuario
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public PerfilUsuario()
+        {
+            this.PerfilAreaAcesso = new HashSet<PerfilAreaAcesso>();
+        }
+    
         public int Id { get; set; }
         public string Nome { get; set; }
         public string Descricao { get; set; }
@@ -22,5 +28,8 @@ namespace Simplify.Quasar.Models
         public string ModificadoPor { get; set; }
         public Nullable<System.DateTime> ModificadoEm { get; set; }
         public Nullable<int> FilialId { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PerfilAreaAcesso> PerfilAreaAcesso { get; set; }
     }
 }

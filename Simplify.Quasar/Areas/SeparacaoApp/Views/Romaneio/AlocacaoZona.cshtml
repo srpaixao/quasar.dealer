@@ -1,0 +1,84 @@
+@using System.Linq
+@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioViewModel
+@{
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "Alocação de Pedidos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="@Url.Action("AlocacaoZona", "Romaneio", new { area = "SeparacaoApp" })">Alocação de Pedidos</a></li>
+                <li><a href="@Url.Action("Tarefas", "Romaneio", new { area = "SeparacaoApp" })">Consulta de Tarefas</a></li>
+                <li><a href="@Url.Action("Pendencias", "Romaneio", new { area = "SeparacaoApp" })">Pendências</a></li>
+                <li><a href="@Url.Action("NaoEncontrados", "Romaneio", new { area = "SeparacaoApp" })">Cortes</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="box-body">
+                        @if (TempData["Flash.Message"] != null)
+                        {
+                            <div class="alert alert-@TempData["Flash.Type"]">@TempData["Flash.Message"]</div>
+                        }
+
+                        @using (Html.BeginForm("UploadPlanilhaAlocacao", "Romaneio", new { area = "SeparacaoApp" }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="dataInicial" value="@Model.DataInicial.ToString("yyyy-MM-dd")" />
+                            <input type="hidden" name="dataFinal" value="@Model.DataFinal.ToString("yyyy-MM-dd")" />
+
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label>Planilha de Romaneios</label>
+                                        <input type="file" name="arquivo" class="form-control" accept=".xls,.xlsx,.csv,.txt" />
+                                        @*<p class="help-block">Aba obrigatória: <b>ArquivoExportacao</b>.</p>*@
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div style="margin-top:25px;">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-upload"></i> Importar, Atualizar e Alocar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (Model.AlocacaoResumo != null)
+                        {
+                            <hr />
+                            <div class="well">
+                                <div><strong>Romaneios Atualizados:</strong> @Model.AlocacaoResumo.RomaneiosAtualizados</div>
+                                <div><strong>Itens Importados:</strong> @Model.AlocacaoResumo.ItensImportados</div>
+                                <div><strong>Tarefas Geradas:</strong> @Model.AlocacaoResumo.TarefasGeradas</div>
+                                <div><strong>Itens Alocados:</strong> @Model.AlocacaoResumo.ItensAlocados</div>
+                                <div><strong>Itens sem Locação:</strong> @Model.AlocacaoResumo.ItensSemLocacao</div>
+                                <div><strong>Itens sem Zona:</strong> @Model.AlocacaoResumo.ItensSemZona</div>
+                            </div>
+
+                            if (Model.AlocacaoResumo.Mensagens != null && Model.AlocacaoResumo.Mensagens.Any())
+                            {
+                                <div class="alert alert-warning">
+                                    <strong>Observações</strong>
+                                    <ul style="margin-top:8px;">
+                                        @foreach (var mensagem in Model.AlocacaoResumo.Mensagens.Take(15))
+                                        {
+                                            <li>@mensagem</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

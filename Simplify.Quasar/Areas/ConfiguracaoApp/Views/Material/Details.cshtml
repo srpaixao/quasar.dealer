@@ -1,0 +1,51 @@
+@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.MaterialCadastroViewModel
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Visualizar Material";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <dl class="dl-horizontal">
+                <dt>Código do item</dt><dd>@Model.Codigo</dd>
+                <dt>Item Apollo</dt><dd>@(Model.ItemApollo ?? "Não informado")</dd>
+                <dt>Descrição</dt><dd>@Model.Descricao</dd>
+                <dt>Categoria</dt><dd>@(Model.CategoriaProduto ?? "Não informada")</dd>
+                <dt>Unidade</dt><dd>@Model.UN</dd>
+                <dt>Embalagem mínima</dt><dd>@Model.EmbalagemMin</dd>
+                <dt>Média de vendas</dt><dd>@Model.MediaVendas</dd>
+                <dt>Custo unitário</dt><dd>@Model.CustoUnitario</dd>
+                <dt>Comprimento</dt><dd>@Model.Comp</dd>
+                <dt>Largura</dt><dd>@Model.Larg</dd>
+                <dt>Altura</dt><dd>@Model.Altu</dd>
+                <dt>Curva</dt><dd>@Model.Curva</dd>
+                <dt>Item crítico</dt><dd>@(Model.ItemCritico ? "True" : "False")</dd>
+                <dt>Observação</dt><dd>@Model.ObsItemCritico</dd>
+                <dt>Quantidade por Unidade</dt><dd>@Model.QtdePadrao1</dd>
+                <dt>Zona da Unidade</dt><dd>@(Model.Zona1Nome ?? string.Empty)</dd>
+                <dt>Equipamento da Unidade</dt><dd>@(Model.Eqpto1Nome ?? string.Empty)</dd>
+                <dt>Quantidade por Caixa</dt><dd>@Model.QtdePadrao2</dd>
+                <dt>Zona da Caixa</dt><dd>@(Model.Zona2Nome ?? string.Empty)</dd>
+                <dt>Equipamento da Caixa</dt><dd>@(Model.Eqpto2Nome ?? string.Empty)</dd>
+                <dt>Quantidade por Palete</dt><dd>@Model.QtdePadrao3</dd>
+                <dt>Zona do Palete</dt><dd>@(Model.Zona3Nome ?? string.Empty)</dd>
+                <dt>Equipamento do Palete</dt><dd>@(Model.Eqpto3Nome ?? string.Empty)</dd>
+                <dt>Criado por</dt><dd>@Model.CriadoPor</dd>
+                <dt>Criado em</dt><dd>@Model.CriadoEm</dd>
+                <dt>Modificado por</dt><dd>@Model.ModificadoPor</dd>
+                <dt>Modificado em</dt><dd>@Model.ModificadoEm</dd>
+            </dl>
+        </div>
+        <div class="box-footer text-right">
+            <a href="@Url.Action("Index", "Material", new { area = "ConfiguracaoApp" })" class="btn btn-default">
+                <i class="fa fa-arrow-left fa-fw"></i> Voltar
+            </a>
+        </div>
+    </div>
+</section>

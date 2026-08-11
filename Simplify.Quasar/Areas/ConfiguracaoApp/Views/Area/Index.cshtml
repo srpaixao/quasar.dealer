@@ -57,6 +57,7 @@
                                 <tr>
                                     <th>Nome</th>
                                     <th>Descrição</th>
+                                    <th>Tipo</th>
                                     @if (ViewBag.Permissoes.Contains("[delete]"))
                                     {
                                         <th></th>
@@ -69,6 +70,7 @@
                                     <tr>
                                         <td><a href="#" class="@(ViewBag.Permissoes.Contains("[update]") ? "edit" : "" )" data-id="@item.Id"><b>@item.Nome</b></a></td>
                                         <td>@item.Descricao</td>
+                                        <td>@item.NomeTipoArea</td>
                                         @if (ViewBag.Permissoes.Contains("[delete]"))
                                         {
                                             <td><a href="#" class="delete" data-id="@item.Id"> <i class="fa fa-lg fa-trash-o text-red"></i></a></td>

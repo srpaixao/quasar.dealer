@@ -1,0 +1,191 @@
+@model IEnumerable<Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.EquipamentoCadastroViewModel>
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Equipamentos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string permissoes = ViewBag.Permissoes as string ?? string.Empty;
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            @Html.AntiForgeryToken()
+            @if (TempData["Flash.Message"] != null)
+            {
+                <div class="alert alert-@TempData["Flash.Type"] alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    @TempData["Flash.Message"]
+                </div>
+            }
+
+            @if (permissoes.Contains("[add]"))
+            {
+                <p>
+                    <a href="@Url.Action("Create", "Equipamento", new { area = "ConfiguracaoApp" })" class="btn btn-primary">
+                        <i class="fa fa-plus fa-fw"></i> Novo
+                    </a>
+                </p>
+            }
+
+            <div class="table-responsive">
+                <table id="tbEquipamento" class="table table-condensed table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Tipo</th>
+                            <th>Zonas</th>
+                            <th>Quantidade</th>
+                            <th>Bloqueado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Nome</td>
+                                <td>@item.Descricao</td>
+                                <td>@item.Tipo</td>
+                                <td>@item.Zonas</td>
+                                <td>@item.Qtde</td>
+                                <td>@(item.Bloqueado ? "Sim" : "Não")</td>
+                                <td class="text-center text-nowrap">
+                                    @if (permissoes.Contains("[view]"))
+                                    {
+                                        <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-xs btn-info" title="Visualizar"><i class="fa fa-eye"></i></a>
+                                    }
+                                    @if (permissoes.Contains("[update]"))
+                                    {
+                                        <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-xs btn-warning" title="Editar"><i class="fa fa-pencil"></i></a>
+                                    }
+                                    @if (permissoes.Contains("[delete]"))
+                                    {
+                                        <a href="#" class="btn btn-xs btn-danger delete-equipment"
+                                           data-id="@item.Id"
+                                           data-name="@item.Nome"
+                                           title="Excluir"><i class="fa fa-trash"></i></a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script>
+        $('#tbEquipamento').DataTable({
+            pageLength: 25,
+            order: [[0, 'asc']],
+            columnDefs: [{ orderable: false, targets: -1 }],
+            language: {
+                lengthMenu: "Exibir _MENU_ registros por página",
+                search: "Procurar:",
+                zeroRecords: "Nenhum equipamento encontrado",
+                info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                infoEmpty: "Exibindo 0 de 0 registros",
+                infoFiltered: "",
+                paginate: { next: "Próxima", previous: "Anterior" }
+            }
+        });
+
+        $('#tbEquipamento').on('click', 'a.delete-equipment', function (event) {
+            event.preventDefault();
+
+            var id = $(this).attr('data-id');
+            var name = $(this).attr('data-name');
+            var content = document.createElement('div');
+            var message = document.createElement('h4');
+            message.className = 'swal-text-warning';
+            message.textContent = 'Confirma a exclusão do equipamento ' + name + '?';
+            content.appendChild(message);
+
+            swal({
+                title: 'Cadastro de Equipamentos',
+                content: content,
+                buttons: {
+                    cancel: {
+                        text: 'Não',
+                        className: 'swal-btn-danger',
+                        closeModal: true,
+                        visible: true
+                    },
+                    confirm: {
+                        text: 'Sim',
+                        className: 'swal-btn-success',
+                        closeModal: true,
+                        visible: true
+                    }
+                }
+            }).then(function (confirm) {
+                if (!confirm) {
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '@Url.Action("Delete", "Equipamento", new { area = "ConfiguracaoApp" })',
+                    data: {
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                        id: id
+                    }
+                }).done(function (response) {
+                    var resultContent = document.createElement('div');
+                    var resultMessage = document.createElement('h4');
+                    resultMessage.className = response.success ? 'swal-text-success' : 'swal-text-warning';
+                    resultMessage.textContent = response.msg;
+                    resultContent.appendChild(resultMessage);
+
+                    swal({
+                        title: 'Cadastro de Equipamentos',
+                        content: resultContent,
+                        buttons: {
+                            confirm: {
+                                text: 'OK',
+                                className: 'swal-btn-info',
+                                closeModal: true,
+                                visible: true
+                            }
+                        }
+                    }).then(function () {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    });
+                }).fail(function (xhr) {
+                    var errorContent = document.createElement('div');
+                    var errorMessage = document.createElement('h4');
+                    errorMessage.className = 'swal-text-warning';
+                    errorMessage.textContent = xhr.status + ': ' + xhr.statusText;
+                    errorContent.appendChild(errorMessage);
+
+                    swal({
+                        title: 'Cadastro de Equipamentos',
+                        content: errorContent,
+                        buttons: {
+                            confirm: {
+                                text: 'OK',
+                                className: 'swal-btn-info',
+                                closeModal: true,
+                                visible: true
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

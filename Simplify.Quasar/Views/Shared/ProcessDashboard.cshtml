@@ -1,0 +1,167 @@
+@model Simplify.Quasar.Custom.ProcessDashboardViewModel
+@{
+    ViewBag.Title = "Dashboard";
+    ViewBag.Description = Model.Processo;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .process-dashboard-card {
+        height: 100%;
+        padding: 22px;
+        background: #fff;
+        border: 1px solid #e4eaf1;
+        border-radius: 20px;
+        box-shadow: 0 16px 35px rgba(24, 49, 79, .06);
+    }
+
+    .process-dashboard-filter { margin-bottom: 18px; }
+    .process-dashboard-separator { margin: 18px 0; border-top: 1px solid #e4eaf1; }
+    .process-dashboard-row { display: flex; flex-wrap: wrap; margin: 0 -9px; }
+    .process-dashboard-row > div { padding: 0 9px; margin-bottom: 18px; }
+
+    .process-dashboard-kpi {
+        display: flex;
+        align-items: center;
+        min-height: 124px;
+        gap: 16px;
+    }
+
+    .process-dashboard-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        color: #2785ad;
+        background: #daf4ff;
+        font-size: 22px;
+    }
+
+    .process-dashboard-kpi strong { display: block; color: #22354d; font-size: 34px; line-height: 1; }
+    .process-dashboard-kpi span { display: block; margin-top: 6px; color: #7a889b; font-size: 15px; }
+    .process-dashboard-title { margin: 0 0 5px; color: #22354d; font-size: 24px; }
+    .process-dashboard-subtitle { margin: 0 0 24px; color: #7a889b; font-size: 13px; }
+
+    .process-dashboard-placeholder {
+        display: flex;
+        align-items: end;
+        justify-content: space-around;
+        height: 220px;
+        padding: 28px 20px 0;
+        border-bottom: 1px solid #dbe4ec;
+        background: repeating-linear-gradient(to bottom, transparent 0, transparent 54px, #edf2f6 55px);
+    }
+
+    .process-dashboard-placeholder span {
+        width: 9%;
+        min-width: 28px;
+        border-radius: 12px 12px 4px 4px;
+        background: linear-gradient(180deg, #7ad5fb, #55baf0);
+        opacity: .45;
+    }
+
+    @@media (max-width: 767px) {
+        .process-dashboard-row { display: block; }
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    @using (Html.BeginForm("Dashboard", "Home", new { area = Model.AreaName }, FormMethod.Get, new { id = "process-dashboard-filter" }))
+    {
+        <div class="process-dashboard-card process-dashboard-filter">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Data Inicial</label>
+                        @Html.TextBoxFor(m => m.DataInicial, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "DataInicial" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Data Final</label>
+                        @Html.TextBoxFor(m => m.DataFinal, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "DataFinal" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div id="process-dashboard-error" class="alert alert-danger" style="@(Model.PeriodoValido ? "display:none" : string.Empty)">
+        @(Model.PeriodoMensagem ?? "O período selecionado não pode ser superior a 15 dias.")
+    </div>
+
+    <div class="process-dashboard-row">
+        <div class="col-md-4">
+            <div class="process-dashboard-card process-dashboard-kpi">
+                <div class="process-dashboard-icon"><i class="fa fa-tasks"></i></div>
+                <div><strong>-</strong><span>Processos pendentes</span></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="process-dashboard-card process-dashboard-kpi">
+                <div class="process-dashboard-icon"><i class="fa fa-refresh"></i></div>
+                <div><strong>-</strong><span>Processos em andamento</span></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="process-dashboard-card process-dashboard-kpi">
+                <div class="process-dashboard-icon"><i class="fa fa-check"></i></div>
+                <div><strong>-</strong><span>Processos finalizados</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="process-dashboard-separator"></div>
+
+    <div class="process-dashboard-card">
+        <h3 class="process-dashboard-title">Movimento</h3>
+        <p class="process-dashboard-subtitle">Estrutura preparada para os indicadores de @Model.Processo.ToLowerInvariant().</p>
+        <div class="process-dashboard-placeholder" aria-label="Gráfico demonstrativo sem dados reais">
+            <span style="height:38%"></span><span style="height:62%"></span><span style="height:46%"></span>
+            <span style="height:78%"></span><span style="height:55%"></span><span style="height:70%"></span>
+        </div>
+    </div>
+</section>
+
+<script>
+    (function () {
+        var initial = document.getElementById('DataInicial');
+        var final = document.getElementById('DataFinal');
+        var form = document.getElementById('process-dashboard-filter');
+        var error = document.getElementById('process-dashboard-error');
+
+        function parseDate(value) {
+            var parts = (value || '').split('-');
+            return parts.length === 3 ? Date.UTC(+parts[0], +parts[1] - 1, +parts[2]) : null;
+        }
+
+        function applyPeriod() {
+            var start = parseDate(initial.value);
+            var end = parseDate(final.value);
+            if (start === null || end === null) return;
+
+            var days = Math.floor((end - start) / 86400000) + 1;
+            var message = days <= 0
+                ? 'A Data Inicial n\u00E3o pode ser maior que a Data Final.'
+                : (days > 15 ? 'O per\u00EDodo selecionado n\u00E3o pode ser superior a 15 dias.' : '');
+
+            if (message) {
+                error.textContent = message;
+                error.style.display = 'block';
+                return;
+            }
+
+            error.style.display = 'none';
+            form.submit();
+        }
+
+        initial.addEventListener('change', applyPeriod);
+        final.addEventListener('change', applyPeriod);
+    })();
+</script>

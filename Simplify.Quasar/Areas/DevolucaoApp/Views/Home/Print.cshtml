@@ -1,0 +1,316 @@
+@model Simplify.Quasar.Areas.DevolucaoApp.ViewModels.DevolucaoPrintViewModel
+@{
+    Layout = null;
+    decimal valorTotal = Model.Itens == null ? 0M : Model.Itens.Sum(x => x.Quantidade * x.ValorUnitario);
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Formul&aacute;rio de Devolu&ccedil;&atilde;o</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #222;
+            margin: 0;
+            background: #f2f4f7;
+        }
+
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 18px;
+            background: #173f5f;
+        }
+
+        .toolbar button {
+            border: 0;
+            padding: 10px 16px;
+            color: #fff;
+            background: #246996;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .toolbar button.secondary {
+            background: #5c6b77;
+        }
+
+        .sheet {
+            width: 960px;
+            margin: 20px auto;
+            padding: 28px 34px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #173f5f;
+        }
+
+        .header h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            color: #173f5f;
+        }
+
+        .header p {
+            margin: 0;
+            color: #5c6b77;
+            font-size: 14px;
+        }
+
+        .meta {
+            min-width: 230px;
+            text-align: right;
+        }
+
+        .meta-row {
+            margin-bottom: 8px;
+        }
+
+        .meta-row span {
+            display: block;
+            font-size: 12px;
+            color: #5c6b77;
+            text-transform: uppercase;
+        }
+
+        .meta-row strong {
+            font-size: 18px;
+            color: #173f5f;
+        }
+
+        .section {
+            margin-top: 22px;
+        }
+
+        .section-title {
+            margin: 0 0 12px;
+            font-size: 16px;
+            color: #173f5f;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px 18px;
+        }
+
+        .field {
+            min-height: 48px;
+        }
+
+        .field.span-2 {
+            grid-column: span 2;
+        }
+
+        .field.span-4 {
+            grid-column: span 4;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: #6f7c88;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .field-value {
+            display: block;
+            min-height: 24px;
+            padding: 7px 9px;
+            border: 1px solid #d8dee5;
+            background: #f9fbfc;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th,
+        td {
+            border: 1px solid #d8dee5;
+            padding: 8px 10px;
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #eef3f7;
+            color: #173f5f;
+            text-align: left;
+        }
+
+        td.text-right,
+        th.text-right {
+            text-align: right;
+        }
+
+        .footer-total {
+            margin-top: 10px;
+            text-align: right;
+            font-size: 15px;
+            color: #173f5f;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .toolbar {
+                display: none;
+            }
+
+            .sheet {
+                width: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button type="button" onclick="window.print()">Imprimir</button>
+        <button type="button" class="secondary" onclick="window.close()">Fechar</button>
+    </div>
+
+    <div class="sheet">
+        <div class="header">
+            <div>
+                <h1>Formul&aacute;rio de Devolu&ccedil;&atilde;o</h1>
+                <p>@Model.FilialNome</p>
+            </div>
+            <div class="meta">
+                <div class="meta-row">
+                    <span>Controle</span>
+                    <strong>@Model.ControleNr</strong>
+                </div>
+                <div class="meta-row">
+                    <span>Cadastro</span>
+                    <strong>@(Model.DataCadastro.HasValue ? Model.DataCadastro.Value.ToString("dd/MM/yyyy HH:mm") : string.Empty)</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Cabe&ccedil;alho</h2>
+            <div class="grid">
+                <div class="field">
+                    <span class="field-label">Tipo de Movimento</span>
+                    <span class="field-value">@Model.Movimento</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Efetuar Retirada</span>
+                    <span class="field-value">@Model.Retirar</span>
+                </div>
+                <div class="field span-2">
+                    <span class="field-label">Motivo</span>
+                    <span class="field-value">@Model.Motivo</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">NFiscal de Venda</span>
+                    <span class="field-value">@Model.NFVenda</span>
+                </div>
+                <div class="field span-2">
+                    <span class="field-label">Cliente</span>
+                    <span class="field-value">@Model.Cliente</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Data da Venda</span>
+                    <span class="field-value">@(Model.DataVenda.HasValue ? Model.DataVenda.Value.ToString("dd/MM/yyyy") : string.Empty)</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Vendedor</span>
+                    <span class="field-value">@Model.Vendedor</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">NFiscal de Devolu&ccedil;&atilde;o</span>
+                    <span class="field-value">@Model.NFDevolucao</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Sinistro</span>
+                    <span class="field-value">@Model.Sinistro</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Placa</span>
+                    <span class="field-value">@Model.PlacaVeiculo</span>
+                </div>
+                <div class="field">
+                    <span class="field-label">Usu&aacute;rio</span>
+                    <span class="field-value">@Model.UsuarioCadastro</span>
+                </div>
+                <div class="field span-4">
+                    <span class="field-label">Observa&ccedil;&atilde;o</span>
+                    <span class="field-value">@Model.Observacao</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Itens</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 16%;">Item</th>
+                        <th>Descri&ccedil;&atilde;o</th>
+                        <th style="width: 10%;" class="text-right">Quantidade</th>
+                        <th style="width: 14%;" class="text-right">Valor Unit&aacute;rio</th>
+                        <th style="width: 24%;">Observa&ccedil;&atilde;o</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Itens != null && Model.Itens.Count > 0)
+                    {
+                        foreach (var item in Model.Itens)
+                        {
+                            <tr>
+                                <td>@item.ItemNr</td>
+                                <td>@item.Descricao</td>
+                                <td class="text-right">@item.Quantidade</td>
+                                <td class="text-right">@item.ValorUnitario.ToString("N2")</td>
+                                <td>@item.Observacao</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5">Nenhum item localizado.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="footer-total">
+                <strong>Valor Total:</strong> @valorTotal.ToString("N2")
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.setTimeout(function () {
+            window.print();
+        }, 300);
+    </script>
+</body>
+</html>

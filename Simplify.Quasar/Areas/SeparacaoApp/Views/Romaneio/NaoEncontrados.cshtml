@@ -1,0 +1,107 @@
+@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioViewModel
+@using System.Linq
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+@{
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "Cortes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var itens = Model.PendenciaItens ?? Enumerable.Empty<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioPendenciaItemViewModel>();
+}
+
+@functions {
+    public string FormatText(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+}
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li><a href="@Url.Action("AlocacaoZona", "Romaneio", new { area = "SeparacaoApp" })">Alocação de Pedidos</a></li>
+                <li><a href="@Url.Action("Tarefas", "Romaneio", new { area = "SeparacaoApp" })">Consulta de Tarefas</a></li>
+                <li><a href="@Url.Action("Pendencias", "Romaneio", new { area = "SeparacaoApp" })">Pendências</a></li>
+                <li class="active"><a href="@Url.Action("NaoEncontrados", "Romaneio", new { area = "SeparacaoApp" })">Cortes</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    @if (TempData["Flash.Message"] != null)
+                    {
+                        <div class="alert alert-@TempData["Flash.Type"]" style="margin: 15px 15px 0 15px;">@TempData["Flash.Message"]</div>
+                    }
+
+                    <div class="box-body table-responsive">
+                        <table id="grid-nao-encontrados" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Romaneio Nr</th>
+                                    <th>Item Nr</th>
+                                    <th>Descrição</th>
+                                    <th>Zona</th>
+                                    <th>Locação</th>
+                                    <th>Quantidade</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (itens.Any())
+                                {
+                                    foreach (var item in itens)
+                                    {
+                                        <tr>
+                                            <td>@FormatText(item.RomaneioNr)</td>
+                                            <td>@FormatText(item.ItemNr)</td>
+                                            <td>@FormatText(item.Descricao)</td>
+                                            <td>@FormatText(item.Zona)</td>
+                                            <td>@FormatText(item.Locacao)</td>
+                                            <td>@(item.Quantidade.HasValue ? item.Quantidade.Value.ToString() : "-")</td>
+                                            <td>@FormatText(item.Status)</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center">Nenhum item de corte localizado.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('#grid-nao-encontrados').DataTable({
+                language: {
+                    search: "Pesquisar:",
+                    lengthMenu: "Mostrar _MENU_ registros",
+                    zeroRecords: "Nenhum registro localizado.",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                    infoFiltered: "(filtrado de _MAX_ registros)",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                },
+                order: [[0, "asc"], [1, "asc"]],
+                pageLength: 25
+            });
+        });
+    </script>
+}

@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Recebimento";
     ViewBag.Description = "Conferir Volumes";
+    ViewBag.ActivityName = "Conferência de Volume Coletor";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
@@ -15,6 +16,21 @@
 
     .disabled-box {
         opacity: 0.6;
+    }
+
+    .conference-refresh-status {
+        margin-top: 24px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(39, 139, 179, 0.10);
+        color: var(--text-700);
+        font-size: 13px;
+        text-align: right;
+    }
+
+    .conference-refresh-status .fa {
+        margin-right: 5px;
+        color: var(--brand-500);
     }
 
         .disabled-box:hover {
@@ -40,6 +56,14 @@
                     <div class="form-group">
                         <label>Área de Recebimento</label>
                         @Html.DropDownList("AreaDDL", ViewBag.AreaDDL as SelectList, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-xs-12 col-lg-6">
+                    <div id="conference-refresh-status" class="conference-refresh-status" aria-live="polite">
+                        <i class="fa fa-refresh"></i>
+                        <span id="conference-last-refresh">Aguardando primeira atualização</span>
+                        <span class="hidden-xs"> &middot; </span>
+                        <span id="conference-next-refresh" class="hidden-xs">Próxima em 01:00</span>
                     </div>
                 </div>
             </div>
@@ -123,14 +147,51 @@
 
 </section>
 
+@Html.Partial("_ConferenciaVolumeItens")
+
 @section Scripts {
 
     <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
     <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
 
     <script>
+        var dtVolume = null;
+        var currentStatusFilter = 0;
+        var conferenceRefreshTimer = null;
+        var conferenceCountdownTimer = null;
+        var conferenceNextRefreshAt = null;
+
+        function FormatConferenceTime(date) {
+            return String(date.getHours()).padStart(2, '0') + ':' +
+                String(date.getMinutes()).padStart(2, '0') + ':' +
+                String(date.getSeconds()).padStart(2, '0');
+        }
+
+        function UpdateConferenceCountdown() {
+            if (!conferenceNextRefreshAt) {
+                return;
+            }
+
+            var seconds = Math.max(0, Math.ceil((conferenceNextRefreshAt - Date.now()) / 1000));
+            var minutes = Math.floor(seconds / 60);
+            var remainingSeconds = seconds % 60;
+            $('#conference-next-refresh').text(
+                'Próxima em ' + String(minutes).padStart(2, '0') + ':' + String(remainingSeconds).padStart(2, '0')
+            );
+        }
+
+        function RegisterConferenceRefreshSuccess() {
+            $('#conference-refresh-status').removeClass('text-danger');
+            $('#conference-last-refresh').text('Última atualização: ' + FormatConferenceTime(new Date()));
+        }
+
+        function RegisterConferenceRefreshError() {
+            $('#conference-refresh-status').addClass('text-danger');
+            $('#conference-last-refresh').text('Falha na atualização automática');
+        }
 
         function LoadDataTable(status) {
+            currentStatusFilter = status;
             var area = $('#AreaDDL').val();
 
             if ($.fn.DataTable.isDataTable('#tbVolume')) {
@@ -140,22 +201,30 @@
             $('#tbVolume tbody').empty();
             dtVolume = $('#tbVolume').DataTable({
                 deferRender: true,
+                serverSide: true,
                 autoWidth: true,
                 processing: true,
                 pageLength: 25,
                 ajax: {
                     url: '@Url.Action("GetDataVolume", "NotaFiscal", new { area = "RecebimentoApp" })',
-                    data: { statusId: status, areaId: area},
-                    type: 'GET',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
                     dataType: 'json',
+                    data: function (d) {
+                        d.statusId = status;
+                        d.areaId = area;
+                        return JSON.stringify(d);
+                    },
                     dataSrc: function (response) {
-                        if (response.data.length > 0) {
-                            $('#count-total').text(response.data.length ?? 0);
-                            $('#count-pendente').text(response.data.filter(item => item.StatusId === 1).length);
-                            $('#count-conferido').text(response.data.filter(item => item.StatusId === 2).length);
-                            $('#count-incorreto').text(response.data.filter(item => item.StatusId === 3).length);
-                        }
+                        $('#count-total').text(response.totalCount || 0);
+                        $('#count-pendente').text(response.pendenteCount || 0);
+                        $('#count-conferido').text(response.conferidoCount || 0);
+                        $('#count-incorreto').text(response.incorretoCount || 0);
+                        RegisterConferenceRefreshSuccess();
                         return response.data;
+                    },
+                    error: function () {
+                        RegisterConferenceRefreshError();
                     }
                 },
                 columns: [
@@ -173,14 +242,7 @@
                             },
                             { data: 'StatusNome', title: 'Status' },
                             {
-                                data: 'CriadoEm', title: 'Criado em', render: function (data, type) {
-                                    //console.log(data, moment(data), moment(data).format('DD/MM/YYYY HH:mm:ss'))
-                                    if (data) {
-                                        return moment(data).format('DD/MM/YYYY HH:mm:ss');
-                                    } else {
-                                        return data;
-                                    }
-                                }
+                                data: 'CriadoEmTexto', title: 'Criado em'
                             }
                 ],
                 columnDefs: [{
@@ -224,21 +286,29 @@
             });
 
             dtVolume.columns.adjust().draw(false);
+        }
 
+        function RefreshConferenceData() {
+            conferenceNextRefreshAt = Date.now() + 60000;
+            UpdateConferenceCountdown();
 
+            if (document.hidden || !$('#AreaDDL').val()) {
+                return;
+            }
+
+            if ($.fn.DataTable.isDataTable('#tbVolume')) {
+                $('#tbVolume').DataTable().ajax.reload(null, false);
+            }
         }
 
         $(document).ready(function () {
-
-            var dtVolume = null;
-
             $('#AreaDDL').change(() => {
-                LoadDataTable(0);
+                LoadDataTable(currentStatusFilter);
             }).change();
 
             $('a.filter-datatable').click(function (e) {
                 e.preventDefault();
-                var status = $(this).data('status');
+                var status = parseInt($(this).data('status'), 10) || 0;
                 LoadDataTable(status);
 
                 $('div.small-box').each(function () {
@@ -365,7 +435,18 @@
             })
 
             $('#container').removeClass('hide')
+
+            conferenceNextRefreshAt = Date.now() + 60000;
+            UpdateConferenceCountdown();
+            conferenceRefreshTimer = window.setInterval(RefreshConferenceData, 60000);
+            conferenceCountdownTimer = window.setInterval(UpdateConferenceCountdown, 1000);
+            $(window).on('beforeunload', function () {
+                window.clearInterval(conferenceRefreshTimer);
+                window.clearInterval(conferenceCountdownTimer);
+            });
         });
     </script>
+
+    @Html.Partial("_ConferenciaVolumeItensScript")
 
 }

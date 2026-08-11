@@ -19,7 +19,6 @@ namespace Simplify.Quasar.Areas.RecebimentoApp.Controllers
     [ValidateSession]
     public class VolumeController : Controller
     {
-
         Quasar_Entities db = new Quasar_Entities();
 
         int filialId = Util.GetCurrentFilial();

@@ -1,0 +1,138 @@
+@model Simplify.Quasar.Areas.EstoqueApp.ViewModels.LocacaoLoteViewModel
+@{
+    ViewBag.Title = "Cadastro";
+    ViewBag.Description = "Locações";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header">
+    <h1>@ViewBag.Title <small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            @Html.Partial("_Tabs")
+
+            @if (Model.Resultado != null)
+            {
+                <div class="alert alert-success">
+                    <h4><i class="fa fa-check-circle"></i> Importação concluída com sucesso</h4>
+                    <p>
+                        <strong>@Model.Resultado.Processadas.ToString("N0")</strong> locações processadas,
+                        <strong>@Model.Resultado.Criadas.ToString("N0")</strong> criadas,
+                        <strong>@Model.Resultado.JaExistentes.ToString("N0")</strong> já existentes e
+                        <strong>@Model.Resultado.DuplicadasArquivo.ToString("N0")</strong> duplicadas no arquivo.
+                    </p>
+                </div>
+                <div class="form-group">
+                    <a class="btn btn-primary" href="@Url.Action("Index", "Locacao", new { area = "EstoqueApp" })">
+                        <i class="fa fa-list fa-fw"></i> Ver locações
+                    </a>
+                    @if (Model.Resultado.Criadas > 0)
+                    {
+                        <a class="btn btn-default" href="@Url.Action("Etiquetas", "Locacao", new { area = "EstoqueApp" })">
+                            <i class="fa fa-print fa-fw"></i> Abrir impressão de etiquetas
+                        </a>
+                    }
+                </div>
+                <hr />
+            }
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Importar faixas de locações</h4>
+                    <p class="text-muted">O arquivo será validado e simulado antes de qualquer gravação. Nenhuma locação será alterada caso já exista na filial.</p>
+                    @using (Html.BeginForm("Lote", "Locacao", new { area = "EstoqueApp" }, FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="form-group">
+                            <label for="arquivo">Arquivo Excel</label>
+                            <input type="file" id="arquivo" name="arquivo" class="form-control" accept=".xlsx,.xls" required />
+                            <p class="help-block">Formatos aceitos: XLSX ou XLS. Tamanho máximo: 10 MB.</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-search fa-fw"></i> Validar e simular
+                        </button>
+                        <a class="btn btn-default" href="@Url.Action("DownloadModelo", "Locacao", new { area = "EstoqueApp" })">
+                            <i class="fa fa-download fa-fw"></i> Baixar modelo
+                        </a>
+                    }
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErroGeral))
+            {
+                <div class="alert alert-danger" style="margin-top:20px">
+                    <i class="fa fa-exclamation-triangle fa-fw"></i> @Model.ErroGeral
+                </div>
+            }
+
+            @if (Model.LinhasImportadas > 0)
+            {
+                <hr />
+                <h4>Simulação — @Model.NomeArquivo</h4>
+                <div class="row">
+                    <div class="col-sm-4 col-md-2"><div class="small-box bg-aqua"><div class="inner"><h3>@Model.LinhasImportadas.ToString("N0")</h3><p>Linhas importadas</p></div></div></div>
+                    <div class="col-sm-4 col-md-2"><div class="small-box bg-green"><div class="inner"><h3>@Model.LinhasValidas.ToString("N0")</h3><p>Linhas válidas</p></div></div></div>
+                    <div class="col-sm-4 col-md-2"><div class="small-box bg-red"><div class="inner"><h3>@Model.LinhasComErro.ToString("N0")</h3><p>Linhas com erro</p></div></div></div>
+                    <div class="col-sm-4 col-md-2"><div class="small-box bg-yellow"><div class="inner"><h3>@Model.LocacoesPrevistas.ToString("N0")</h3><p>Previstas</p></div></div></div>
+                    <div class="col-sm-4 col-md-2"><div class="small-box bg-gray"><div class="inner"><h3>@Model.LocacoesJaExistentes.ToString("N0")</h3><p>Já existentes</p></div></div></div>
+                    <div class="col-sm-4 col-md-2"><div class="small-box bg-blue"><div class="inner"><h3>@Model.NovasLocacoes.ToString("N0")</h3><p>Novas locações</p></div></div></div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-condensed table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Linha</th><th>Descrição</th><th>Área</th><th>Zona</th><th>Corredor</th>
+                                <th>Estantes</th><th>Níveis</th><th>Compart.</th><th>Lado</th>
+                                <th>Previstas</th><th>Existentes</th><th>Novas</th><th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var linha in Model.Linhas)
+                            {
+                                <tr class="@(linha.Valida ? string.Empty : "danger")">
+                                    <td>@linha.Linha</td>
+                                    <td>@linha.Descricao</td>
+                                    <td>@linha.Area</td>
+                                    <td>@linha.Zona</td>
+                                    <td>@linha.Corredor</td>
+                                    <td>@linha.EstanteInicio-@linha.EstanteFinal</td>
+                                    <td>@linha.NivelInicio-@linha.NivelFinal</td>
+                                    <td>@linha.CompartimentoInicio-@linha.CompartimentoFinal</td>
+                                    <td>@linha.Lado</td>
+                                    <td class="text-right">@linha.QuantidadePrevista.ToString("N0")</td>
+                                    <td class="text-right">@linha.QuantidadeExistente.ToString("N0")</td>
+                                    <td class="text-right">@linha.QuantidadeNova.ToString("N0")</td>
+                                    <td><span class="@(linha.Valida ? "text-green" : "text-red")">@linha.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                if (Model.PodeConfirmar)
+                {
+                    using (Html.BeginForm("ConfirmarLote", "Locacao", new { area = "EstoqueApp" }, FormMethod.Post, new { id = "form-confirmar-lote" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(x => x.Token)
+                        <button type="submit" class="btn btn-success btn-lg" onclick="this.disabled=true; this.form.submit();">
+                            <i class="fa fa-check fa-fw"></i> Criar @Model.NovasLocacoes.ToString("N0") locações
+                        </button>
+                    }
+                }
+                else if (Model.LinhasComErro > 0)
+                {
+                    <div class="alert alert-warning"><i class="fa fa-ban fa-fw"></i> A criação permanecerá bloqueada enquanto houver erros impeditivos.</div>
+                }
+                else if (Model.NovasLocacoes == 0)
+                {
+                    <div class="alert alert-info">Todas as locações simuladas já existem nesta filial.</div>
+                }
+            }
+        </div>
+    </div>
+</section>

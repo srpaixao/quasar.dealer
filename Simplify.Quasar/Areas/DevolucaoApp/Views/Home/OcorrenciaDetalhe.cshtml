@@ -1,0 +1,340 @@
+@model Simplify.Quasar.Areas.DevolucaoApp.ViewModels.DevolucaoOcorrenciaViewModel
+@{
+    ViewBag.Title = "Devolu&ccedil;&atilde;o";
+    ViewBag.Description = "Tratamento de Ocorr&ecirc;ncia";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var itens = Model.Itens ?? new List<Simplify.Quasar.Areas.DevolucaoApp.ViewModels.DevolucaoOcorrenciaItemViewModel>();
+}
+
+<style>
+    .devolucao-ocorrencia-detalhe-box {
+        border-top: 3px solid #1f5a7d;
+    }
+
+    .devolucao-ocorrencia-detalhe-label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 700;
+    }
+
+    .devolucao-ocorrencia-detalhe-value {
+        min-height: 34px;
+        padding: 7px 10px;
+        border: 1px solid #d2d6de;
+        background: #f9fafc;
+    }
+
+    .devolucao-ocorrencia-detalhe-table th,
+    .devolucao-ocorrencia-detalhe-table td {
+        vertical-align: middle !important;
+    }
+
+    .devolucao-ocorrencia-detalhe-table th.text-center,
+    .devolucao-ocorrencia-detalhe-table td.text-center {
+        text-align: center !important;
+    }
+
+    .devolucao-ocorrencia-detalhe-error {
+        margin-top: 5px;
+        color: #dd4b39;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        @Html.Raw(ViewBag.Title)<small>@Html.Raw(ViewBag.Description)</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default devolucao-ocorrencia-detalhe-box">
+        <div class="box-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @Html.ValidationSummary(false)
+                </div>
+            }
+
+            @using (Html.BeginForm("OcorrenciaDetalhe", "Home", new { area = "DevolucaoApp" }, FormMethod.Post, new { id = "devolucao-ocorrencia-form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id)
+                @Html.HiddenFor(m => m.NotaFiscalId)
+                @Html.HiddenFor(m => m.StatusOcorrenciaId)
+                @Html.HiddenFor(m => m.StatusCorrigidaId)
+                @Html.HiddenFor(m => m.StatusFinalizadoId)
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Controle Nr</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.ControleNr</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Nota Fiscal</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.NotaFiscalNr</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Status da Devolu&ccedil;&atilde;o</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.StatusNome</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">&Uacute;ltima Atualiza&ccedil;&atilde;o</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@(Model.UltimaAtualizacao.HasValue ? Model.UltimaAtualizacao.Value.ToString("dd/MM/yyyy HH:mm:ss") : string.Empty)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Emissor</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.Emissor</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Cliente</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.Cliente</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Vendedor</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.Vendedor</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Motivo</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.Motivo</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">NFiscal de Devolu&ccedil;&atilde;o</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.NFDevolucao</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Data / Hora do Cadastro</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@(Model.DataCadastro.HasValue ? Model.DataCadastro.Value.ToString("dd/MM/yyyy HH:mm:ss") : string.Empty)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Sinistro</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.Sinistro</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Placa</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.PlacaVeiculo</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Data da Venda</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@(Model.DataVenda.HasValue ? Model.DataVenda.Value.ToString("dd/MM/yyyy") : string.Empty)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Filial</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.FilialNome</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="devolucao-ocorrencia-detalhe-label">Observa&ccedil;&atilde;o da Devolu&ccedil;&atilde;o</label>
+                            <div class="devolucao-ocorrencia-detalhe-value">@Model.Observacao</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-responsive">
+                            <table class="table table-condensed table-bordered table-hover devolucao-ocorrencia-detalhe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item Nr</th>
+                                        <th>Descri&ccedil;&atilde;o</th>
+                                        <th>Status Atual</th>
+                                        <th class="text-center">Qtde Original</th>
+                                        <th class="text-center">Qtde com Ocorr&ecirc;ncia</th>
+                                        <th>Novo Status</th>
+                                        <th class="text-center">Quantidade de Pe&ccedil;as</th>
+                                        <th>Observa&ccedil;&atilde;o</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (itens.Count > 0)
+                                    {
+                                        for (int i = 0; i < itens.Count; i++)
+                                        {
+                                            @Html.HiddenFor(m => m.Itens[i].DevolucaoItemId)
+                                            @Html.HiddenFor(m => m.Itens[i].NotaFiscalItemId)
+                                            @Html.HiddenFor(m => m.Itens[i].ItemNr)
+                                            @Html.HiddenFor(m => m.Itens[i].Descricao)
+                                            @Html.HiddenFor(m => m.Itens[i].QuantidadeOriginal)
+                                            @Html.HiddenFor(m => m.Itens[i].QuantidadeOcorrencia)
+                                            @Html.HiddenFor(m => m.Itens[i].StatusId)
+                                            @Html.HiddenFor(m => m.Itens[i].StatusNome)
+                                            @Html.HiddenFor(m => m.Itens[i].Observacao)
+                                            @Html.HiddenFor(m => m.Itens[i].PermiteTratamento)
+                                            <tr data-permite-tratamento="@(itens[i].PermiteTratamento ? "1" : "0")">
+                                                <td>@itens[i].ItemNr</td>
+                                                <td>@itens[i].Descricao</td>
+                                                <td>@itens[i].StatusNome</td>
+                                                <td class="text-center">@itens[i].QuantidadeOriginal</td>
+                                                <td class="text-center">@itens[i].QuantidadeOcorrencia</td>
+                                                <td>
+                                                    @if (itens[i].PermiteTratamento)
+                                                    {
+                                                        @Html.DropDownListFor(m => m.Itens[i].NovoStatusId, Model.StatusTratamentoDDL, new { @class = "form-control js-status-tratamento" })
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>-</span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (itens[i].PermiteTratamento)
+                                                    {
+                                                        @Html.TextBoxFor(m => m.Itens[i].QuantidadeTratada, new { @class = "form-control text-center js-quantidade-tratada", type = "number", min = "0", max = itens[i].QuantidadeOcorrencia, style = "max-width:130px; display:inline-block;" })
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>@itens[i].QuantidadeOcorrencia</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (itens[i].PermiteTratamento)
+                                                    {
+                                                        @Html.TextBoxFor(m => m.Itens[i].ObservacaoTratamento, new { @class = "form-control js-observacao-tratamento", maxlength = "250" })
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>@itens[i].Observacao</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="8">Nenhum item localizado.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <a href="@Url.Action("Ocorrencias", "Home", new { area = "DevolucaoApp" })" class="btn btn-primary">
+                            <i class="fa fa-arrow-left"></i> Retornar
+                        </a>
+                        <button type="submit" class="btn btn-success pull-right">
+                            <i class="fa fa-save"></i> Salvar Tratamento
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<script>
+    (function ($) {
+        function toggleTratamentoFields() {
+            $(".devolucao-ocorrencia-detalhe-table tbody tr").each(function () {
+                var row = $(this);
+                if ((row.attr("data-permite-tratamento") || "") !== "1") {
+                    return;
+                }
+
+                var status = row.find(".js-status-tratamento").val() || "";
+                var enabled = status !== "";
+                row.find(".js-quantidade-tratada, .js-observacao-tratamento").prop("disabled", !enabled);
+            });
+        }
+
+        $(document).ready(function () {
+            toggleTratamentoFields();
+
+            $(".js-status-tratamento").on("change", toggleTratamentoFields);
+
+            $("#devolucao-ocorrencia-form").on("submit", function (e) {
+                var errors = [];
+                var hasSelection = false;
+
+                $(".devolucao-ocorrencia-detalhe-table tbody tr").each(function () {
+                    var row = $(this);
+                    if ((row.attr("data-permite-tratamento") || "") !== "1") {
+                        return;
+                    }
+
+                    var status = row.find(".js-status-tratamento").val() || "";
+                    if (!status) {
+                        return;
+                    }
+
+                    hasSelection = true;
+
+                    var quantidadeInput = row.find(".js-quantidade-tratada");
+                    var quantidade = parseInt(quantidadeInput.val() || "0", 10);
+                    var maximo = parseInt(quantidadeInput.attr("max") || "0", 10);
+
+                    if (quantidade <= 0) {
+                        errors.push("Informe uma quantidade de peças maior que zero para o item tratado.");
+                        return false;
+                    }
+
+                    if (quantidade > maximo) {
+                        errors.push("A quantidade tratada não pode ser maior que a quantidade com ocorrência.");
+                        return false;
+                    }
+                });
+
+                if (!hasSelection) {
+                    errors.push("Selecione pelo menos um item para tratamento.");
+                }
+
+                if (errors.length > 0) {
+                    e.preventDefault();
+                    alert(errors[0]);
+                }
+            });
+        });
+    })(jQuery);
+</script>

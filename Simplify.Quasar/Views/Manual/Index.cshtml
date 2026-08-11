@@ -1,0 +1,370 @@
+@model Simplify.Quasar.ViewModels.ManualViewModel
+@{
+    ViewBag.Title = "Manual do Sistema";
+    ViewBag.Description = Model.Titulo;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .manual-page {
+        --manual-primary: #6541a5;
+        --manual-border: #e4e7ec;
+        --manual-muted: #667085;
+    }
+
+    .manual-hero {
+        background: linear-gradient(125deg, #352062 0%, #6541a5 55%, #137ca5 100%);
+        border-radius: 12px;
+        color: #fff;
+        margin-bottom: 18px;
+        overflow: hidden;
+        padding: 24px 28px;
+        position: relative;
+    }
+
+    .manual-hero:after {
+        border: 22px solid rgba(255, 255, 255, .08);
+        border-radius: 50%;
+        content: "";
+        height: 150px;
+        position: absolute;
+        right: -34px;
+        top: -58px;
+        width: 150px;
+    }
+
+    .manual-hero h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 7px;
+    }
+
+    .manual-hero p {
+        color: rgba(255, 255, 255, .86);
+        font-size: 15px;
+        margin: 0;
+    }
+
+    .manual-shell {
+        align-items: flex-start;
+        display: flex;
+        gap: 18px;
+    }
+
+    .manual-sidebar {
+        background: #fff;
+        border: 1px solid var(--manual-border);
+        border-radius: 10px;
+        flex: 0 0 245px;
+        overflow: hidden;
+        position: sticky;
+        top: 10px;
+    }
+
+    .manual-search {
+        border-bottom: 1px solid var(--manual-border);
+        padding: 14px;
+    }
+
+    .manual-search .input-group {
+        width: 100%;
+    }
+
+    .manual-navigation {
+        list-style: none;
+        margin: 0;
+        padding: 8px;
+    }
+
+    .manual-navigation a {
+        border-radius: 7px;
+        color: #344054;
+        display: block;
+        font-weight: 600;
+        margin: 2px 0;
+        padding: 11px 12px;
+    }
+
+    .manual-navigation a:hover {
+        background: #f5f2fb;
+        color: var(--manual-primary);
+    }
+
+    .manual-navigation a.active {
+        background: var(--manual-primary);
+        color: #fff;
+    }
+
+    .manual-navigation i {
+        margin-right: 9px;
+        text-align: center;
+        width: 18px;
+    }
+
+    .manual-main {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .manual-content,
+    .manual-results {
+        background: #fff;
+        border: 1px solid var(--manual-border);
+        border-radius: 10px;
+        padding: 24px 30px;
+    }
+
+    .manual-results {
+        margin-bottom: 18px;
+    }
+
+    .manual-results h2 {
+        margin-top: 0;
+    }
+
+    .manual-result {
+        border-top: 1px solid var(--manual-border);
+        padding: 14px 0;
+    }
+
+    .manual-result:first-of-type {
+        border-top: 0;
+    }
+
+    .manual-result a {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .manual-result p {
+        color: var(--manual-muted);
+        margin: 5px 0 0;
+    }
+
+    .manual-content h1 {
+        color: #24143f;
+        font-size: 27px;
+        margin: 0 0 24px;
+    }
+
+    .manual-content h2 {
+        border-bottom: 1px solid var(--manual-border);
+        color: #352062;
+        font-size: 22px;
+        margin: 32px 0 15px;
+        padding-bottom: 8px;
+    }
+
+    .manual-content h3 {
+        color: #4d2f7c;
+        font-size: 18px;
+        margin: 25px 0 11px;
+    }
+
+    .manual-content h4 {
+        font-size: 16px;
+        margin-top: 20px;
+    }
+
+    .manual-content p,
+    .manual-content li,
+    .manual-content td,
+    .manual-content th {
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .manual-content img {
+        background: #f8fafc;
+        border: 1px solid var(--manual-border);
+        border-radius: 8px;
+        display: block;
+        height: auto;
+        margin: 16px auto 24px;
+        max-width: 100%;
+        padding: 6px;
+    }
+
+    .manual-content table {
+        margin: 14px 0 24px;
+        width: 100%;
+    }
+
+    .manual-content th {
+        background: #f5f2fb;
+        color: #352062;
+    }
+
+    .manual-content code {
+        background: #f2f4f7;
+        border-radius: 4px;
+        color: #8a2457;
+        padding: 2px 5px;
+    }
+
+    .manual-content blockquote {
+        border-left-color: var(--manual-primary);
+        color: #475467;
+    }
+
+    .manual-content a.manual-unavailable {
+        color: inherit;
+        cursor: default;
+        text-decoration: none;
+    }
+
+    .manual-mobile-nav {
+        display: none;
+        margin-bottom: 12px;
+    }
+
+    @@media (max-width: 767px) {
+        .manual-hero {
+            padding: 20px;
+        }
+
+        .manual-hero h1 {
+            font-size: 23px;
+        }
+
+        .manual-shell {
+            display: block;
+        }
+
+        .manual-sidebar {
+            display: none;
+        }
+
+        .manual-mobile-nav {
+            display: block;
+        }
+
+        .manual-content,
+        .manual-results {
+            padding: 18px;
+        }
+
+        .manual-content .table-responsive {
+            border: 0;
+        }
+    }
+
+    @@media print {
+        .main-header,
+        .main-sidebar,
+        .main-footer,
+        .manual-hero,
+        .manual-sidebar,
+        .manual-mobile-nav,
+        .manual-results {
+            display: none !important;
+        }
+
+        .content-wrapper,
+        .manual-main,
+        .manual-content {
+            border: 0;
+            margin: 0 !important;
+            padding: 0;
+        }
+    }
+</style>
+
+<section class="content manual-page">
+    <div class="manual-hero">
+        <h1><i class="fa fa-book fa-fw"></i> Manual do Sistema</h1>
+        <p>Orientações operacionais do WMS Quasar Dealer — Automec Chevrolet</p>
+    </div>
+
+    <div class="manual-mobile-nav">
+        <select id="manual-mobile-page" class="form-control" aria-label="Selecionar seção do manual">
+            @foreach (var pagina in Model.Paginas)
+            {
+                <option value="@Url.Action("Index", "Manual", new { pagina = pagina.Slug })"
+                        selected="@(pagina.Slug == Model.PaginaAtual ? "selected" : null)">
+                    @pagina.Titulo
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="manual-shell">
+        <aside class="manual-sidebar">
+            <form class="manual-search" method="get" action="@Url.Action("Index", "Manual")">
+                <div class="input-group">
+                    <input type="search"
+                           name="q"
+                           value="@Model.Pesquisa"
+                           class="form-control"
+                           maxlength="80"
+                           placeholder="Pesquisar no manual"
+                           aria-label="Pesquisar no manual" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="submit" title="Pesquisar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </form>
+
+            <ul class="manual-navigation">
+                @foreach (var pagina in Model.Paginas)
+                {
+                    <li>
+                        <a href="@Url.Action("Index", "Manual", new { pagina = pagina.Slug })"
+                           class="@(pagina.Slug == Model.PaginaAtual ? "active" : string.Empty)">
+                            <i class="fa @pagina.Icone"></i>@pagina.Titulo
+                        </a>
+                    </li>
+                }
+            </ul>
+        </aside>
+
+        <main class="manual-main">
+            @if (!string.IsNullOrWhiteSpace(Model.Pesquisa))
+            {
+                <section class="manual-results">
+                    <h2>Resultado da pesquisa</h2>
+                    @if (Model.Resultados.Count == 0)
+                    {
+                        <p>Nenhuma orientação foi localizada para <strong>@Model.Pesquisa</strong>.</p>
+                    }
+                    else
+                    {
+                        <p>@Model.Resultados.Count resultado(s) para <strong>@Model.Pesquisa</strong>.</p>
+                        foreach (var resultado in Model.Resultados)
+                        {
+                            <article class="manual-result">
+                                <a href="@Url.Action("Index", "Manual", new { pagina = resultado.Slug, q = Model.Pesquisa })">
+                                    @resultado.Titulo
+                                </a>
+                                <p>@resultado.Trecho</p>
+                            </article>
+                        }
+                    }
+                </section>
+            }
+
+            <article class="manual-content">
+                @Html.Raw(Model.ConteudoHtml)
+            </article>
+        </main>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#manual-mobile-page').on('change', function () {
+                window.location.href = this.value;
+            });
+
+            $('.manual-content table').wrap('<div class="table-responsive"></div>');
+            $('.manual-content table').addClass('table table-bordered table-striped');
+            $('.manual-content a[href^="http"]').attr({
+                target: '_blank',
+                rel: 'noopener noreferrer'
+            });
+        });
+    </script>
+}

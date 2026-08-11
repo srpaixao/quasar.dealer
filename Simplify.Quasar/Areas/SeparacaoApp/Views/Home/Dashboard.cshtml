@@ -1,0 +1,558 @@
+@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.SeparacaoDashboardViewModel
+@using System.Globalization
+@using System.Linq
+@{
+    ViewBag.Title = "Dashboard";
+    ViewBag.Description = "Separação";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var statusItens = (Model.StatusDia ?? Enumerable.Empty<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.SeparacaoDashboardStatusItemViewModel>()).ToList();
+    var semanaItens = (Model.MovimentoSemanal ?? Enumerable.Empty<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.SeparacaoDashboardSemanaItemViewModel>()).ToList();
+    var produtividade = (Model.Produtividade ?? Enumerable.Empty<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioDashboardItemViewModel>()).ToList();
+    var produtividadeConferencia = (Model.ProdutividadeConferencia ?? Enumerable.Empty<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioDashboardItemViewModel>()).ToList();
+    var totalStatus = statusItens.Sum(x => x.Quantidade);
+    var totalRomaneiosProd = produtividade.Sum(x => x.QuantidadeRomaneios);
+    var totalItensProd = produtividade.Sum(x => x.QuantidadeLinhas);
+    var totalPecasProd = produtividade.Sum(x => x.QuantidadePecas);
+    var totalRomaneiosConf = produtividadeConferencia.Sum(x => x.QuantidadeRomaneios);
+    var totalItensConf = produtividadeConferencia.Sum(x => x.QuantidadeLinhas);
+    var totalPecasConf = produtividadeConferencia.Sum(x => x.QuantidadePecas);
+    var conicParts = statusItens.Any()
+        ? string.Join(", ", Scan(statusItens, 0m, (acc, item) => acc + item.Percentual)
+            .Zip(statusItens, (fim, item) => new { item.Cor, Fim = fim, Inicio = fim - item.Percentual })
+            .Select(x => string.Format(CultureInfo.InvariantCulture, "{0} {1:0.#}% {2:0.#}%", x.Cor, x.Inicio, x.Fim)))
+        : "#d7dee8 0% 100%";
+    var maxSemana = semanaItens.Any() ? Math.Max(semanaItens.Max(x => x.Quantidade), 1) : 1;
+    Func<int, string> barHeight = quantidade =>
+    {
+        var altura = 36 + (quantidade * 164m / maxSemana);
+        return string.Format(CultureInfo.InvariantCulture, "{0:0}px", altura);
+    };
+}
+
+@functions {
+    public static IEnumerable<TAccumulate> Scan<TSource, TAccumulate>(IEnumerable<TSource> source, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> func)
+    {
+        var acc = seed;
+        foreach (var item in source)
+        {
+            acc = func(acc, item);
+            yield return acc;
+        }
+    }
+}
+
+<style>
+    .dashboard-filter {
+        margin-bottom: 18px;
+    }
+
+    .dashboard-kpis,
+    .dashboard-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -9px;
+    }
+
+    .dashboard-kpis > div,
+    .dashboard-row > div {
+        padding: 0 9px;
+    }
+
+    .dashboard-card {
+        height: 100%;
+        background: #ffffff;
+        border: 1px solid #e4eaf1;
+        border-radius: 20px;
+        padding: 22px;
+        box-shadow: 0 16px 35px rgba(24, 49, 79, 0.06);
+    }
+
+    .dashboard-kpi {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-height: 124px;
+    }
+
+    .dashboard-kpi-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .icon-a { background: #daf4ff; color: #2a95c6; }
+    .icon-b { background: #dff7e7; color: #2fa46f; }
+    .icon-c { background: #fff2cc; color: #db9a00; }
+
+    .dashboard-kpi strong {
+        display: block;
+        color: #22354d;
+        font-size: 34px;
+        line-height: 1;
+    }
+
+    .dashboard-kpi span {
+        display: block;
+        margin-top: 6px;
+        color: #7a889b;
+        font-size: 15px;
+    }
+
+    .dashboard-panel-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+    }
+
+    .dashboard-panel-title h3 {
+        margin: 0;
+        color: #22354d;
+        font-size: 24px;
+    }
+
+    .dashboard-panel-subtitle {
+        margin: 4px 0 0;
+        color: #7a889b;
+        font-size: 13px;
+    }
+
+    .dashboard-donut {
+        width: 240px;
+        height: 240px;
+        margin: 10px auto 20px;
+        border-radius: 50%;
+        background: conic-gradient(@conicParts);
+        position: relative;
+    }
+
+    .dashboard-donut:after {
+        content: "";
+        position: absolute;
+        inset: 34px;
+        background: #ffffff;
+        border-radius: 50%;
+    }
+
+    .dashboard-donut-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        text-align: center;
+    }
+
+    .dashboard-donut-center strong {
+        display: block;
+        color: #22354d;
+        font-size: 28px;
+    }
+
+    .dashboard-donut-center span {
+        color: #7a889b;
+        font-size: 13px;
+    }
+
+    .dashboard-legend {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 18px;
+    }
+
+    .dashboard-legend-item {
+        min-width: 110px;
+        color: #7a889b;
+        font-size: 13px;
+    }
+
+    .dashboard-legend-item strong {
+        display: block;
+        margin-top: 6px;
+        color: #22354d;
+        font-size: 18px;
+    }
+
+    .dashboard-legend-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .dashboard-bars {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 14px;
+        height: 250px;
+        padding-top: 10px;
+    }
+
+    .dashboard-bar-group {
+        flex: 1;
+        text-align: center;
+    }
+
+    .dashboard-bar-value {
+        margin-bottom: 8px;
+        color: #22354d;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .dashboard-bar {
+        width: 100%;
+        max-width: 42px;
+        margin: 0 auto 12px;
+        border-radius: 14px 14px 10px 10px;
+        background: linear-gradient(180deg, #7ad5fb 0%, #55baf0 100%);
+        box-shadow: 0 8px 18px rgba(84, 185, 240, 0.18);
+    }
+
+    .dashboard-bar-label {
+        color: #7a889b;
+        font-size: 13px;
+        text-transform: capitalize;
+    }
+
+    .dashboard-section-separator {
+        margin: 18px 0;
+        border-top: 1px solid #e4eaf1;
+    }
+
+    .dashboard-productivity-table th,
+    .dashboard-productivity-table td {
+        vertical-align: middle !important;
+    }
+
+    .dashboard-productivity-value {
+        width: 120px;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .dashboard-productivity-chart {
+        width: 220px;
+    }
+
+    .dashboard-metric-bar-wrap {
+        background: #edf3f8;
+        border-radius: 999px;
+        height: 12px;
+        overflow: hidden;
+    }
+
+    .dashboard-metric-bar {
+        height: 12px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #75d2fa 0%, #2fa46f 100%);
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    @using (Html.BeginForm("Dashboard", "Home", new { area = "SeparacaoApp" }, FormMethod.Get, new { id = "dashboard-filter-form" }))
+    {
+        <div class="dashboard-card dashboard-filter">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Data Inicial</label>
+                        @Html.TextBoxFor(m => m.DataInicial, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "DataInicial" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Data Final</label>
+                        @Html.TextBoxFor(m => m.DataFinal, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date", id = "DataFinal" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div id="dashboard-period-error" class="alert alert-danger" style="@(Model.PeriodoValido ? "display:none;" : string.Empty)">
+        @(Model.PeriodoMensagem ?? "O período selecionado não pode ser superior a 15 dias.")
+    </div>
+
+    <div class="dashboard-kpis">
+        <div class="col-md-4 col-sm-6">
+            <div class="dashboard-card dashboard-kpi">
+                <div class="dashboard-kpi-icon icon-a"><i class="fa fa-users"></i></div>
+                <div>
+                    <strong>@Model.SeparadoresTrabalhando</strong>
+                    <span>Qtde de separadores trabalhando</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="dashboard-card dashboard-kpi">
+                <div class="dashboard-kpi-icon icon-b"><i class="fa fa-tasks"></i></div>
+                <div>
+                    <strong>@Model.TarefasPendentesDia</strong>
+                    <span>Tarefas de separa&ccedil;&atilde;o pendentes</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <div class="dashboard-card dashboard-kpi">
+                <div class="dashboard-kpi-icon icon-c"><i class="fa fa-inbox"></i></div>
+                <div>
+                    <strong>@Model.RomaneiosDia</strong>
+                    <span>Romaneios no per&iacute;odo</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section-separator"></div>
+
+    <div class="dashboard-row">
+        <div class="col-md-12">
+            <div class="dashboard-card">
+                <div class="dashboard-panel-title">
+                    <div>
+                        <h3>Distribui&ccedil;&atilde;o</h3>
+                        <div class="dashboard-panel-subtitle">Qtde de romaneios por status no per&iacute;odo</div>
+                    </div>
+                </div>
+                <div class="dashboard-donut">
+                    <div class="dashboard-donut-center">
+                        <strong>@totalStatus</strong>
+                        <span>romaneios</span>
+                    </div>
+                </div>
+                <div class="dashboard-legend">
+                    @foreach (var item in statusItens)
+                    {
+                        <div class="dashboard-legend-item">
+                            <span class="dashboard-legend-dot" style="background:@item.Cor;"></span>@item.Status
+                            <strong>@item.Quantidade (@item.Percentual.ToString("0.#", CultureInfo.InvariantCulture)%)</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section-separator"></div>
+
+    <div class="dashboard-row">
+        <div class="col-md-12">
+            <div class="dashboard-card">
+                <div class="dashboard-panel-title">
+                    <div>
+                        <h3>Movimento</h3>
+                        <div class="dashboard-panel-subtitle">Qtde de romaneios finalizados por dia</div>
+                    </div>
+                </div>
+                <div class="dashboard-bars">
+                    @foreach (var item in semanaItens)
+                    {
+                        <div class="dashboard-bar-group">
+                            <div class="dashboard-bar-value">@item.Quantidade</div>
+                            <div class="dashboard-bar" style="height:@barHeight(item.Quantidade);"></div>
+                            <div class="dashboard-bar-label">@item.DiaSemana @item.Data.ToString("dd/MM")</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section-separator"></div>
+
+    <div class="dashboard-row">
+        <div class="col-md-12">
+            <div class="dashboard-card">
+                <div class="dashboard-panel-title">
+                    <div>
+                        <h3>Produtividade de Separa&ccedil;&atilde;o</h3>
+                    </div>
+                </div>
+                @if (!Model.ProdutividadeConfigValida)
+                {
+                    <div class="alert alert-warning">@Model.ProdutividadeConfigMensagem</div>
+                }
+                else if (produtividade.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered dashboard-productivity-table">
+                            <thead>
+                                <tr>
+                                    <th>Picker</th>
+                                    <th>Romaneios</th>
+                                    <th>Itens</th>
+                                    <th>Pe&ccedil;as</th>
+                                    <th class="dashboard-productivity-value">Produtividade %</th>
+                                    <th class="dashboard-productivity-chart">Gr&aacute;fico</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in produtividade)
+                                {
+                                    <tr>
+                                        <td>@item.PickerNome</td>
+                                        <td>@item.QuantidadeRomaneios</td>
+                                        <td>@item.QuantidadeLinhas</td>
+                                        <td>@item.QuantidadePecas</td>
+                                        <td class="dashboard-productivity-value">@item.ProdutividadeCalculada.ToString("N1")%</td>
+                                        <td>
+                                            <div class="dashboard-metric-bar-wrap">
+                                                <div class="dashboard-metric-bar" style="width:@item.ProdutividadeCalculada.ToString(System.Globalization.CultureInfo.InvariantCulture)%;"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="active">
+                                    <th>Total</th>
+                                    <th>@totalRomaneiosProd</th>
+                                    <th>@totalItensProd</th>
+                                    <th>@totalPecasProd</th>
+                                    <th class="dashboard-productivity-value">100,0%</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">Nenhum dado de produtividade de separa&ccedil;&atilde;o localizado para o per&iacute;odo informado.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section-separator"></div>
+
+    <div class="dashboard-row">
+        <div class="col-md-12">
+            <div class="dashboard-card">
+                <div class="dashboard-panel-title">
+                    <div>
+                        <h3>Produtividade de Confer&ecirc;ncia</h3>
+                    </div>
+                </div>
+                @if (!Model.ProdutividadeConfigValida)
+                {
+                    <div class="alert alert-warning">@Model.ProdutividadeConfigMensagem</div>
+                }
+                else if (produtividadeConferencia.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered dashboard-productivity-table">
+                            <thead>
+                                <tr>
+                                    <th>Conferente</th>
+                                    <th>Romaneios</th>
+                                    <th>Itens</th>
+                                    <th>Pe&ccedil;as</th>
+                                    <th class="dashboard-productivity-value">Produtividade %</th>
+                                    <th class="dashboard-productivity-chart">Gr&aacute;fico</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in produtividadeConferencia)
+                                {
+                                    <tr>
+                                        <td>@item.PickerNome</td>
+                                        <td>@item.QuantidadeRomaneios</td>
+                                        <td>@item.QuantidadeLinhas</td>
+                                        <td>@item.QuantidadePecas</td>
+                                        <td class="dashboard-productivity-value">@item.ProdutividadeCalculada.ToString("N1")%</td>
+                                        <td>
+                                            <div class="dashboard-metric-bar-wrap">
+                                                <div class="dashboard-metric-bar" style="width:@item.ProdutividadeCalculada.ToString(System.Globalization.CultureInfo.InvariantCulture)%;"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="active">
+                                    <th>Total</th>
+                                    <th>@totalRomaneiosConf</th>
+                                    <th>@totalItensConf</th>
+                                    <th>@totalPecasConf</th>
+                                    <th class="dashboard-productivity-value">100,0%</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">Nenhum dado de produtividade de confer&ecirc;ncia localizado para o per&iacute;odo informado.</div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    (function () {
+        var dataInicial = document.getElementById('DataInicial');
+        var dataFinal = document.getElementById('DataFinal');
+        var form = document.getElementById('dashboard-filter-form');
+        var periodError = document.getElementById('dashboard-period-error');
+
+        function parseDate(value) {
+            var parts = (value || '').split('-');
+            if (parts.length !== 3) {
+                return null;
+            }
+
+            return Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        }
+
+        function submitIfValid() {
+            var start = parseDate(dataInicial.value);
+            var end = parseDate(dataFinal.value);
+
+            if (start === null || end === null) {
+                return;
+            }
+
+            var totalDays = Math.floor((end - start) / 86400000) + 1;
+            var message = '';
+
+            if (totalDays <= 0) {
+                message = 'A Data Inicial não pode ser maior que a Data Final.';
+            } else if (totalDays > 15) {
+                message = 'O período selecionado não pode ser superior a 15 dias.';
+            }
+
+            if (message) {
+                periodError.textContent = message;
+                periodError.style.display = 'block';
+                return;
+            }
+
+            periodError.style.display = 'none';
+            form.submit();
+        }
+
+        dataInicial.addEventListener('change', function () {
+            submitIfValid();
+        });
+
+        dataFinal.addEventListener('change', function () {
+            submitIfValid();
+        });
+    })();
+</script>

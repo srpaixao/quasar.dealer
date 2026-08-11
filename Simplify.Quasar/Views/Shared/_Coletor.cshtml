@@ -49,6 +49,7 @@
 
     @RenderSection("ViewSpecificJavascript", required: false)
     @RenderSection("scripts", required: false)
+    @Html.Partial("~/Views/Shared/_ActivityTracker.cshtml")
 
 </body>
 </html>
@@ -100,7 +101,7 @@
                         <span class="sr-only">Toggle navigation</span>
                     </a>
                     <div class="nav navbar-nav navbar-title hidden-xs">
-                        <span>NOVA CHEVROLET <small>&nbsp;&nbsp;&nbsp;@(Session["filialnome"] != null ? Session["filialnome"].ToString() : string.Empty)</small></span>
+                        <span>AUTOMEC CHEVROLET <small>&nbsp;&nbsp;&nbsp;@(Session["filialnome"] != null ? Session["filialnome"].ToString() : string.Empty)</small></span>
                     </div>
                     <div class="navbar-custom-menu">
                         <ul class="nav navbar-nav">
@@ -132,7 +133,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-xs-6">
-                        <span class="hidden-xs">Powered by <a href="https://simplifyse.com.br" target="_blank">Simplifyse</a></span>
+                        <span class="hidden-xs">Powered by <a href="https://simplifyse.com.br" target="_blank">Simplify IT</a></span>
                     </div>
                     <div class="col-xs-6 hidden-xs">
                         <small class="pull-right"><strong>Copyright © 2014-2019 <a href="https://adminlte.io">AdminLTE</a>.</strong> All rights reserved. <b>  Version</b> 2.4.13</small>

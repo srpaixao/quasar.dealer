@@ -163,17 +163,7 @@
                         data: 'DataHora',
                         title: 'Data / Hora',
                         render: function (data, type, row) {
-                            if (data) {
-                                var timestamp = parseInt(data.replace(/\/Date\((\d+)\)\//, '$1'));
-                                var date = new Date(timestamp);
-
-                                // Formatar a data e a hora
-                                var formattedDate = date.toLocaleDateString('pt-BR');
-                                var formattedTime = date.toLocaleTimeString('pt-BR');
-                                return formattedDate + ' ' + formattedTime;
-                            } else {
-                                return data;
-                            }
+                            return data || '';
                         }
                     },
                     {

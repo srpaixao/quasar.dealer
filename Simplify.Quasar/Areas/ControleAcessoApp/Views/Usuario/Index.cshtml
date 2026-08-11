@@ -28,6 +28,23 @@
         text-align: center;
         vertical-align: middle !important;
     }
+
+    tr.usuario-logado td {
+        background-color: #eef8ff !important;
+    }
+
+    .badge-usuario-logado {
+        display: inline-block;
+        margin-left: 8px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background-color: #00a65a;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.4;
+        text-transform: uppercase;
+    }
 </style>
 
 <section class="content-header">
@@ -57,7 +74,8 @@
                                 <tr>
                                     <th>Login</th>
                                     <th>Nome</th>
-                                    <th>Função</th>
+                                    <th>Perfil de Acesso</th>
+                                    <th>Funcionalidade atual</th>
                                     @*<th>Depto</th>*@
                                     <th>Último acesso</th>
                                     <th></th>
@@ -66,10 +84,15 @@
                             <tbody>
                                 @foreach (var item in Model)
                                 {
-                                    <tr>
+                                    <tr class="@(item.UsuarioLogado ? "usuario-logado" : string.Empty)">
                                         <td>
                                             @*<a href="#" class="@(ViewBag.Permissoes.Contains("[update]") ? "edit" : "" )" data-id="@item.Id"><b>@item.Login</b></a>*@
                                             <a href="#" class="edit" data-id="@item.Id"><b>@item.Login</b></a>
+
+                                            @if (item.UsuarioLogado)
+                                            {
+                                                <span class="badge-usuario-logado">Logado</span>
+                                            }
 
                                             @if (item.SenhaExpirada)
                                             {
@@ -81,7 +104,22 @@
                                             }
                                         </td>
                                         <td>@item.Nome</td>
-                                        <td>@item.NomeFuncao</td>
+                                        <td>@item.NomePerfil</td>
+                                        <td>
+                                            @if (item.UsuarioLogado)
+                                            {
+                                                <span title="@item.RotaAtual">
+                                                    @item.FuncionalidadeAtual
+                                                    <small class="text-muted" style="display:block">
+                                                        atividade às @item.UltimaAtividade.Value.ToString("dd/MM/yyyy HH:mm:ss")
+                                                    </small>
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
                                         @*<td>@item.NomeArea</td>*@
                                         <td>@item.UltimoAcesso</td>
                                         <td>

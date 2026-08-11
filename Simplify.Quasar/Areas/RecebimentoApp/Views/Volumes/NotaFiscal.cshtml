@@ -1,0 +1,277 @@
+@model Simplify.Quasar.Areas.RecebimentoApp.ViewModels.NotaFiscalConsultaViewModel
+@using System
+@using System.Linq
+@using System.Web
+@{
+    ViewBag.Title = "Recebimento";
+    ViewBag.Description = "Consulta por Nota Fiscal Nr";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var header = Model.Header;
+    var itens = Model.Itens ?? Enumerable.Empty<Simplify.Quasar.Areas.RecebimentoApp.ViewModels.NotaFiscalConsultaItemViewModel>();
+}
+
+@functions {
+    public string FormatDateTime(DateTime? value)
+    {
+        return value.HasValue ? value.Value.ToString("dd/MM/yyyy HH:mm:ss") : "-";
+    }
+
+    public string FormatText(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "-" : value;
+    }
+
+    public string FormatDecimal(decimal? value)
+    {
+        return value.HasValue ? value.Value.ToString("N2") : "-";
+    }
+}
+
+<style>
+    .consulta-nf .box {
+        margin-bottom: 18px;
+    }
+
+    .consulta-nf .filtro-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 16px;
+    }
+
+    .consulta-nf .filtro-field {
+        min-width: 280px;
+        max-width: 480px;
+        flex: 1 1 380px;
+    }
+
+    .consulta-nf .header-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px 18px;
+    }
+
+    .consulta-nf .info-card {
+        border: 1px solid #e5edf4;
+        border-radius: 10px;
+        padding: 12px 14px;
+        background: #fbfdff;
+        min-height: 76px;
+    }
+
+    .consulta-nf .info-label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #6e7f91;
+        margin-bottom: 6px;
+    }
+
+    .consulta-nf .info-value {
+        font-size: 17px;
+        font-weight: 600;
+        color: #12395d;
+        word-break: break-word;
+    }
+
+    .consulta-nf .table th {
+        white-space: nowrap;
+    }
+
+    .consulta-nf .table td,
+    .consulta-nf .table th {
+        vertical-align: middle !important;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+@section scripts {
+    <script>
+        $(function () {
+            var table = $('#tbConsultaNotaFiscal');
+            if (!table.length) {
+                return;
+            }
+
+            table.DataTable({
+                processing: false,
+                deferRender: true,
+                autoWidth: false,
+                pageLength: 25,
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ itens por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum item localizado",
+                    info: "Exibindo _START_ de _END_ de um total de _TOTAL_ itens",
+                    infoEmpty: "Exibindo 0 de 0 itens",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+<section class="content consulta-nf">
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Filtro de Pesquisa</h3>
+        </div>
+        <div class="box-body">
+            @using (Html.BeginForm("NotaFiscal", "Volumes", new { area = "RecebimentoApp" }, FormMethod.Get))
+            {
+                <div class="filtro-row">
+                    <div class="form-group filtro-field">
+                        <label>Nota Fiscal Nr</label>
+                        @Html.TextBoxFor(m => m.NotaFiscalNr, new { @class = "form-control", @autocomplete = "off", @placeholder = "Digite a nota fiscal nr" })
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-search"></i> Pesquisar
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.ConsultaRealizada)
+    {
+        if (header == null)
+        {
+            <div class="alert alert-warning">
+                @(string.IsNullOrWhiteSpace(Model.ConsultaMensagem) ? HttpUtility.HtmlDecode("Nota Fiscal n&atilde;o localizada.") : Model.ConsultaMensagem)
+            </div>
+        }
+        else
+        {
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Dados da Nota Fiscal</h3>
+                </div>
+                <div class="box-body">
+                    <div class="header-grid">
+                        <div class="info-card">
+                            <span class="info-label">Nota Fiscal</span>
+                            <div class="info-value">@FormatText(header.NotaFiscal)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Emissor</span>
+                            <div class="info-value">@FormatText(header.Emissor)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Status NF</span>
+                            <div class="info-value">@FormatText(header.StatusNotaFiscal)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Data Emiss&atilde;o</span>
+                            <div class="info-value">@FormatDateTime(header.DataEmissao)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Valor NF</span>
+                            <div class="info-value">@FormatDecimal(header.ValorNotaFiscal)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Movimento</span>
+                            <div class="info-value">@FormatText(header.Movimento)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Itens</span>
+                            <div class="info-value">@header.QuantidadeItens</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Pe&ccedil;as</span>
+                            <div class="info-value">@header.QuantidadePecas.ToString("N2")</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Criado em</span>
+                            <div class="info-value">@FormatDateTime(header.CriadoEm)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Criado por</span>
+                            <div class="info-value">@FormatText(header.CriadoPor)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Modificado em</span>
+                            <div class="info-value">@FormatDateTime(header.ModificadoEm)</div>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Modificado por</span>
+                            <div class="info-value">@FormatText(header.ModificadoPor)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Itens da Nota Fiscal</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="tbConsultaNotaFiscal">
+                            <thead>
+                                <tr>
+                                    <th>Volume Nr</th>
+                                    <th>Item Nr</th>
+                                    <th>Descri&ccedil;&atilde;o</th>
+                                    <th class="text-right">Faturado</th>
+                                    <th class="text-right">Conferido</th>
+                                    <th>Conferente</th>
+                                    <th class="text-right">Diferen&ccedil;a</th>
+                                    <th class="text-right">Armazenado</th>
+                                    <th>Estoquista</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (itens.Any())
+                                {
+                                    foreach (var item in itens)
+                                    {
+                                        <tr>
+                                            <td>@FormatText(item.VolumeNr)</td>
+                                            <td>@FormatText(item.ItemNr)</td>
+                                            <td>@FormatText(item.Descricao)</td>
+                                            <td class="text-right">@item.Quantidade.ToString("N2")</td>
+                                            <td class="text-right">@FormatDecimal(item.QtdConferida)</td>
+                                            <td>
+                                                <div>@FormatText(item.UsuarioConferencia)</div>
+                                                <small>@FormatDateTime(item.DtHrConferencia)</small>
+                                            </td>
+                                            <td class="text-right @(item.Diferenca.HasValue && item.Diferenca.Value != 0 ? "text-danger" : string.Empty)">@FormatDecimal(item.Diferenca)</td>
+                                            <td class="text-right">@FormatDecimal(item.QtdArmazenada)</td>
+                                            <td>
+                                                <div>@FormatText(item.UsuarioArmazenagem)</div>
+                                                <small>@FormatDateTime(item.DtHrArmazenagem)</small>
+                                            </td>
+                                            <td>@FormatText(item.SituacaoConferencia)</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="10" class="text-center">Nenhum item vinculado à nota fiscal.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</section>

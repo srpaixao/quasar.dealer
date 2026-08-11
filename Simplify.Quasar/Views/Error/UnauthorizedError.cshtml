@@ -1,28 +1,28 @@
-﻿@{
-    ViewBag.Title = "Unauthorized Request";
+@{
+    ViewBag.Title = "Acesso n\u00E3o autorizado";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<section class="content">
-    <div class="error-page" style="margin-left:0px;width:100%">
-        @*<h2 class="headline text-red">401</h2>*@
+<section class="content-header">
+    <h1>Acesso n&atilde;o autorizado</h1>
+</section>
 
-        <div class="error-content" style="margin-left:20px">
-            <h3><i class="fa fa-warning text-red"></i> Oops! Something went wrong.</h3>
-            <p>
-                There was an error processing your request. Please, try again. If the problem persists, contact support.
-            </p>
-            <br />
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <label><b>Message error</b></label>
-                        <div class="error">@ViewBag.Title</div>
-                    </div>
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box box-danger">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><i class="fa fa-ban"></i> Permiss&atilde;o negada</h3>
+                </div>
+                <div class="box-body">
+                    <p style="font-size:16px; margin-bottom:18px;">
+                        @Html.Raw(ViewBag.Message ?? "Acesso n&atilde;o autorizado. Seu perfil n&atilde;o possui permiss&atilde;o para acessar esta funcionalidade.")
+                    </p>
+                    <a href="@Url.Action("Index", "Home", new { area = "" })" class="btn btn-primary">
+                        <i class="fa fa-home"></i> Voltar para a p&aacute;gina inicial
+                    </a>
                 </div>
             </div>
-            <br />
-            <a href="@Url.Action("Index", "Home", new { area = ""})" class="btn btn-primary" role="button"><i class="fa fa-home"></i> Voltar para a página inicial</a>
         </div>
     </div>
 </section>

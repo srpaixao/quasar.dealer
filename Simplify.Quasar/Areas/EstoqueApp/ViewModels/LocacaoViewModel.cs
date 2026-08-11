@@ -9,11 +9,14 @@ namespace Simplify.Quasar.Areas.EstoqueApp.ViewModels
     {
         public string Codigo { get; set; }
         public string Tipo { get; set; }
+        public IEnumerable<System.Web.Mvc.SelectListItem> TipoDDL { get; set; }
         public string Descricao { get; set; }
         public bool Bloqueado { get; set; }
         public string Status { get; set; }
         public int? AreaId { get; set; }
         public string AreaNome { get; set; }
+        public int? ZonaId { get; set; }
+        public string ZonaNome { get; set; }
         public int? EquipamentoId { get; set; }
         public string EquipamentoNome { get; set; }
         public string Curva { get; set; }
@@ -26,5 +29,6 @@ namespace Simplify.Quasar.Areas.EstoqueApp.ViewModels
         public string ModificadoPor { get; set; }
         public string ModificadoPorNome { get; set; }
         public int? FilialId { get; set; }
+        public IEnumerable<System.Web.Mvc.SelectListItem> ZonaDDL { get; set; }
     }
 }

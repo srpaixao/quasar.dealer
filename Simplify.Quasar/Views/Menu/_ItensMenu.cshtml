@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<Simplify.Quasar.ViewModels.MenuViewModel>
-<aside class="main-sidebar" style="padding-top:50px;">
+<aside class="main-sidebar">
     <section class="sidebar">
         <ul class="sidebar-menu tree" data-widget="tree">
 
             <li class="header text-center menu-sidebar">
-                <a href="#" style="pointer-events:none;"><i class="fa-solid fa-home"></i> Página Inicial</a>
+                <a href="#" style="pointer-events:none;"><i class="fa-solid fa-house"></i> Painel Principal</a>
             </li>
 
             @foreach (var item in Model)
@@ -53,6 +53,9 @@
                 }
             }
         </ul>
+        <div class="sidebar-login-thumb">
+            <span class="sidebar-login-thumb__image"></span>
+        </div>
 
     </section>
 </aside>

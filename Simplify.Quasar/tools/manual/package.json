@@ -1,0 +1,14 @@
+{
+  "name": "quasar-manual-builder",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Gera o conteúdo HTML do manual operacional do Quasar Dealer.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "review:accents": "node review-accents.mjs"
+  },
+  "dependencies": {
+    "marked": "18.0.7"
+  }
+}

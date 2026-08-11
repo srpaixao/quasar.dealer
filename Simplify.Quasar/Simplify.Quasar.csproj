@@ -50,10 +50,23 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="ExcelDataReader, Version=3.8.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.3.8.0\lib\net462\ExcelDataReader.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\lib\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=8.0.0.2, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.8.0.2\lib\net462\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=8.0.0.3, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.8.0.3\lib\net462\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.ReportViewer.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Report.Viewer.11.0.0.0\lib\net\Microsoft.ReportViewer.Common.dll</HintPath>
     </Reference>
@@ -66,11 +79,77 @@
     <Reference Include="Microsoft.Web.Infrastructure, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.2.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
+    <Reference Include="MigraDoc.DocumentObjectModel">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.6.2.4\lib\net462\MigraDoc.DocumentObjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="MigraDoc.Rendering-gdi, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.6.2.4\lib\net462\MigraDoc.Rendering-gdi.dll</HintPath>
+    </Reference>
+    <Reference Include="MigraDoc.RtfRendering-gdi, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-MigraDoc-GDI.6.2.4\lib\net462\MigraDoc.RtfRendering-gdi.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.5.3.4\lib\net46\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.6.2.4\lib\netstandard2.0\PdfSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp-gdi, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-GDI.6.2.4\lib\net462\PdfSharp-gdi.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp-wpf, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp-wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.BarCodes, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.6.2.4\lib\netstandard2.0\PdfSharp.BarCodes.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.BarCodes-gdi, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-GDI.6.2.4\lib\net462\PdfSharp.BarCodes-gdi.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.BarCodes-wpf, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp.BarCodes-wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Charting, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.6.2.4\lib\netstandard2.0\PdfSharp.Charting.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Charting-gdi, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-GDI.6.2.4\lib\net462\PdfSharp.Charting-gdi.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Charting-wpf, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp.Charting-wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Cryptography, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Quality, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.6.2.4\lib\netstandard2.0\PdfSharp.Quality.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Quality-gdi, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-GDI.6.2.4\lib\net462\PdfSharp.Quality-gdi.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Quality-wpf, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp.Quality-wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Shared, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Snippets, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.6.2.4\lib\netstandard2.0\PdfSharp.Snippets.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Snippets-gdi, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-GDI.6.2.4\lib\net462\PdfSharp.Snippets-gdi.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.Snippets-wpf, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp.Snippets-wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.System, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp.System.dll</HintPath>
+    </Reference>
+    <Reference Include="PdfSharp.WPFonts, Version=6.2.4.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp-WPF.6.2.4\lib\net462\PdfSharp.WPFonts.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -98,7 +177,13 @@
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Security.Cryptography.Pkcs, Version=8.0.0.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Pkcs.8.0.1\lib\net462\System.Security.Cryptography.Pkcs.dll</HintPath>
+    </Reference>
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -442,8 +527,12 @@
     <Content Include="Content\DataTables\images\sort_both.png" />
     <Content Include="Content\DataTables\images\sort_desc.png" />
     <Content Include="Content\DataTables\images\sort_desc_disabled.png" />
+    <Content Include="Content\img\label-expedicao.png" />
     <Content Include="Content\img\label-material.png" />
     <Content Include="Content\img\label-volume.png" />
+    <Content Include="Content\img\logo.png" />
+    <Content Include="Content\img\quasar-dealer-favicon.ico" />
+    <Content Include="Content\img\quasar-dealer-logo.svg" />
     <Content Include="Content\jquery-filestyle\jquery-filestyle.css" />
     <Content Include="Content\jquery-filestyle\jquery-filestyle.min.css" />
     <Content Include="Content\login\css\bootstrap.min.css" />
@@ -479,6 +568,8 @@
     <Content Include="Scripts\DataTables\plugins\sorting\datetime-moment.js" />
     <Content Include="Content\DataTables\swf\flashExport.swf" />
     <Content Include="Content\img\Avatar.PNG" />
+    <Content Include="Content\Quasar.Modern.css" />
+    <Content Include="Content\Quasar.VisualPrototype.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Global.asax" />
     <Content Include="Models\Model_Quasar.Context.tt">
@@ -590,7 +681,12 @@
     <Content Include="Areas\AnomaliaApp\Views\Processo\Index.cshtml" />
     <Content Include="Areas\ComprasApp\Views\Home\Index.cshtml" />
     <Content Include="Areas\ConfiguracaoApp\Views\Home\Index.cshtml" />
+    <Content Include="Areas\DevolucaoApp\Views\Home\Consulta.cshtml" />
+    <Content Include="Areas\DevolucaoApp\Views\Home\Detalhe.cshtml" />
     <Content Include="Areas\DevolucaoApp\Views\Home\Index.cshtml" />
+    <Content Include="Areas\DevolucaoApp\Views\Home\OcorrenciaDetalhe.cshtml" />
+    <Content Include="Areas\DevolucaoApp\Views\Home\Ocorrencias.cshtml" />
+    <Content Include="Areas\ExpedicaoApp\Views\Home\ConferenciaRomaneios.cshtml" />
     <Content Include="Areas\ExpedicaoApp\Views\Home\Index.cshtml" />
     <Content Include="Areas\GarantiaApp\Views\Home\Index.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\Fornecedor\_Create.cshtml" />
@@ -605,9 +701,12 @@
     <Content Include="Areas\ExpedicaoApp\Views\Menu\_ItensMenu.cshtml" />
     <Content Include="Areas\EstoqueApp\Views\Contagem\Index.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\ConferenciaVolumeDANFE.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\_ConferenciaVolumeItens.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\_ConferenciaVolumeItensScript.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\Rede.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\Transferencia.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\Devolucao.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\DevolucaoDetalhe.cshtml" />
     <Content Include="Areas\ComprasApp\Views\Empresa\Index.cshtml" />
     <Content Include="Areas\ComprasApp\Views\Empresa\_Create.cshtml" />
     <Content Include="Areas\ComprasApp\Views\Empresa\_Edit.cshtml" />
@@ -721,11 +820,35 @@
     <Content Include="Areas\ControleAcessoApp\Views\Home\Index.cshtml" />
     <Content Include="Areas\ControleAcessoApp\Views\Menu\_ItensMenu.cshtml" />
     <Content Include="Areas\ControleAcessoApp\Views\Usuario\Index.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Atividade\Index.cshtml" />
     <Content Include="Areas\ControleAcessoApp\Views\Perfil\Index.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Perfil\_Create.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Perfil\_Edit.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Perfil\_Delete.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Perfil\_Detail.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Perfil\Areas.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Perfil\Funcoes.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Funcao\Index.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Funcao\_Create.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Funcao\_Edit.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Funcao\_Delete.cshtml" />
+    <Content Include="Areas\ControleAcessoApp\Views\Funcao\_Detail.cshtml" />
     <Content Include="Areas\ConfiguracaoApp\Views\App\Index.cshtml" />
     <Content Include="Areas\ConfiguracaoApp\Views\File\Index.cshtml" />
     <Content Include="Areas\ConfiguracaoApp\Views\Printer\Index.cshtml" />
     <Content Include="Areas\ConfiguracaoApp\Views\Setting\Index.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Material\Index.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Material\_Form.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Material\Create.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Material\Edit.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Material\Details.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Material\Delete.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Equipamento\Index.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Equipamento\_Form.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Equipamento\Create.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Equipamento\Edit.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Equipamento\Details.cshtml" />
+    <Content Include="Areas\ConfiguracaoApp\Views\Equipamento\Delete.cshtml" />
     <Content Include="Areas\ControleAcessoApp\Views\Usuario\_Create.cshtml" />
     <Content Include="Areas\ControleAcessoApp\Views\Usuario\_Edit.cshtml" />
     <Content Include="Areas\ControleAcessoApp\Views\Usuario\_Delete.cshtml" />
@@ -742,7 +865,15 @@
     <Content Include="Areas\ConfiguracaoApp\Views\Printer\_Delete.cshtml" />
     <Content Include="Areas\ConfiguracaoApp\Views\Printer\_Edit.cshtml" />
     <Content Include="Areas\EstoqueApp\Views\Locacao\Index.cshtml" />
+    <Content Include="Areas\EstoqueApp\Views\Locacao\Lote.cshtml" />
+    <Content Include="Areas\EstoqueApp\Views\Locacao\Etiquetas.cshtml" />
+    <Content Include="Areas\EstoqueApp\Views\Locacao\LayoutEtiquetas.cshtml" />
+    <Content Include="Areas\EstoqueApp\Views\Locacao\_Tabs.cshtml" />
+    <Content Include="Areas\EstoqueApp\Views\Locacao\_Create.cshtml" />
     <Content Include="Areas\EstoqueApp\Views\Locacao\_Edit.cshtml" />
+    <Content Include="Content\Modelos\Modelo-Locacoes-Lote.xlsx" />
+    <Content Include="docs\sql\20260811_LocacaoLote.sql" />
+    <Content Include="Areas\EstoqueApp\Views\AssociacaoLocacao\Index.cshtml" />
     <Content Include="Areas\ExpedicaoApp\Views\Parada\Index.cshtml" />
     <Content Include="Areas\ExpedicaoApp\Views\Parada\_Create.cshtml" />
     <Content Include="Areas\ExpedicaoApp\Views\Parada\_Edit.cshtml" />
@@ -769,6 +900,8 @@
     <Content Include="Areas\ExpedicaoApp\Views\NotaFiscal\_Historico.cshtml" />
     <Content Include="Areas\ExpedicaoApp\Views\NotaFiscal\Lancamento.cshtml" />
     <Content Include="Areas\ExpedicaoApp\Views\NotaFiscal\Import.cshtml" />
+    <Content Include="Areas\ExpedicaoApp\Views\NotaFiscal\ImportTransportadora.cshtml" />
+    <Content Include="Areas\ExpedicaoApp\Views\NotaFiscal\PrintTransportadoraManual.cshtml" />
     <Content Include="Areas\AnomaliaApp\Views\_ViewStart.cshtml" />
     <Content Include="Areas\AnomaliaApp\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\AnomaliaApp\Views\Processo\Create.cshtml" />
@@ -778,6 +911,7 @@
     <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\Historico.cshtml" />
     <Content Include="Areas\ExpedicaoApp\Views\NotaFiscal\Print.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\NotaFiscal\ConferenciaVolume.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\Pendencias\ConferenciaVolume.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\Pendencias\VolumesPendentes.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\Pendencias\NFiscaisPendentes.cshtml" />
     <Content Include="Content\bootstrap.rtl.min.css.map" />
@@ -799,11 +933,32 @@
     <Content Include="Areas\RecebimentoApp\Views\Pendencias\ItensPendentes.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\Pendencias\Index.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\Pendencias\NFiscaisFinalizadas.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\Pendencias\_ItensByVolumeGrid.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\Pendencias\_ItensByVolumeGridScript.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\Volume\Conferir.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\Volume\Armazenar.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\Volumes\Index.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\Volumes\Item.cshtml" />
+    <Content Include="Areas\RecebimentoApp\Views\Volumes\NotaFiscal.cshtml" />
+    <Content Include="Areas\EstoqueApp\Views\Historico\Index.cshtml" />
     <Content Include="Areas\SeparacaoApp\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\AreaPedido\_Create.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\AreaPedido\_Edit.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\AreaPedido\Index.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\AreaRomaneio\_Create.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\AreaRomaneio\_Edit.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\AreaRomaneio\Index.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Home\Dashboard.cshtml" />
     <Content Include="Areas\SeparacaoApp\Views\Home\Index.cshtml" />
     <Content Include="Areas\SeparacaoApp\Views\Menu\_ItensMenu.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Romaneio\Administracao.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Romaneio\AlocacaoZona.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Romaneio\AnaliseNaoGerados.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Romaneio\Consulta.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Romaneio\Conferencia.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Romaneio\NaoEncontrados.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Romaneio\Pendencias.cshtml" />
+    <Content Include="Areas\SeparacaoApp\Views\Romaneio\Tarefas.cshtml" />
     <Content Include="Areas\SeparacaoApp\Views\Romaneio\_Historico.cshtml" />
     <Content Include="Areas\SeparacaoApp\Views\Romaneio\Edit.cshtml" />
     <Content Include="Areas\SeparacaoApp\Views\Romaneio\Import.cshtml" />
@@ -820,10 +975,6 @@
     <Content Include="Areas\RecebimentoApp\Views\RetornoInterno\Create.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\RetornoInterno\Index.cshtml" />
     <Content Include="Areas\RecebimentoApp\Views\RetornoInterno\Edit.cshtml" />
-    <None Include="Properties\PublishProfiles\Quasar - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\Quasar Nova - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\Quasar Nova - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\srpaixao-001-site3 - FTP.pubxml" />
     <Content Include="Areas\ExpedicaoApp\Reports\Report1_DataSet.xsc">
       <DependentUpon>Report1_DataSet.xsd</DependentUpon>
     </Content>
@@ -847,13 +998,6 @@
     <Content Include="Scripts\jquery-3.7.1.slim.min.js" />
     <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.7.1.min.map" />
-    <None Include="Properties\PublishProfiles\srpaixao-001-site3 - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\srpaixao-001-site8 - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\srpaixao-001-site8 - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\srpaixao-001-subsite18 - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\srpaixao-001-subsite18 - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\srpaixao-001-subsite6 - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\srpaixao-001-subsite6 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery\jquery-3.6.0.intellisense.js" />
     <Content Include="Scripts\jquery-filestyle\jquery-filestyle.js" />
     <Content Include="Scripts\jquery-filestyle\jquery-filestyle.min.js" />
@@ -884,7 +1028,12 @@
     <Content Include="Scripts\moment\moment.min.js.map" />
     <Content Include="Scripts\moment\moment-with-locales.min.js.map" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Manual\Index.cshtml" />
+    <Content Include="Views\Shared\_ActivityTracker.cshtml" />
+    <Content Include="Views\Shared\ProcessDashboard.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="App_Data\Manual\pages\*.html" />
+    <Content Include="App_Data\Manual\assets\**\*.png" />
     <Content Include="Scripts\jquery\jquery-3.6.0.slim.min.map" />
     <Content Include="Scripts\jquery\jquery-3.6.0.min.map" />
     <Content Include="Views\Error\GenericError.cshtml" />
@@ -898,6 +1047,7 @@
     <Content Include="Scripts\moment-with-locales.min.js.map" />
     <Content Include="Views\Shared\_Coletor.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Collection.cshtml" />
+    <Content Include="Views\Report\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -926,23 +1076,45 @@
     <Compile Include="Areas\ConfiguracaoApp\Controllers\FileController.cs" />
     <Compile Include="Areas\ConfiguracaoApp\Controllers\PrinterController.cs" />
     <Compile Include="Areas\ConfiguracaoApp\Controllers\SettingController.cs" />
+    <Compile Include="Areas\ConfiguracaoApp\Controllers\MaterialController.cs" />
+    <Compile Include="Areas\ConfiguracaoApp\Controllers\EquipamentoController.cs" />
     <Compile Include="Areas\ConfiguracaoApp\ViewModels\ImpressoraViewModel.cs" />
+    <Compile Include="Areas\ConfiguracaoApp\ViewModels\AppConfigViewModel.cs" />
+    <Compile Include="Areas\ConfiguracaoApp\ViewModels\MaterialCadastroViewModel.cs" />
+    <Compile Include="Areas\ConfiguracaoApp\ViewModels\EquipamentoCadastroViewModel.cs" />
     <Compile Include="Areas\ControleAcessoApp\Controllers\PerfilController.cs" />
     <Compile Include="Areas\ControleAcessoApp\Controllers\UsuarioController.cs" />
+    <Compile Include="Areas\ControleAcessoApp\Controllers\FuncaoController.cs" />
+    <Compile Include="Areas\ControleAcessoApp\Controllers\AtividadeController.cs" />
+    <Compile Include="Areas\ControleAcessoApp\ViewModels\FuncaoViewModel.cs" />
+    <Compile Include="Areas\ControleAcessoApp\ViewModels\AtividadeViewModel.cs" />
+    <Compile Include="Areas\ControleAcessoApp\ViewModels\PerfilAreasViewModel.cs" />
+    <Compile Include="Areas\ControleAcessoApp\ViewModels\PerfilFuncoesViewModel.cs" />
+    <Compile Include="Areas\ControleAcessoApp\ViewModels\PerfilViewModel.cs" />
     <Compile Include="Areas\ControleAcessoApp\ViewModels\UsuarioViewModel.cs" />
     <Compile Include="Areas\EstoqueApp\Controllers\AreaController.cs" />
+    <Compile Include="Areas\EstoqueApp\Controllers\AssociacaoLocacaoController.cs" />
     <Compile Include="Areas\EstoqueApp\Controllers\ArmazenagemController.cs" />
+    <Compile Include="Areas\EstoqueApp\Controllers\HistoricoController.cs" />
     <Compile Include="Areas\EstoqueApp\Controllers\UploadController.cs" />
+    <Compile Include="Areas\EstoqueApp\Controllers\ZonaController.cs" />
     <Compile Include="Areas\EstoqueApp\ViewModels\AreaViewModel.cs" />
+    <Compile Include="Areas\EstoqueApp\ViewModels\AssociacaoLocacaoViewModel.cs" />
+    <Compile Include="Areas\EstoqueApp\ViewModels\ZonaViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\Controllers\RetornoInternoController.cs" />
+    <Compile Include="Areas\RecebimentoApp\Controllers\HomeController.cs" />
+    <Compile Include="Areas\RecebimentoApp\ViewModels\ConferenciaVolumeViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\ItensByVolumeViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\NFiscalPendenteViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\RetornoInternoViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\StatusVolumeViewModel.cs" />
     <Compile Include="Areas\SeparacaoApp\SeparacaoAppAreaRegistration.cs" />
+    <Compile Include="Areas\SeparacaoApp\Controllers\AreaPedidoController.cs" />
+    <Compile Include="Areas\SeparacaoApp\Controllers\AreaRomaneioController.cs" />
     <Compile Include="Areas\SeparacaoApp\Controllers\HomeController.cs" />
     <Compile Include="Areas\SeparacaoApp\Controllers\MenuController.cs" />
     <Compile Include="Areas\SeparacaoApp\Controllers\RomaneioController.cs" />
+    <Compile Include="Areas\SeparacaoApp\ViewModels\AreaCadastroViewModel.cs" />
     <Compile Include="Areas\SeparacaoApp\ViewModels\RomaneioViewModel.cs" />
     <Compile Include="Areas\ExpedicaoApp\Controllers\NotaFiscalController.cs" />
     <Compile Include="Areas\ExpedicaoApp\Controllers\TesteImpressaoController.cs" />
@@ -954,7 +1126,9 @@
     <Compile Include="Areas\ConfiguracaoApp\ViewModels\AreaViewModel.cs" />
     <Compile Include="Areas\EstoqueApp\ViewModels\ConfigUploadViewModel.cs" />
     <Compile Include="Areas\EstoqueApp\ViewModels\EquipamentoViewModel.cs" />
+    <Compile Include="Areas\EstoqueApp\ViewModels\HistoricoItemViewModel.cs" />
     <Compile Include="Areas\EstoqueApp\ViewModels\LocacaoViewModel.cs" />
+    <Compile Include="Areas\EstoqueApp\ViewModels\LocacaoLoteViewModel.cs" />
     <Compile Include="Areas\EstoqueApp\ViewModels\MaterialViewModel.cs" />
     <Compile Include="Areas\ExpedicaoApp\Controllers\ClienteController.cs" />
     <Compile Include="Areas\ExpedicaoApp\Controllers\ParadaController.cs" />
@@ -978,6 +1152,7 @@
     <Compile Include="Areas\DevolucaoApp\Controllers\MenuController.cs" />
     <Compile Include="Areas\DevolucaoApp\DevolucaoAppAreaRegistration.cs" />
     <Compile Include="Areas\RecebimentoApp\Controllers\VolumeController.cs" />
+    <Compile Include="Areas\RecebimentoApp\Controllers\VolumesController.cs" />
     <Compile Include="Areas\RecebimentoApp\Controllers\PendenciasController.cs" />
     <Compile Include="Areas\EstoqueApp\Controllers\ContagemController.cs" />
     <Compile Include="Areas\EstoqueApp\Controllers\HomeController.cs" />
@@ -998,12 +1173,22 @@
     <Compile Include="Areas\RecebimentoApp\ViewModels\EtiquetaRecebimentoViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\HistoricoViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\NotaFiscalViewModel.cs" />
+    <Compile Include="Areas\RecebimentoApp\ViewModels\DevolucaoRecebimentoViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\PrintViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\TransitoGMViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\VolumeViewModel.cs" />
+    <Compile Include="Areas\RecebimentoApp\ViewModels\VolumeConsultaViewModel.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ManualController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Custom\AuthorizeFunction.cs" />
     <Compile Include="Custom\CommonClasses.cs" />
+    <Compile Include="Custom\LocacaoService.cs" />
+    <Compile Include="Custom\LocacaoLoteService.cs" />
+    <Compile Include="Custom\OnlineUserTracker.cs" />
+    <Compile Include="Custom\RequireUserSessionAttribute.cs" />
+    <Compile Include="Custom\ProcessDashboardViewModel.cs" />
     <Compile Include="Custom\Util.cs" />
     <Compile Include="Custom\ValidateSession.cs" />
     <Compile Include="Models\Anomalia.cs">
@@ -1033,10 +1218,25 @@
     <Compile Include="Models\Area.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\AreaPedido.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AreaRomaneio.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Cliente.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\DevolucaoComplemento.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\DevolucaoItem.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\DocExpedicao.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Devolucao.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Empresa.cs">
@@ -1075,6 +1275,15 @@
     <Compile Include="Models\Locacao.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\RomaneioItem.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Zona.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Ocorrencia.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\LocalDestino.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
@@ -1111,6 +1320,9 @@
     <Compile Include="Models\Movimentacao.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\MotivoDevolucao.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\MovimentacaoDestino.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
@@ -1120,10 +1332,16 @@
     <Compile Include="Models\NotaFiscalItem.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\NotaFiscalTransportadora.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\OrigemNotaFiscal.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Parada.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\PerfilAreaAcesso.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\PerfilFuncao.cs">
@@ -1162,6 +1380,9 @@
     <Compile Include="Models\StatusCliente.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\StatusDevolucao.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\StatusDocExpedicao.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
@@ -1193,6 +1414,9 @@
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\TipoAnomalia.cs">
+      <DependentUpon>Model_Quasar.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\TipoArea.cs">
       <DependentUpon>Model_Quasar.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\TipoDefeito.cs">
@@ -1247,7 +1471,12 @@
       <DependentUpon>Report1_DataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\LoginViewModel.cs" />
+    <Compile Include="ViewModels\ManualViewModel.cs" />
     <Compile Include="Areas\ExpedicaoApp\ViewModels\RotaViewModel.cs" />
+    <Compile Include="Areas\DevolucaoApp\ViewModels\DevolucaoCadastroViewModel.cs" />
+    <Compile Include="Areas\DevolucaoApp\ViewModels\DevolucaoConsultaViewModel.cs" />
+    <Compile Include="Areas\DevolucaoApp\ViewModels\DevolucaoOcorrenciaViewModel.cs" />
+    <Compile Include="Areas\DevolucaoApp\ViewModels\DevolucaoPrintViewModel.cs" />
     <Compile Include="ViewModels\ErrorViewModel.cs" />
     <Compile Include="Areas\ExpedicaoApp\ViewModels\ClienteViewModel.cs" />
     <Compile Include="Areas\RecebimentoApp\ViewModels\FornecedorViewModel.cs" />
@@ -1260,6 +1489,7 @@
     <Content Include="Content\bootstrap\datepicker3\bootstrap-datepicker3.min.css" />
     <Content Include="Content\bootstrap\select\bootstrap-select.css" />
     <Content Include="Content\bootstrap\select\bootstrap-select.min.css" />
+    <Content Include="Content\select2\select2.min.css" />
     <Content Include="Content\bootstrap\bootstrap.min.css" />
     <Content Include="Content\skins\skin-black-light.css" />
     <Content Include="Content\skins\skin-black-light.min.css" />
@@ -1304,6 +1534,7 @@
     <Content Include="Scripts\bootstrap\bootstrap.min.js" />
     <Content Include="Scripts\bootstrap-select\bootstrap-select.js" />
     <Content Include="Scripts\bootstrap-select\bootstrap-select.min.js" />
+    <Content Include="Scripts\select2\select2.min.js" />
     <Content Include="Scripts\datepicker\bootstrap-datepicker.js" />
     <Content Include="Scripts\datepicker\bootstrap-datepicker.min.js" />
     <Content Include="Scripts\fastclick\fastclick.js" />
@@ -1316,6 +1547,8 @@
     <Content Include="Scripts\slimscroll\jquery.slimscroll.min.js" />
     <Content Include="Scripts\validator\validator.js" />
     <Content Include="Scripts\validator\validator.min.js" />
+    <Content Include="Scripts\qrcode.min.js" />
+    <Content Include="Scripts\qrcodejs.LICENSE.txt" />
     <Content Include="Views\web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1339,11 +1572,19 @@
     <Folder Include="Areas\ConfiguracaoApp\Views\Shared\" />
     <Folder Include="Areas\ControleAcessoApp\Models\" />
     <Folder Include="Areas\ControleAcessoApp\Views\Shared\" />
-    <Folder Include="Areas\DevolucaoApp\ViewModels\" />
     <Folder Include="Areas\DevolucaoApp\Views\Shared\" />
     <Folder Include="Areas\GarantiaApp\ViewModels\" />
     <Folder Include="Areas\GarantiaApp\Views\Shared\" />
     <Folder Include="Areas\RecebimentoApp\Views\Shared\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Database\Migrations\20260729_CorrigirEmissorNotaFiscalGM.sql" />
+    <None Include="tools\manual\.gitignore" />
+    <None Include="tools\manual\build.mjs" />
+    <None Include="tools\manual\package.json" />
+    <None Include="tools\manual\package-lock.json" />
+    <None Include="tools\manual\README.md" />
+    <None Include="tools\manual\review-accents.mjs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

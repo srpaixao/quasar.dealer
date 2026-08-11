@@ -1,34 +1,79 @@
-﻿@{
-    ViewBag.Title = "Separação";
-    ViewBag.Description = "Página inicial";
-
+@{
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "M&oacute;dulo";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
 
+<style>
+    .module-card {
+        display: block;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 18px;
+        background: #fff;
+        color: inherit;
+        min-height: 150px;
+    }
+
+    .module-card:hover {
+        border-color: #3c8dbc;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .module-card h3 {
+        margin-top: 0;
+        font-size: 22px;
+    }
+</style>
+
 <section class="content-header">
-    <h1>
-        @ViewBag.Title<small>@ViewBag.Description</small>
-    </h1>
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
 </section>
 
 <section class="content">
-    <div class="box box-default">
-
-        <div class="box-body">
-            <p>Conteúdo da página</p>
+    <div class="row">
+        <div class="col-md-3 col-sm-6">
+            <a class="module-card" href="@Url.Action("Index", "Romaneio", new { area = "SeparacaoApp" })">
+                <h3>Separa&ccedil;&atilde;o</h3>
+                <p>In&iacute;cio da separa&ccedil;&atilde;o com romaneio, picker e fila priorizada por &aacute;rea.</p>
+            </a>
         </div>
-
+        <div class="col-md-3 col-sm-6">
+            <a class="module-card" href="@Url.Action("Conferencia", "Romaneio", new { area = "SeparacaoApp" })">
+                <h3>Confer&ecirc;ncia</h3>
+                <p>Finaliza&ccedil;&atilde;o operacional dos romaneios em separa&ccedil;&atilde;o.</p>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a class="module-card" href="@Url.Action("Administracao", "Romaneio", new { area = "SeparacaoApp" })">
+                <h3>Finalizado</h3>
+                <p>Gest&atilde;o de status e regress&atilde;o controlada do fluxo.</p>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a class="module-card" href="@Url.Action("Atualizacao", "Romaneio", new { area = "SeparacaoApp" })">
+                <h3>Administra&ccedil;&atilde;o</h3>
+                <p>Importa&ccedil;&atilde;o de planilha, dashboard de produtividade e exporta&ccedil;&atilde;o.</p>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a class="module-card" href="@Url.Action("Index", "AreaPedido", new { area = "SeparacaoApp" })">
+                <h3>&Aacute;rea Pedido</h3>
+                <p>Cadastro do vendedor, v&iacute;nculo com &aacute;rea e regra de separa&ccedil;&atilde;o.</p>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a class="module-card" href="@Url.Action("Index", "AreaRomaneio", new { area = "SeparacaoApp" })">
+                <h3>&Aacute;rea Romaneio</h3>
+                <p>Cadastro da &aacute;rea operacional com prioridade, separa&ccedil;&atilde;o e confer&ecirc;ncia.</p>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <a class="module-card" href="@Url.Action("Dashboard", "Home", new { area = "SeparacaoApp" })">
+                <h3>Dashboard</h3>
+                <p>Painel visual da opera&ccedil;&atilde;o de separa&ccedil;&atilde;o com indicadores e gr&aacute;ficos do processo.</p>
+            </a>
+        </div>
     </div>
 </section>
-
-@section Scripts {
-
-    <script>
-
-        $(document).ready(function () {
-
-
-        });
-    </script>
-}

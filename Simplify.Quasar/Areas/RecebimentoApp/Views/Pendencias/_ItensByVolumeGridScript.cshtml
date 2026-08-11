@@ -1,0 +1,152 @@
+<script>
+    (function ($) {
+        function numero(valor) {
+            if (valor === null || valor === undefined || valor === '') return null;
+            var resultado = Number(String(valor).replace(',', '.'));
+            return isFinite(resultado) ? resultado : null;
+        }
+
+        function diferenca(linha) {
+            var informada = numero(linha.find('.qtd-conferida-pendencia').val());
+            if (informada === null) return null;
+            return Math.round((informada - Number(linha.attr('data-quantidade'))) * 1000) / 1000;
+        }
+
+        function formatar(valor) {
+            if (valor === null || valor === undefined) return '-';
+            return Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+        }
+
+        function formatarDiferenca(valor) {
+            return valor === null ? '-' : (valor > 0 ? '+' : '') + formatar(valor);
+        }
+
+        function mensagemErro(texto) {
+            var conteudo = document.createElement('div');
+            var mensagem = document.createElement('h4');
+            mensagem.className = 'swal-text-error';
+            mensagem.textContent = texto;
+            conteudo.appendChild(mensagem);
+            return swal({
+                title: 'Conferência de Volumes',
+                content: conteudo,
+                buttons: { confirm: { visible: false }, cancel: { text: 'Fechar', className: 'swal-btn-danger', visible: true } }
+            });
+        }
+
+        function focoQuantidade(linha) {
+            setTimeout(function () { linha.find('.qtd-conferida-pendencia').focus().select(); }, 120);
+        }
+
+        function atualizarSituacao(linha, item) {
+            linha.attr('data-modificado-em', item.modificadoEm || '');
+            linha.find('.qtd-conferida-pendencia').val(item.qtdConferida === null ? '' : formatar(item.qtdConferida));
+            linha.find('.diferenca-pendencia').text(formatarDiferenca(item.diferenca));
+
+            var situacao = linha.find('.situacao-pendencia').empty();
+            $('<strong>').text(item.situacao).appendTo(situacao);
+            if (item.usuarioConferencia || item.dtHrConferencia) {
+                $('<div class="auditoria-item">').text('Conferência: ' + (item.usuarioConferencia || '-') + ' · ' + (item.dtHrConferencia || '-')).appendTo(situacao);
+            }
+            if (item.usuarioArmazenagem || item.dtHrArmazenagem) {
+                $('<div class="auditoria-item">').text('Armazenagem: ' + (item.usuarioArmazenagem || '-') + ' · ' + (item.dtHrArmazenagem || '-')).appendTo(situacao);
+            }
+        }
+
+        function salvar(linha, confirmarDivergencia) {
+            var quantidade = numero(linha.find('.qtd-conferida-pendencia').val());
+            var botao = linha.find('.confirmar-pendencia');
+            botao.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processando');
+
+            $.ajax({
+                url: '@Url.Action("AtualizarStatus", "Pendencias", new { area = "RecebimentoApp" })',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').first().val(),
+                    id: linha.attr('data-id'),
+                    qtdConferida: String(quantidade).replace('.', ','),
+                    conferido: true,
+                    confirmarDivergencia: confirmarDivergencia,
+                    modificadoEmEsperado: linha.attr('data-modificado-em')
+                }
+            }).done(function (response) {
+                if (!response || response.success !== true) {
+                    mensagemErro(response && response.message ? response.message : 'Não foi possível registrar a conferência.').then(function () {
+                        if (response && response.concorrencia) window.location.reload();
+                        else focoQuantidade(linha);
+                    });
+                    return;
+                }
+
+                atualizarSituacao(linha, response.item);
+                if (typeof window.onItensByVolumeStatusUpdated === 'function') window.onItensByVolumeStatusUpdated(response);
+
+                if (response.volumeFinalizado) {
+                    $('#resultadoConferenciaVolume').remove();
+                    $('#myModal').modal('hide');
+                    $('#VolumeNr').val('').focus();
+
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState(null, document.title, '@Url.Action("ConferenciaVolume", "Pendencias", new { area = "RecebimentoApp" })');
+                    }
+                }
+            }).fail(function (xhr) {
+                var mensagem = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : xhr.status + ': ' + xhr.statusText;
+                mensagemErro(mensagem);
+            }).always(function () {
+                botao.prop('disabled', false).html('<i class="fa fa-check"></i> Confirmar');
+            });
+        }
+
+        window.atualizarDiferencaConferenciaVolume = function (elemento) {
+            var linha = $(elemento).closest('tr');
+            linha.find('.diferenca-pendencia').text(formatarDiferenca(diferenca(linha)));
+        };
+
+        window.confirmarItemConferenciaVolume = function (elemento) {
+            var linha = $(elemento).closest('tr');
+            var quantidade = numero(linha.find('.qtd-conferida-pendencia').val());
+
+            if (quantidade === null) {
+                mensagemErro('Informe a quantidade conferida.').then(function () { focoQuantidade(linha); });
+                return;
+            }
+            if (quantidade < 0) {
+                mensagemErro('A quantidade conferida não pode ser negativa.').then(function () { focoQuantidade(linha); });
+                return;
+            }
+
+            var diferencaItem = diferenca(linha);
+            if (diferencaItem === 0) {
+                salvar(linha, false);
+                return;
+            }
+
+            var conteudo = document.createElement('div');
+            var quantidadeNF = Number(linha.attr('data-quantidade'));
+            ['Quantidade da NF: ' + formatar(quantidadeNF), 'Quantidade conferida: ' + formatar(quantidade), 'Diferença: ' + formatarDiferenca(diferencaItem)].forEach(function (texto) {
+                var p = document.createElement('p');
+                p.textContent = texto;
+                conteudo.appendChild(p);
+            });
+            var pergunta = document.createElement('strong');
+            pergunta.textContent = 'Deseja finalizar a conferência?';
+            conteudo.appendChild(pergunta);
+
+            swal({
+                title: 'Confirma a quantidade conferida a ' + (diferencaItem < 0 ? 'menor?' : 'maior?'),
+                content: conteudo,
+                buttons: {
+                    cancel: { text: 'Não, corrigir', className: 'swal-btn-danger', visible: true },
+                    confirm: { text: 'Sim, finalizar', className: 'swal-btn-success', visible: true }
+                }
+            }).then(function (confirmou) {
+                if (confirmou) salvar(linha, true);
+                else focoQuantidade(linha);
+            });
+        };
+    })(jQuery);
+</script>

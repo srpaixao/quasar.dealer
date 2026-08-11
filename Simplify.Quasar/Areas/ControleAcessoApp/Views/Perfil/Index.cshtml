@@ -1,34 +1,275 @@
-﻿@{
+﻿@model IEnumerable<Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.PerfilViewModel>
+@{
     ViewBag.Title = "Controle de Acesso";
-    ViewBag.Description = "Perfis de usuário";
-
+    ViewBag.Description = "Perfis de acesso";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .datatable_filter {
+        padding-bottom: 15px;
+    }
+
+    select.filter {
+        margin-right: 15px;
+        border: 1px solid #eee;
+    }
+
+    div.filter-option, a > span.text {
+        font-size: 13px !important;
+    }
+
+    select.selected {
+        border: 2px solid #00a65a;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle !important;
+    }
+</style>
 
 <section class="content-header">
     <h1>
-        @ViewBag.Title<small>@ViewBag.Description</small>
+        @ViewBag.Title <small>@ViewBag.Description</small>
     </h1>
 </section>
 
 <section class="content">
     <div class="box box-default">
-
         <div class="box-body">
-            <p>Conteúdo da página</p>
+            @*<div class="row">
+                <div class="col-xs-12">
+                    <a href="#" data-url="@Url.Action("Create", "Perfil", new { area = "ControleAcessoApp"})" class="btn btn-primary create"> <i class="fa-solid fa-user-tag fa-fw"></i> Novo</a>
+                </div>
+            </div>*@
+            @*<br />*@
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-condensed table-bordered table-hover table-small" id="tbPerfil">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Descrição</th>
+                                    <th>Filial</th>
+                                    <th>Criado em</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td><a href="#" class="edit" data-id="@item.Id"><b>@item.Nome</b></a></td>
+                                        <td>@item.Descricao</td>
+                                        <td>@item.NomeFilial</td>
+                                        <td>@item.CriadoEm</td>
+                                        <td>
+                                            <a href="#" class="areas" title="Areas" data-id="@item.Id" data-url="@Url.Action("Areas", "Perfil", new { area = "ControleAcessoApp", id = item.Id })"><i class="fa-solid fa-layer-group fa-lg fa-fw text-primary"></i></a>
+                                            @*<a href="#" class="delete" title="Excluir" data-id="@item.Id"><i class="fa-regular fa-trash-can fa-lg fa-fw text-red"></i></a>*@
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-
     </div>
 </section>
 
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script src="~/Scripts/moment/moment.min.js"></script>
 
-    <script>
-
+    <script type="text/javascript">
         $(document).ready(function () {
+            var table = $('#tbPerfil').DataTable({
+                processing: true,
+                deferRender: true,
+                pageLength: 25,
+                columnDefs: [
+                    { orderable: false, targets: -1 }
+                ],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por página",
+                    search: "Procurar:",
+                    zeroRecords: "Nenhum registro localizado",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
 
+            $.ajaxSetup({ cache: false });
 
+            @*$("a.create").click(function () {
+                var url = $(this).attr('data-url');
+                if (url) {
+                    $('#myModalContent').load(url, function () {
+                        $('#myModal').modal({
+                            backdrop: 'static',
+                            keyboard: true
+                        }, 'show');
+                        bindForm(this);
+                    });
+                    return false;
+                }
+            });*@
+
+            $("#tbPerfil").on("click", "a.edit", function (e) {
+                var id = $(this).attr("data-id");
+                var url = '@Url.Action("Edit", "Perfil", new { area="ControleAcessoApp", id = "_id" })';
+                $('#myModalContent').load(url.replace("_id", id), function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            $("#tbPerfil").on("click", "a.areas", function (e) {
+                var url = $(this).attr("data-url");
+                $('#myModal').find('.modal-dialog').addClass('modal-lg');
+                $('#myModalContent').load(url, function () {
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                    bindFormAreas(this);
+                });
+                return false;
+            });
+
+            @*$("#tbPerfil").on("click", "a.delete", function (e) {
+                var perfilId = $(this).attr("data-id");
+                var perfil = $(this).closest('tr').find('td:eq(0)').text().trim();
+
+                var div = document.createElement("div");
+                div.innerHTML = "<span>Confirma a exclusão do perfil <b>" + perfil + "</b> ?</span>";
+                swal({
+                    title: "Cadastro de Perfis de Acesso",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true,
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then((confirm) => {
+                    if (confirm) {
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            url: '@Url.Action("Delete", "Perfil", new { area = "ControleAcessoApp"})',
+                            data: { id: perfilId },
+                            success: function (data) {
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    swal("Atenção", data.msg, "warning");
+                                }
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                swal("Erro", "Ocorreu um erro ao excluir o perfil.", "error");
+                            }
+                        });
+                    }
+                });
+            });*@
+
+            function bindForm(dialog) {
+                $('form', dialog).submit(function () {
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: $(this).serialize(),
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                                location.reload();
+                            } else {
+                                $('#myModalContent').html(result);
+                                bindForm();
+                            }
+                        },
+                        error: function (data) {
+                            console.log('erro', data);
+                        }
+                    });
+                    return false;
+                });
+            }
+
+            function bindFormAreas(dialog) {
+                $('form', dialog).submit(function () {
+                    var form = $(this);
+                    var data = form.serializeArray();
+                    $('input[type="checkbox"]:checked', form).each(function () {
+                        data.push({ name: 'areasSelecionadas', value: $(this).val() });
+                    });
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: data,
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                                swal({
+                                    title: "Cadastro de Perfis de Acesso",
+                                    text: result.msg,
+                                    buttons: false,
+                                    timer: 1000
+                                }).then(function () {
+                                    location.reload();
+                                });
+                            } else {
+                                swal("Cadastro de Perfis de Acesso", result.msg, "error");
+                            }
+                        },
+                        error: function () {
+                                swal("Cadastro de Perfis de Acesso", "Ocorreu um erro ao salvar as áreas.", "error");
+                        }
+                    });
+                    return false;
+                });
+            }
+
+            $('#myModal').on('hidden.bs.modal', function () {
+                $(this).find('.modal-dialog').removeClass('modal-lg');
+                $('#myModalContent').empty();
+            });
         });
     </script>
 }

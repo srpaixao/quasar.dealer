@@ -1,0 +1,56 @@
+@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.MaterialCadastroViewModel
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Excluir Material";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool possuiVinculos = ViewBag.PossuiVinculos == true;
+}
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            @if (TempData["Flash.Message"] != null)
+            {
+                <div class="alert alert-@TempData["Flash.Type"]">@TempData["Flash.Message"]</div>
+            }
+
+            @if (possuiVinculos)
+            {
+                <div class="alert alert-warning">
+                    O material não pode ser excluído porque possui movimentações ou registros relacionados.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    Confirma a exclusão deste material?
+                </div>
+            }
+
+            <dl class="dl-horizontal">
+                <dt>Código do item</dt><dd>@Model.Codigo</dd>
+                <dt>Item Apollo</dt><dd>@(Model.ItemApollo ?? "Não informado")</dd>
+                <dt>Descrição</dt><dd>@Model.Descricao</dd>
+                <dt>Categoria</dt><dd>@(Model.CategoriaProduto ?? "Não informada")</dd>
+            </dl>
+        </div>
+        <div class="box-footer text-right">
+            @using (Html.BeginForm("Delete", "Material", new { area = "ConfiguracaoApp" }, FormMethod.Post, new { style = "display:inline" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Codigo)
+                if (!possuiVinculos)
+                {
+                    <button type="submit" class="btn btn-danger"><i class="fa fa-trash fa-fw"></i> Excluir</button>
+                }
+            }
+            <a href="@Url.Action("Index", "Material", new { area = "ConfiguracaoApp" })" class="btn btn-default">
+                <i class="fa fa-arrow-left fa-fw"></i> Voltar
+            </a>
+        </div>
+    </div>
+</section>

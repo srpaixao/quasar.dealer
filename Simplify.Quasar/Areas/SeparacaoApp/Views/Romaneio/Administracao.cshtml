@@ -1,0 +1,111 @@
+﻿@model Simplify.Quasar.Areas.SeparacaoApp.ViewModels.RomaneioViewModel
+@{
+    ViewBag.Title = "Romaneios";
+    ViewBag.Description = "Finalizado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .col-picker {
+        width: 130px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li><a href="@Url.Action("Index", "Romaneio", new { area = "SeparacaoApp" })">Separação</a></li>
+                <li><a href="@Url.Action("Conferencia", "Romaneio", new { area = "SeparacaoApp" })">Conferência</a></li>
+                <li class="active"><a href="@Url.Action("Administracao", "Romaneio", new { area = "SeparacaoApp" })">Finalizado</a></li>
+                <li><a href="@Url.Action("AnaliseNaoGerados", "Romaneio", new { area = "SeparacaoApp" })">Não Gerados</a></li>
+                <li><a href="@Url.Action("Atualizacao", "Romaneio", new { area = "SeparacaoApp" })">Atualização</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="box-body">
+                        @if (TempData["Flash.Message"] != null)
+                        {
+                            <div class="alert alert-@TempData["Flash.Type"]" style="margin-top:12px;">
+                                @TempData["Flash.Message"]
+                            </div>
+                        }
+
+                        <div class="table-responsive" style="margin-top:12px;">
+                            <table class="table table-bordered table-striped" id="tb-romaneios-admin">
+                                <thead>
+                                    <tr>
+                                        <th>Romaneio Nr</th>
+                                        <th>Área</th>
+                                        <th>Prioridade</th>
+                                        <th class="col-picker">Picker</th>
+                                        <th>Conferente</th>
+                                        <th>Status Atual</th>
+                                        <th>Dt/Hr</th>
+                                        <th style="width:240px;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.GridItems)
+                                    {
+                                        <tr>
+                                            <td>@item.RomaneioNr</td>
+                                            <td>@item.Area</td>
+                                            <td>@(item.Prioridade.HasValue ? item.Prioridade.Value.ToString() : "-")</td>
+                                            <td class="col-picker">@item.PickerNome</td>
+                                            <td>@item.ConferenteNome</td>
+                                            <td>@item.Status</td>
+                                            <td>@(item.DataConferencia.HasValue ? item.DataConferencia.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
+                                            <td>
+                                                @using (Html.BeginForm("AlterarStatus", "Romaneio", new { area = "SeparacaoApp" }, FormMethod.Post, new { @class = "form-inline" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <select name="statusId" class="form-control input-sm" style="min-width:150px;">
+                                                        @foreach (var status in Model.StatusDDL)
+                                                        {
+                                                            <option value="@status.Value" @(status.Value == (item.StatusId ?? 0).ToString() ? "selected" : string.Empty)>@status.Text</option>
+                                                        }
+                                                    </select>
+                                                    <button type="submit" class="btn btn-primary btn-sm" style="margin-left:6px;">
+                                                        Salvar
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $('#tb-romaneios-admin').DataTable({
+                pageLength: 25,
+                order: [[6, 'desc']],
+                language: {
+                    search: "Pesquisar:",
+                    lengthMenu: "Exibir _MENU_ itens",
+                    zeroRecords: "Nenhum romaneio encontrado",
+                    info: "Exibindo _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 a 0 de 0 registros"
+                }
+            });
+        });
+    </script>
+}

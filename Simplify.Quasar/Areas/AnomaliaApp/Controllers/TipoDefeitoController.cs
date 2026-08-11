@@ -10,6 +10,8 @@ namespace Simplify.Quasar.Areas.AnomaliaApp.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
+        int filialId = Util.GetCurrentFilial();
+
         // GET: AnomaliaApp/TipoDefeito
         public ActionResult Index()
         {

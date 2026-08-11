@@ -55,12 +55,11 @@
                         <table class="table table-condensed table-bordered table-hover table-small" id="tbPrinter">
                             <thead>
                                 <tr>
-                                    <th>Nome</th>
+                                    <th>Filial</th>
+                                    <th>Nome</th>                                    
                                     <th>IP</th>
                                     <th>Porta</th>
                                     <th>Localização</th>
-                                    <th>Fabricante</th>
-                                    <th>Modelo</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -68,6 +67,7 @@
                                 @foreach (var item in Model)
                                 {
                                     <tr>
+                                        <td>@item.FilialNome</td>
                                         <td>
                                             @*<a href="#" class="@(ViewBag.Permissoes.Contains("[update]") ? "edit" : "" )" data-id="@item.Id"><b>@item.Login</b></a>*@
                                             <a href="#" class="edit" data-id="@item.Id"><b>@item.Nome</b></a>
@@ -75,8 +75,6 @@
                                         <td>@item.IP</td>
                                         <td>@item.Porta</td>
                                         <td>@item.Localizacao</td>
-                                        <td>@item.Fabricante</td>
-                                        <td>@item.Modelo</td>
                                         <td>
                                             @*@if (ViewBag.Permissoes.Contains("[delete]"))
                                                 {*@

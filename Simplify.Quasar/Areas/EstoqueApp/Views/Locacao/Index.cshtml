@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Estoque";
+    ViewBag.Title = "Cadastro";
     ViewBag.Description = "Locações";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -39,6 +39,17 @@
     <div class="box box-default">
 
         <div class="box-body">
+            @Html.Partial("_Tabs")
+            @Html.AntiForgeryToken()
+            @if (ViewBag.Permissoes.Contains("[add]"))
+            {
+                <div class="row">
+                    <div class="col-xs-12">
+                        <a href="#" class="btn btn-primary create"><i class="fa fa-fw fa-plus"></i> Novo</a>
+                    </div>
+                </div>
+                <br />
+            }
             <div class="row">
                 <div class="col-xs-12">
                     <p id="processing">Loading...</p>
@@ -59,6 +70,10 @@
                                         <th>Área</th>
                                         <th>Curva</th>
                                         <th>Observações</th>
+                                        @if (ViewBag.Permissoes.Contains("[delete]"))
+                                        {
+                                            <th></th>
+                                        }
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -92,33 +107,58 @@
 
             $.ajaxSetup({ cache: false });
 
+            var canUpdate = @ViewBag.Permissoes.Contains("[update]").ToString().ToLowerInvariant();
+            var canDelete = @ViewBag.Permissoes.Contains("[delete]").ToString().ToLowerInvariant();
+
             $('#processing').removeClass('hide');
             $('.data-container').addClass('hide');
 
+            var columns = [
+                {
+                    data: 'Codigo', title: 'Código', render: function (data, type, row) {
+                        var codigo = row['Codigo'];
+                        var texto = (data || '').replace(/\s+/g, '');
+                        return canUpdate
+                            ? '<a class="edit" href="#" data-codigo="' + codigo + '">' + texto + '</a>'
+                            : texto;
+                    }
+                },
+                { data: 'Tipo', title: 'Tipo' },
+                { data: 'Descricao', title: 'Descrição' },
+                { data: 'Status', title: 'Status' },
+                { data: 'AreaNome', title: 'Área' },
+                { data: 'Curva', title: 'Curva' },
+                { data: 'Observacoes', title: 'Observações' }
+            ];
+
+            if (canDelete) {
+                columns.push({
+                    data: null,
+                    title: '',
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row) {
+                        return '<a href="#" class="delete" data-codigo="' + row.Codigo + '">' +
+                            '<i class="fa fa-lg fa-trash-o text-red"></i></a>';
+                    }
+                });
+            }
+
             var table = $('#tbLocacao').DataTable({
                 deferRender: true,
+                serverSide: true,
+                processing: true,
                 autoWidth: false,
                 pageLength: 25,
                 order: [],
                 ajax: {
                     url: '@Url.Action("GetData", "Locacao", new { area = "EstoqueApp" })',
-                    type: 'GET',
-                    dataType: 'json'
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: function (d) { return JSON.stringify(d); }
                 },
-                columns: [
-                            {
-                                data: 'Codigo', title: 'Código', render: function (data, type, row) {
-                                    var codigo = row['Codigo'];
-                                    return '<a class="edit" href="#" data-codigo="' + codigo + '">' + data.replace(/\s+/g, '') + '</a>';
-                                }
-                            },
-                            { data: 'Tipo', title: 'Tipo' },
-                            { data: 'Descricao', title: 'Descrição' },
-                            { data: 'Status', title: 'Status' },
-                            { data: 'AreaNome', title: 'Área' },
-                            { data: 'Curva', title: 'Curva' },
-                            { data: 'Observacoes', title: 'Observações' },
-                ],
+                columns: columns,
                 drawCallback: function () {
                     // console.log("drawCallback");
                 },
@@ -148,17 +188,98 @@
 
             table.columns.adjust().draw(false);
 
-
-            $("#tbLocacao").on("click", "a.edit", function (e) {
-                var codigo = $(this).attr("data-codigo");
-                var url = '@Url.Action("Edit", "Locacao", new { area="EstoqueApp", codigo = "_codigo" })';
-                $('#myModalContent').load(url.replace("_codigo", codigo), function () {
+            $("a.create").click(function () {
+                var url = '@Url.Action("Create", "Locacao", new { area = "EstoqueApp" })';
+                $('#myModalContent').load(url, function () {
                     $('#myModal').modal({
                         backdrop: 'static',
                         keyboard: true
                     }, 'show');
                     bindForm(this);
                 });
+                return false;
+            });
+
+            $("#tbLocacao").on("click", "a.edit", function (e) {
+                var codigo = $(this).attr("data-codigo");
+                var url = '@Url.Action("Edit", "Locacao", new { area="EstoqueApp", codigo = "_codigo" })';
+                $('#myModalContent').load(url.replace("_codigo", encodeURIComponent(codigo)), function (response, status) {
+                    if (status === 'error') {
+                        swal({
+                            title: 'Cadastro de Locações',
+                            text: 'Não foi possível localizar a locação selecionada.',
+                            icon: 'warning',
+                            button: {
+                                text: 'OK',
+                                className: 'swal-btn-info'
+                            }
+                        });
+                        return;
+                    }
+
+                    $('#myModal').modal({
+                        backdrop: 'static',
+                        keyboard: true
+                    }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            $("#tbLocacao").on("click", "a.delete", function () {
+                var codigo = $(this).attr("data-codigo");
+                var div = document.createElement("div");
+                div.innerHTML = "<span>Confirma a exclusão da locação <b>" + codigo + "</b>?</span>";
+
+                swal({
+                    title: "Cadastro de Locações",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then(function (confirm) {
+                    if (!confirm) return;
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Delete", "Locacao", new { area = "EstoqueApp" })',
+                        data: {
+                            codigo: codigo,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').first().val()
+                        },
+                        success: function (result) {
+                            if (result.success) {
+                                table.ajax.reload(null, false);
+                                return;
+                            }
+
+                            swal({
+                                title: "Cadastro de Locações",
+                                text: result.msg || "Não foi possível excluir a locação.",
+                                icon: "warning",
+                                button: {
+                                    text: "OK",
+                                    className: "swal-btn-info"
+                                }
+                            });
+                        },
+                        error: function () {
+                            swal("Cadastro de Locações", "Erro ao excluir a locação.", "error");
+                        }
+                    });
+                });
+
                 return false;
             });
 

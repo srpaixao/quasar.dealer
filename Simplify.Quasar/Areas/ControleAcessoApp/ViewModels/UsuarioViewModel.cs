@@ -80,6 +80,7 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.ViewModels
         public int PerfilId { get; set; }
         public string NomePerfil { get; set; }
         public IEnumerable<SelectListItem> PerfilDDL { get; set; }
+        public bool PerfilSomenteLeitura { get; set; }
 
         [DisplayName("Senha expirada")]
         public bool SenhaExpirada { get; set; }
@@ -98,5 +99,9 @@ namespace Simplify.Quasar.Areas.ControleAcessoApp.ViewModels
         public DateTime? ModificadoEm { get; set; }
         public string ModificadoPor { get; set; }
         public string ModificadoPorNome { get; set; }
+        public bool UsuarioLogado { get; set; }
+        public string FuncionalidadeAtual { get; set; }
+        public string RotaAtual { get; set; }
+        public DateTime? UltimaAtividade { get; set; }
     }
 }

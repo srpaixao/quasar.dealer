@@ -1,0 +1,94 @@
+@model Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.PerfilAreasViewModel
+@{
+    ViewBag.Title = "Areas Perfil";
+    Layout = null;
+}
+
+<style>
+    .areas-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        padding: 10px;
+    }
+
+    .areas-item {
+        border-bottom: 1px solid #f1f1f1;
+        padding: 8px 12px;
+    }
+
+    .areas-item:last-child {
+        border-bottom: 0;
+    }
+
+    .areas-item label {
+        cursor: pointer;
+        display: block;
+        font-weight: normal;
+        margin: 0;
+    }
+
+    .areas-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    .select-all-btn {
+        font-size: 12px;
+        padding: 2px 8px;
+    }
+</style>
+
+<div class="modal-header bg-blue-gradient">
+    <span><i class="fa-solid fa-layer-group fa-lg fa-fw"></i>&nbsp;&nbsp;Áreas do Perfil: <b>@Model.PerfilNome</b></span>
+</div>
+
+@using (Html.BeginForm("Areas", "Perfil", new { area = "ControleAcessoApp" }, FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.PerfilId)
+    @Html.HiddenFor(m => m.PerfilNome)
+
+    <div class="modal-body">
+        <div class="row" style="margin-bottom: 10px;">
+            <div class="col-xs-12 text-right">
+                <button type="button" class="btn btn-xs btn-default select-all-btn" id="btnSelectAllAreas">
+                    <i class="fa-solid fa-check-double"></i> Selecionar Todas
+                </button>
+                <button type="button" class="btn btn-xs btn-default select-all-btn" id="btnDeselectAllAreas">
+                    <i class="fa-solid fa-xmark"></i> Limpar Todas
+                </button>
+            </div>
+        </div>
+
+        <div class="areas-container">
+            @foreach (var area in Model.Areas)
+            {
+                <div class="areas-item">
+                    <label>
+                        <input type="checkbox" name="areasSelecionadas" value="@area.Area" @(area.Selecionada ? "checked" : "") class="area-check" />
+                        <b>@area.Titulo</b>
+                    </label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <div class="pull-right">
+            <button type="submit" id="btnSaveAreas" class="btn btn-success"><i class="fa-solid fa-check fa-fw"></i> Salvar</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Cancelar</button>
+        </div>
+    </div>
+}
+
+<script>
+    $(document).ready(function () {
+        $('#btnSelectAllAreas').click(function () {
+            $('.area-check').prop('checked', true);
+        });
+
+        $('#btnDeselectAllAreas').click(function () {
+            $('.area-check').prop('checked', false);
+        });
+    });
+</script>

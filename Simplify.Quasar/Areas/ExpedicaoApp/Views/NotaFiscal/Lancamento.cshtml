@@ -304,7 +304,7 @@
                                 var tr = '<tr>' +
                                      '<td class="hide">' + response.data.Id + '</td>' +
                                      '<td class="text-center">' + response.data.Numero + '</td>' +
-                                     '<td class="text-center">' + moment(response.data.DataEmissao).format("DD/MM/YYYY") + '</td>' +
+                                     '<td class="text-center">' + response.data.DataEmissaoTexto + '</td>' +
                                      '<td class="text-center">' + response.data.CodigoCliente + ' - ' + response.data.NomeCliente + '</td>' +
                                      '<td class="text-center">' + response.data.Cidade + '</td>' +
                                      '<td class="text-center">' + response.data.Estado + '</td>' +
@@ -493,6 +493,7 @@
                             buttons: false,
                             timer: 2000,
                         });
+
                     }
                 });
             })
@@ -744,6 +745,7 @@
                     }
                 });
             })
+
         });
     </script>
 }

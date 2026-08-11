@@ -1,0 +1,321 @@
+@{
+    ViewBag.Title = "Estoque";
+    ViewBag.Description = "Definir Item por Locação";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .associacao-table th,
+    .associacao-table td {
+        vertical-align: middle !important;
+    }
+
+    .associacao-table th {
+        text-align: center;
+    }
+
+    .associacao-link {
+        font-weight: 700;
+    }
+
+    .associacao-location {
+        padding: 10px 12px;
+        border: 1px solid #dce5ec;
+        border-radius: 8px;
+        color: #26394d;
+        background: #f7fafc;
+        font-weight: 700;
+    }
+
+    .associacao-filter {
+        max-width: 520px;
+        margin-bottom: 20px;
+    }
+
+    .associacao-instruction {
+        padding: 18px;
+        border: 1px solid #dce5ec;
+        border-radius: 8px;
+        color: #68798a;
+        background: #f7fafc;
+        text-align: center;
+    }
+
+    #modalAssociacao .select2-container {
+        width: 100% !important;
+    }
+
+    #modalAssociacao .select2-container--default .select2-selection--single {
+        height: 34px;
+        padding-top: 2px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="form-group associacao-filter">
+                <label for="zonaId">Zona</label>
+                @Html.DropDownList(
+                    "zonaId",
+                    (IEnumerable<SelectListItem>)ViewBag.Zonas,
+                    "Selecione a zona",
+                    new { @class = "form-control" })
+            </div>
+
+            <div id="associacao-instruction" class="associacao-instruction">
+                Selecione uma zona para consultar as locações vazias.
+            </div>
+
+            <div id="associacao-table-container" class="table-responsive" style="display: none;">
+                <table class="table table-condensed table-bordered table-hover associacao-table" id="tbAssociacaoLocacao">
+                    <thead>
+                        <tr>
+                            <th>Locação</th>
+                            <th>Descrição</th>
+                            <th>Filial</th>
+                            <th>Situação</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="modalAssociacao" data-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-blue-gradient">
+                <span><i class="fa fa-map-marker fa-fw"></i>&nbsp;&nbsp;Definir Item por Locação</span>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+                <div class="form-group">
+                    <label>Locação</label>
+                    <div id="associacao-locacao" class="associacao-location"></div>
+                </div>
+                <div class="form-group">
+                    <label for="associacao-item">Item</label>
+                    <select id="associacao-item" class="form-control">
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnSalvarAssociacao" class="btn btn-success">
+                    <i class="fa fa-save fa-fw"></i> Salvar
+                </button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                    <i class="fa fa-times fa-fw"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+
+    <script>
+        $(function () {
+            var locacaoSelecionada = '';
+            var quantidadeItensInicial = 0;
+            var table = $('#tbAssociacaoLocacao').DataTable({
+                processing: true,
+                serverSide: true,
+                deferRender: true,
+                pageLength: 25,
+                order: [[0, 'asc']],
+                ajax: {
+                    url: '@Url.Action("GetData", "AssociacaoLocacao", new { area = "EstoqueApp" })',
+                    type: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json; charset=utf-8',
+                    data: function (data) {
+                        data.zonaId = $('#zonaId').val() || null;
+                        return JSON.stringify(data);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'Locacao',
+                        render: function (data, type, row) {
+                            return $('<a>', {
+                                href: '#',
+                                class: 'associacao-link',
+                                text: data
+                            })
+                                .attr('data-locacao', data)
+                                .attr('data-quantidade-itens', row.QuantidadeItens)
+                                .prop('outerHTML');
+                        }
+                    },
+                    { data: 'Descricao' },
+                    { data: 'Filial' },
+                    { data: 'Situacao' }
+                ],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por página",
+                    search: "Pesquisar:",
+                    zeroRecords: "Nenhuma locação disponível",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            $('#zonaId').select2({
+                width: '100%',
+                placeholder: 'Selecione a zona',
+                allowClear: true
+            }).on('change', function () {
+                var possuiZona = !!$(this).val();
+                $('#associacao-instruction').toggle(!possuiZona);
+                $('#associacao-table-container').toggle(possuiZona);
+
+                if (possuiZona) {
+                    table.ajax.reload();
+                } else {
+                    table.clear().draw();
+                }
+            });
+
+            $('#associacao-item').select2({
+                width: '100%',
+                dropdownParent: $('#modalAssociacao'),
+                placeholder: 'Selecione ou digite o item',
+                allowClear: true,
+                minimumInputLength: 0,
+                ajax: {
+                    url: '@Url.Action("GetItensDisponiveis", "AssociacaoLocacao", new { area = "EstoqueApp" })',
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return {
+                            term: params.term || '',
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (response) {
+                        return response;
+                    },
+                    cache: false
+                },
+                language: {
+                    noResults: function () {
+                        return 'Nenhum item disponível';
+                    },
+                    searching: function () {
+                        return 'Pesquisando...';
+                    },
+                    loadingMore: function () {
+                        return 'Carregando mais resultados...';
+                    }
+                }
+            });
+
+            function mostrarMensagem(mensagem, sucesso) {
+                var conteudo = document.createElement('div');
+                var texto = document.createElement('h4');
+                texto.className = sucesso ? 'swal-text-success' : 'swal-text-warning';
+                texto.textContent = mensagem;
+                conteudo.appendChild(texto);
+
+                return swal({
+                    title: "Definir Item por Locação",
+                    content: conteudo,
+                    buttons: {
+                        confirm: {
+                            text: "OK",
+                            className: "swal-btn-info",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                });
+            }
+
+            $('#tbAssociacaoLocacao').on('click', 'a.associacao-link', function (event) {
+                event.preventDefault();
+                locacaoSelecionada = ($(this).attr('data-locacao') || '').trim();
+                quantidadeItensInicial = parseInt($(this).attr('data-quantidade-itens'), 10) || 0;
+                $('#associacao-locacao').text(locacaoSelecionada);
+                $('#associacao-item').val(null).trigger('change');
+                $('#modalAssociacao').modal('show');
+            });
+
+            $('#btnSalvarAssociacao').on('click', function () {
+                var estoqueId = $('#associacao-item').val();
+                var zonaId = $('#zonaId').val();
+                if (!zonaId) {
+                    mostrarMensagem('Selecione uma zona.', false);
+                    return;
+                }
+
+                if (!locacaoSelecionada) {
+                    mostrarMensagem('Selecione uma locação.', false);
+                    return;
+                }
+
+                if (!estoqueId) {
+                    mostrarMensagem('Selecione um item.', false);
+                    return;
+                }
+
+                var button = $(this);
+                button.prop('disabled', true);
+
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    url: '@Url.Action("Salvar", "AssociacaoLocacao", new { area = "EstoqueApp" })',
+                    data: {
+                        __RequestVerificationToken: $('#modalAssociacao input[name="__RequestVerificationToken"]').val(),
+                        locacao: locacaoSelecionada,
+                        estoqueId: estoqueId,
+                        quantidadeItensInicial: quantidadeItensInicial,
+                        zonaId: zonaId
+                    }
+                }).done(function (response) {
+                    if (!response.success) {
+                        mostrarMensagem(response.msg || 'Não foi possível realizar a associação.', false);
+                        return;
+                    }
+
+                    $('#modalAssociacao').modal('hide');
+                    table.ajax.reload(null, false);
+                    mostrarMensagem(response.msg, true);
+                }).fail(function (xhr) {
+                    mostrarMensagem(xhr.status + ': ' + xhr.statusText, false);
+                }).always(function () {
+                    button.prop('disabled', false);
+                });
+            });
+
+            $('#modalAssociacao').on('hidden.bs.modal', function () {
+                locacaoSelecionada = '';
+                quantidadeItensInicial = 0;
+                $('#associacao-locacao').text('');
+                $('#associacao-item').val(null).trigger('change');
+            });
+        });
+    </script>
+}

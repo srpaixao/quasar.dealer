@@ -1,0 +1,467 @@
+@{
+    ViewBag.Title = "Conferir Romaneios";
+    ViewBag.Description = "Expedição";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .conf-romaneio .table-status-search {
+        background: #fcf8e3;
+    }
+
+    .conf-romaneio .table-status-finalized {
+        background: #f5f5f5;
+    }
+
+    .conf-romaneio .action-row .btn {
+        margin-right: 8px;
+        margin-bottom: 8px;
+    }
+
+    .conf-romaneio .footer-actions {
+        text-align: right;
+        margin-top: 12px;
+    }
+
+    .conf-romaneio .input-qtde {
+        min-width: 120px;
+    }
+
+    .conf-romaneio .select2-container {
+        width: 100% !important;
+    }
+
+    .conf-romaneio .select2-container--default .select2-selection--single {
+        height: 34px;
+        padding-top: 2px;
+    }
+
+    .conf-romaneio .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 32px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content conf-romaneio">
+    <div class="box box-default">
+        <div class="box-body">
+            <div class="alert alert-danger hidden" id="alert-error"></div>
+            <div class="alert alert-success hidden" id="alert-success"></div>
+
+            <div id="selection-panel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="romaneioId">Romaneio Nr</label>
+                            <select class="form-control" id="romaneioId">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="conference-panel" class="hidden">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="table-itens">
+                        <thead>
+                            <tr>
+                                <th>Zona</th>
+                                <th>Item Nr</th>
+                                <th class="text-right">Qtde Pedido</th>
+                                <th class="text-right">Qtde Pendente</th>
+                                <th class="text-right">Qtde Conferida</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="footer-actions">
+                    <button type="button" class="btn btn-success" id="btn-confirmar">Confirmar</button>
+                </div>
+            </div>
+
+            <div id="finished-panel" class="hidden">
+                <div class="action-row">
+                    <button type="button" class="btn btn-success" id="btn-buscar-novo">Buscar novo romaneio</button>
+                    <button type="button" class="btn btn-default" id="btn-trocar-romaneio">Trocar romaneio</button>
+                </div>
+            </div>
+
+            <div class="action-row" style="margin-top:12px;">
+                <button type="button" class="btn btn-default" id="btn-voltar">Voltar</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            var urls = {
+                listar: '@Url.Action("ObterRomaneiosConferenciaSeparacao", "Home", new { area = "ExpedicaoApp" })',
+                iniciar: '@Url.Action("IniciarConferenciaSeparacao", "Home", new { area = "ExpedicaoApp" })',
+                itens: '@Url.Action("ObterItensConferenciaSeparacao", "Home", new { area = "ExpedicaoApp" })',
+                registrarLinha: '@Url.Action("RegistrarInteracaoConferenciaSeparacao", "Home", new { area = "ExpedicaoApp" })',
+                confirmar: '@Url.Action("ConfirmarItensConferenciaSeparacao", "Home", new { area = "ExpedicaoApp" })',
+                liberar: '@Url.Action("LiberarConferenciaSeparacao", "Home", new { area = "ExpedicaoApp" })',
+                menu: '@Url.Action("Index", "Home", new { area = "ExpedicaoApp" })'
+            };
+
+            var state = {
+                selectedRomaneioId: null,
+                currentRomaneio: null,
+                finished: false,
+                releasing: false,
+                touchedKeys: {}
+            };
+
+            function showError(message) {
+                $('#alert-success').addClass('hidden').text('');
+                $('#alert-error').removeClass('hidden').text(message || 'Falha na operação.');
+            }
+
+            function showSuccess(message) {
+                $('#alert-error').addClass('hidden').text('');
+                $('#alert-success').removeClass('hidden').text(message || '');
+            }
+
+            function clearAlerts() {
+                $('#alert-error, #alert-success').addClass('hidden').text('');
+            }
+
+            function showPopup(message) {
+                window.alert(message || 'Falha na operação.');
+            }
+
+            function resetPanels() {
+                $('#selection-panel').removeClass('hidden');
+                $('#conference-panel').addClass('hidden');
+                $('#finished-panel').addClass('hidden');
+            }
+
+            function resetConferenceState(keepSelection) {
+                state.currentRomaneio = null;
+                state.finished = false;
+                state.touchedKeys = {};
+                $('#table-itens tbody').empty();
+
+                if (!keepSelection) {
+                    state.selectedRomaneioId = null;
+                    $('#romaneioId').val('').trigger('change.select2');
+                }
+
+                resetPanels();
+            }
+
+            function focusRomaneioSelect() {
+                var $selection = $('#selection-panel .select2-selection');
+                if ($selection.length) {
+                    $selection.focus();
+                    return;
+                }
+
+                $('#romaneioId').focus();
+            }
+
+            function initializeRomaneioSelect() {
+                $('#romaneioId').select2({
+                    placeholder: 'Selecione ou digite o romaneio',
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+            function populateRomaneios(items) {
+                var $select = $('#romaneioId');
+                var currentValue = state.selectedRomaneioId;
+
+                $select.empty();
+                $select.append($('<option />').val('').text(''));
+
+                $.each(items || [], function (_, item) {
+                    $select.append($('<option />').val(item.id).text(item.romaneioNr));
+                });
+
+                if (currentValue && $select.find('option[value="' + currentValue + '"]').length) {
+                    $select.val(String(currentValue)).trigger('change.select2');
+                } else {
+                    state.selectedRomaneioId = null;
+                    $select.val('').trigger('change.select2');
+                }
+            }
+
+            function loadRomaneios() {
+                return $.getJSON(urls.listar)
+                    .done(function (data) {
+                        populateRomaneios(data);
+                    })
+                    .fail(function (xhr) {
+                        showError(xhr.responseJSON && xhr.responseJSON.mensagem ? xhr.responseJSON.mensagem : 'Falha ao carregar os romaneios disponíveis.');
+                    });
+            }
+
+            function buildQuantidadeInput(item) {
+                if (item.finalizado || item.emBusca) {
+                    return '';
+                }
+
+                return '<input type="number" min="0" step="1" class="form-control input-sm input-qtde js-qtde"'
+                    + ' data-key="' + item.key + '"'
+                    + ' data-pendente="' + item.quantidadeFaltante + '"'
+                    + ' />';
+            }
+
+            function renderSnapshot(payload) {
+                var itens = payload && payload.itens ? payload.itens : [];
+                state.finished = !!(payload && payload.finalizado);
+
+                $('#table-itens tbody').empty();
+
+                $.each(itens, function (_, item) {
+                    var cssClass = item.emBusca ? 'table-status-search' : (item.finalizado ? 'table-status-finalized' : '');
+                    var itemLabel = (item.itemNr || '') + (item.descricao ? ' - ' + item.descricao : '');
+                    var row = '<tr class="' + cssClass + '">'
+                        + '<td>' + (item.zona || '-') + '</td>'
+                        + '<td>' + itemLabel + '</td>'
+                        + '<td class="text-right">' + item.quantidadePedido + '</td>'
+                        + '<td class="text-right">' + item.quantidadeFaltante + '</td>'
+                        + '<td class="text-right">' + buildQuantidadeInput(item) + '</td>'
+                        + '</tr>';
+                    $('#table-itens tbody').append(row);
+                });
+
+                if (state.finished) {
+                    $('#selection-panel').addClass('hidden');
+                    $('#conference-panel').addClass('hidden');
+                    $('#finished-panel').removeClass('hidden');
+                    showSuccess(payload && payload.mensagem ? payload.mensagem : 'Conferência finalizada com sucesso.');
+                    return;
+                }
+
+                clearAlerts();
+                $('#selection-panel').addClass('hidden');
+                $('#conference-panel').removeClass('hidden');
+                $('#finished-panel').addClass('hidden');
+                $('#table-itens tbody').find('.js-qtde:first').focus();
+            }
+
+            function loadSnapshot() {
+                if (!state.currentRomaneio || !state.currentRomaneio.romaneioId) {
+                    return $.Deferred().resolve().promise();
+                }
+
+                return $.getJSON(urls.itens, { romaneioId: state.currentRomaneio.romaneioId })
+                    .done(function (data) {
+                        renderSnapshot(data);
+                    })
+                    .fail(function (xhr) {
+                        showError(xhr.responseJSON && xhr.responseJSON.mensagem ? xhr.responseJSON.mensagem : 'Falha ao carregar os itens do romaneio.');
+                    });
+            }
+
+            function releaseConference(silent) {
+                if (!state.currentRomaneio || !state.currentRomaneio.romaneioId || state.finished) {
+                    return $.Deferred().resolve(true).promise();
+                }
+
+                if (state.releasing) {
+                    return $.Deferred().resolve(true).promise();
+                }
+
+                state.releasing = true;
+
+                return $.post(urls.liberar, { romaneioId: state.currentRomaneio.romaneioId })
+                    .done(function () {
+                        state.releasing = false;
+                    })
+                    .fail(function (xhr) {
+                        state.releasing = false;
+                        if (!silent) {
+                            showError(xhr.responseJSON && xhr.responseJSON.mensagem ? xhr.responseJSON.mensagem : 'Falha ao liberar a conferência.');
+                        }
+                    });
+            }
+
+            function registrarInteracaoLinha(key, input) {
+                if (!state.currentRomaneio || !state.currentRomaneio.romaneioId || !key || $(input).val() === '') {
+                    return;
+                }
+
+                state.touchedKeys[key] = true;
+
+                $.post(urls.registrarLinha, {
+                    romaneioId: state.currentRomaneio.romaneioId,
+                    key: key
+                });
+            }
+
+            function coletarQuantidades() {
+                var itens = [];
+                var invalido = false;
+                var possuiZero = false;
+
+                $('#table-itens tbody .js-qtde').each(function () {
+                    var valor = $(this).val();
+                    var key = $(this).data('key');
+
+                    if (valor === '') {
+                        return;
+                    }
+
+                    var quantidade = Number(valor);
+                    if (isNaN(quantidade) || quantidade < 0) {
+                        invalido = true;
+                        $(this).focus();
+                        return false;
+                    }
+
+                    if (quantidade === 0) {
+                        possuiZero = true;
+                    }
+
+                    itens.push({
+                        Key: key,
+                        QuantidadeInformada: quantidade
+                    });
+                });
+
+                return {
+                    invalido: invalido,
+                    possuiZero: possuiZero,
+                    itens: itens
+                };
+            }
+
+            function buildConfirmacaoRequest(itens) {
+                var data = {
+                    romaneioId: state.currentRomaneio.romaneioId
+                };
+
+                $.each(itens, function (index, item) {
+                    data['itens[' + index + '].Key'] = item.Key;
+                    data['itens[' + index + '].QuantidadeInformada'] = item.QuantidadeInformada;
+                });
+
+                return data;
+            }
+
+            function submitConfirmacao(itens) {
+                $.ajax({
+                    url: urls.confirmar,
+                    method: 'POST',
+                    data: buildConfirmacaoRequest(itens)
+                }).done(function (data) {
+                    renderSnapshot(data);
+                    loadRomaneios();
+                }).fail(function (xhr) {
+                    var message = xhr.responseJSON && xhr.responseJSON.mensagem ? xhr.responseJSON.mensagem : 'Falha ao confirmar as quantidades.';
+                    showPopup(message);
+                });
+            }
+
+            $('#romaneioId').on('change', function () {
+                state.selectedRomaneioId = $(this).val();
+                clearAlerts();
+
+                if (!state.selectedRomaneioId) {
+                    return;
+                }
+
+                resetConferenceState(true);
+
+                $.post(urls.iniciar, { romaneioId: state.selectedRomaneioId })
+                    .done(function (data) {
+                        state.currentRomaneio = data;
+                        loadSnapshot();
+                    })
+                    .fail(function (xhr) {
+                        showError(xhr.responseJSON && xhr.responseJSON.mensagem ? xhr.responseJSON.mensagem : 'Falha ao iniciar a conferência do romaneio.');
+                        loadRomaneios();
+                    });
+            });
+
+            $('#table-itens').on('input', '.js-qtde', function () {
+                var key = $(this).data('key');
+                if (state.touchedKeys[key]) {
+                    return;
+                }
+
+                registrarInteracaoLinha(key, this);
+            });
+
+            $('#table-itens').on('keydown', '.js-qtde', function (event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    $('#btn-confirmar').trigger('click');
+                }
+            });
+
+            $('#btn-confirmar').on('click', function () {
+                if (!state.currentRomaneio) {
+                    return;
+                }
+
+                var payload = coletarQuantidades();
+                if (payload.invalido) {
+                    showError('Informe uma quantidade válida.');
+                    return;
+                }
+
+                if (!payload.itens.length) {
+                    showError('Informe ao menos uma quantidade para confirmar.');
+                    return;
+                }
+
+                if (payload.possuiZero && !window.confirm('Confirma quantidade zero para este item?')) {
+                    return;
+                }
+
+                submitConfirmacao(payload.itens);
+            });
+
+            $('#btn-buscar-novo').on('click', function () {
+                clearAlerts();
+                if (state.selectedRomaneioId) {
+                    $('#romaneioId').trigger('change');
+                }
+            });
+
+            $('#btn-trocar-romaneio').on('click', function () {
+                clearAlerts();
+                resetConferenceState(false);
+                loadRomaneios();
+                focusRomaneioSelect();
+            });
+
+            $('#btn-voltar').on('click', function () {
+                if (state.currentRomaneio && !state.finished) {
+                    releaseConference(false).done(function () {
+                        resetConferenceState(true);
+                        loadRomaneios();
+                        focusRomaneioSelect();
+                    });
+                    return;
+                }
+
+                window.location.href = urls.menu;
+            });
+
+            $(window).on('beforeunload', function () {
+                if (state.currentRomaneio && !state.finished && !state.releasing) {
+                    releaseConference(true);
+                }
+            });
+
+            $(function () {
+                initializeRomaneioSelect();
+                resetConferenceState(false);
+                loadRomaneios();
+            });
+        })();
+    </script>
+}

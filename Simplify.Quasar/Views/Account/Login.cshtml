@@ -1,116 +1,465 @@
-﻿@model Simplify.Quasar.ViewModels.LoginViewModel
+@model Simplify.Quasar.ViewModels.LoginViewModel
 
 @{
     Layout = null;
 }
 
 <!DOCTYPE html>
-
 <html>
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Quasar Dealer | Login</title>
+    <link href="~/Content/img/quasar-dealer-favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Volkhov:ital,wght@1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="~/Content/login/fonts/icomoon/style.css" rel="stylesheet" />
-    <link href="~/Content/login/css/owl.carousel.min.css" rel="stylesheet" />
     <link href="~/Content/sweetalert.js.org/custom.css" rel="stylesheet" />
-
-    <!-- Bootstrap CSS -->
     <link href="~/Content/login/css/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- Style -->
     <link href="~/Content/login/css/style.css" rel="stylesheet" />
 
-    <title>Login</title>
-
     <style>
-        .quasar-title {
-            font-family: 'Volkhov', serif !important;
-            font-size: 48px;
+        :root {
+            --login-white: #ffffff;
+            --login-ink: #163446;
+            --login-muted: rgba(255, 255, 255, 0.74);
+            --login-panel: #3d4955;
+            --login-panel-border: #55616d;
+            --login-field-bg: rgba(255, 255, 255, 0.10);
+            --login-field-border: rgba(255, 255, 255, 0.14);
+            --login-brand: #1f5a7d;
+            --login-brand-dark: #122f45;
         }
 
-        .quasar-subtitle {
-            font-family: 'Volkhov', serif !important;
-            font-size: 24px;
-            font-style: italic;
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body.login-screen {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            color: var(--login-white);
+            background: #0d1822 url('@Url.Content("~/Content/login/images/quasar.jpg")') center center / cover no-repeat;
+        }
+
+        .login-stage {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        .login-background-video {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            background: #0d1822;
+        }
+
+        .login-stage:before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(10, 20, 30, 0.18) 0%, rgba(10, 20, 30, 0.34) 100%);
+            z-index: -1;
+        }
+
+        .login-shell {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            max-width: 1280px;
+            padding-left: clamp(0px, 5vw, 72px);
+        }
+
+        .login-frame {
+            width: 100%;
+            max-width: 280px;
+            border-radius: 22px;
+            background: var(--login-panel);
+            border: 1px solid var(--login-panel-border);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+            backdrop-filter: blur(14px);
+        }
+
+        .login-card {
+            padding: 24px 20px 18px;
+        }
+
+        .login-card-inner {
+            width: 100%;
+        }
+
+        .login-card-head {
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .login-badge {
+            display: inline-block;
+            margin-bottom: 14px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.84);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .login-card-title {
+            margin: 0;
+            color: var(--login-white);
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .login-autofill-decoy {
+            position: absolute;
+            left: -10000px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-card-note {
+            margin: 10px 0 0;
+            color: var(--login-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .login-select-group {
+            margin-bottom: 10px;
+        }
+
+        .login-select-label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .login-select {
+            height: 44px !important;
+            border: 1px solid var(--login-field-border);
+            border-radius: 12px;
+            background: var(--login-field-bg);
+            color: var(--login-white);
+            box-shadow: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .login-select:focus {
+            border-color: rgba(255, 255, 255, 0.28);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+        }
+
+        .login-select option {
+            color: var(--login-ink);
+        }
+
+        .login-card .form-group {
+            margin-bottom: 8px;
+            padding: 10px 12px 8px;
+            border: 1px solid var(--login-field-border);
+            border-radius: 14px;
+            background: var(--login-field-bg);
+            box-shadow: none;
+            transition: border-color .18s ease, box-shadow .18s ease;
+        }
+
+        .login-card .form-group.focus,
+        .login-card .form-group:focus-within {
+            border-color: rgba(255, 255, 255, 0.28);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+        }
+
+        .login-card .form-group.invalid-input {
+            border-color: rgba(255, 120, 120, 0.58);
+            box-shadow: 0 0 0 4px rgba(207, 63, 79, 0.10);
+        }
+
+        .login-card .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .login-card .form-control {
+            margin-top: 0;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+            color: var(--login-white);
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            width: 100%;
+        }
+
+        .login-card .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.46);
+            font-weight: 500;
+        }
+
+        .login-card .form-control:focus {
+            border: 0;
+            outline: 0;
+            box-shadow: none;
+        }
+
+        .login-card .password-proxy {
+            -webkit-text-security: disc;
+        }
+
+        .user-error,
+        .pwd-error {
+            min-height: 16px;
+            margin-bottom: 4px;
+            padding-left: 4px;
+            color: #ffd4d4;
+            font-size: 11px;
+            font-weight: 700;
+            visibility: hidden;
+        }
+
+        .user-error span,
+        .pwd-error span {
+            display: inline-block;
+        }
+
+        .user-error.has-message,
+        .pwd-error.has-message {
+            visibility: visible;
+        }
+
+        .login-submit {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            height: 46px;
+            margin-top: 6px;
+            border: 0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--login-brand) 0%, var(--login-brand-dark) 100%);
+            box-shadow: 0 14px 28px rgba(18, 47, 69, 0.18);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: box-shadow .18s ease;
+        }
+
+        .login-submit:hover,
+        .login-submit:focus {
+            color: #fff;
+            box-shadow: 0 18px 30px rgba(18, 47, 69, 0.22);
+        }
+
+        .login-test-alert {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 14px;
+            background: rgba(245, 158, 11, 0.18);
+            color: #ffe4b2;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .login-footer {
+            margin-top: 14px;
+            color: rgba(255, 255, 255, 0.62);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .login-footer strong {
+            color: var(--login-white);
+        }
+
+        .login-company-link {
+            color: var(--login-white);
+            font-weight: 700;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+        }
+
+        .login-company-link:hover,
+        .login-company-link:focus {
+            color: var(--login-white);
+            text-decoration: none;
+            border-bottom-color: rgba(255, 255, 255, 0.72);
+        }
+
+        .login-version {
+            display: block;
+            margin-top: 3px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        @@media (max-width: 575px) {
+            .login-stage {
+                padding: 16px;
+            }
+
+            .login-shell {
+                padding-left: 0;
+            }
+
+            .login-card {
+                padding: 22px 18px 18px;
+            }
+
+            .login-card-title {
+                font-size: 24px;
+            }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            .login-background-video {
+                display: none;
+            }
         }
     </style>
+    <link href="~/Content/Quasar.VisualPrototype.css" rel="stylesheet" />
 </head>
-<body>
-    <div class="content">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-5">
-                    <img src="~/Content/login/images/login.svg" alt="Image" class="img-fluid">
-                </div>
-                <div class="col-md-6 contents" style="margin-top:0px !important">
-                    <div class="row justify-content-center">
-                        <div class="col-md-10">
-                            <div class="mb-6 text-center">
-                                <h1 class="quasar-title text-muted">Quasar Dealer</h1>
-                                <p class="text-muted quasar-subtitle mb-3">Warehouse Management System</p>
-                                <p class="text-muted mb-10">NOVA CHEVROLET</p>
-                                    @if (Simplify.Quasar.Custom.Util.IsTestEnvironment())
-                                    {
-                                        <p class="alert alert-warning">
-                                            The application is running in a test environment
-                                        </p>
-                                    }
+<body class="login-screen qd-login-prototype">
+    <div class="login-stage">
+        <video class="login-background-video" autoplay muted loop playsinline poster="@Url.Content("~/Content/login/images/quasar.jpg")">
+            <source src="@Url.Content("~/Content/login/images/Quasar.mp4")" type="video/mp4" />
+        </video>
+        <div class="login-shell">
+            <div class="login-frame">
+                <section class="login-card">
+                    <div class="login-card-inner">
+                        <div class="login-card-head">
+                            <img class="qd-login-logo" src="@Url.Content("~/Content/img/quasar-dealer-logo.svg")" alt="Quasar Dealer" />
+                            <p class="qd-login-caption">Warehouse Management System</p>
+                        </div>
+
+                        @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { autocomplete = "off", autocorrect = "off", autocapitalize = "none", spellcheck = "false", @class = "login-form", onsubmit = "return syncLoginCredentialPayloadNative();" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            @Html.HiddenFor(m => m.Id)
+                            @Html.HiddenFor(m => m.SenhaExpirada)
+                            @Html.HiddenFor(m => m.Usuario, new { id = "Usuario" })
+                            @Html.HiddenFor(m => m.Senha, new { id = "Senha" })
+                            <input type="text" class="login-autofill-decoy" tabindex="-1" aria-hidden="true" autocomplete="username" />
+                            <input type="password" class="login-autofill-decoy" tabindex="-1" aria-hidden="true" autocomplete="current-password" />
+
+                            <div class="login-select-group">
+                                <label class="login-select-label" for="IdFilial">Filial</label>
+                                @Html.DropDownListFor(m => m.IdFilial, Model.FilialDDL, new { @class = "form-control login-select", @id = "IdFilial", @autocomplete = "off" })
                             </div>
 
-                            @using (Html.BeginForm())
-                            {
-                                @Html.AntiForgeryToken()
+                            <div class="form-group first">
+                                <label for="UsuarioDisplay">Usu&aacute;rio</label>
+                                <input type="text"
+                                       id="UsuarioDisplay"
+                                       name="access_user"
+                                       class="form-control"
+                                       value=""
+                                       autocomplete="off"
+                                       aria-autocomplete="none"
+                                       autocorrect="off"
+                                       autocapitalize="none"
+                                       spellcheck="false"
+                                       required="required"
+                                       autofocus="autofocus"
+                                       placeholder="Informe seu usu&aacute;rio"
+                                       data-lpignore="true"
+                                       data-form-type="other" />
+                            </div>
+                            <div class="text-danger user-error">@Html.ValidationMessageFor(m => m.Usuario)</div>
 
-                                @Html.HiddenFor(m => m.Id)
-                                @Html.HiddenFor(m => m.SenhaExpirada)
+                            <div class="form-group last">
+                                <label for="SenhaDisplay">Senha</label>
+                                <input type="text"
+                                       id="SenhaDisplay"
+                                       name="access_key"
+                                       class="form-control password-proxy"
+                                       value=""
+                                       autocomplete="off"
+                                       aria-autocomplete="none"
+                                       autocorrect="off"
+                                       autocapitalize="none"
+                                       spellcheck="false"
+                                       required="required"
+                                       readonly="readonly"
+                                       onfocus="this.removeAttribute('readonly');"
+                                       onmousedown="this.removeAttribute('readonly');"
+                                       placeholder="Digite sua senha"
+                                       data-lpignore="true"
+                                       data-form-type="other" />
+                            </div>
+                            <div class="text-danger pwd-error">@Html.ValidationMessageFor(m => m.Senha)</div>
 
-                                
-                                <div class="form-group mb-2">
-                                    <label for="filial"></label>
-                                    @Html.DropDownListFor(m => m.IdFilial, Model.FilialDDL, new { @class = "form-control" })
-                                </div>
+                            <button type="submit" class="btn login-submit">
+                                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                                Acessar
+                            </button>
 
-                                <div class="form-group first @(Model.Usuario != null ? "field--not-empty" : string.Empty)">
-                                    <label for="username">Usuário</label>
-                                    @Html.TextBoxFor(m => m.Usuario, new { @class = "form-control", @autocomplete = "off", @required = "required", @autofocus = "autofocus" })
-                                </div>
-                                <div class="text-danger user-error mb-2">@Html.ValidationMessageFor(m => m.Usuario)</div>
+                            <span class="senha-expirada" data-url="@Url.Action("AtualizarSenha", "Account", new { id = "_id"})"></span>
+                        }
 
-                                <div class="form-group last mt-2 mb-4">
-                                    <label for="password">Senha</label>
-                                    @Html.PasswordFor(m => m.Senha, new { @class = "form-control", @autocomplete = "off", @required = "required" })
-                                </div>
-                                <div class="text-danger pwd-error mb-2">@Html.ValidationMessageFor(m => m.Senha)</div>
+                        @if (Simplify.Quasar.Custom.Util.IsTestEnvironment())
+                        {
+                            <div class="login-test-alert">
+                                Ambiente de teste ativo. Valide os dados antes de executar lan&ccedil;amentos reais.
+                            </div>
+                        }
 
-                                <button type="submit" class="btn btn-block btn-primary mt-2"><i class="fa-solid fa-arrow-right-to-bracket"></i> Log In</button>
-                                <span class="senha-expirada" data-url="@Url.Action("AtualizarSenha", "Account", new { id = "_id"})"></span>
-                            }
+                        <div class="login-footer">
+                            <a class="login-company-link"
+                               href="https://simplifyse.com.br/"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               title="Abrir o site da Simplify IT">Simplify IT</a>
+                            &middot; Automec Chevrolet
+                            <span class="login-version">Vers&atilde;o @ViewBag.ApplicationVersion</span>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
-
-            <footer>
-                <div class="row mt-3">
-                    <div class="col-md-12 copy">
-                        <p class="text-center">&copy; Copyright 2023 - Simplify IT Solutions.  All rights reserved.</p>
-                    </div>
-                </div>
-            </footer>
         </div>
     </div>
 
-    <!-- Modal  -->
     <div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div id="myModalContent">
-                </div>
+                <div id="myModalContent"></div>
             </div>
         </div>
     </div>
@@ -119,17 +468,25 @@
     <script src="~/Scripts/app/login/popper.min.js"></script>
     <script src="~/Scripts/app/login/bootstrap.min.js"></script>
     <script src="~/Scripts/sweetalert.js.org/sweetalert.min.js"></script>
-
     <script src="https://kit.fontawesome.com/d4c8df1d3e.js" crossorigin="anonymous"></script>
+    <script>
+        function syncLoginCredentialPayloadNative() {
+            var usuario = document.getElementById('Usuario');
+            var senha = document.getElementById('Senha');
+            var usuarioDisplay = document.getElementById('UsuarioDisplay');
+            var senhaDisplay = document.getElementById('SenhaDisplay');
 
-    @*<script src="~/Scripts/bootbox/bootbox.min.js"></script>
-        <script src="~/Scripts/bootbox/bootbox.locales.min.js"></script>*@
+            if (usuario && usuarioDisplay) {
+                usuario.value = usuarioDisplay.value || '';
+            }
 
+            if (senha && senhaDisplay) {
+                senha.value = senhaDisplay.value || '';
+            }
 
+            return true;
+        }
+    </script>
     <script src="~/Scripts/app/login/main.js"></script>
-
-
-
 </body>
-
 </html>

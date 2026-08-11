@@ -24,6 +24,5 @@ namespace Simplify.Quasar.Models
         public Nullable<System.DateTime> CriadoEm { get; set; }
         public string ModificadoPor { get; set; }
         public Nullable<System.DateTime> ModificadoEm { get; set; }
-        public Nullable<int> FilialId { get; set; }
     }
 }

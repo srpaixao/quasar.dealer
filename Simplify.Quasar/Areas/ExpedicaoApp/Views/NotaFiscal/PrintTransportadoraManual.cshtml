@@ -1,0 +1,309 @@
+@using System.Collections.Generic
+@using System.Linq
+@model IEnumerable<Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.EtiquetaExpedicaoViewModel>
+@{
+    Layout = null;
+    var etiquetas = Model == null
+        ? new List<Simplify.Quasar.Areas.ExpedicaoApp.ViewModels.EtiquetaExpedicaoViewModel>()
+        : Model.ToList();
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <title>Etiquetas de Expedição</title>
+    <style>
+        @@page {
+            size: 100mm 150mm;
+            margin: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            color: #000;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .label-page {
+            position: relative;
+            width: 100mm;
+            height: 150mm;
+            overflow: hidden;
+            page-break-after: always;
+            break-after: page;
+            background: #fff;
+        }
+
+        .label-page:last-child {
+            page-break-after: auto;
+            break-after: auto;
+        }
+
+        .label-content {
+            position: relative;
+            width: 100mm;
+            height: 150mm;
+            overflow: hidden;
+        }
+
+        .logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 48mm;
+            height: 27mm;
+            object-fit: contain;
+        }
+
+        .barcode-volume {
+            position: absolute;
+            top: 3mm;
+            left: 49mm;
+            width: 48mm;
+            height: 13mm;
+        }
+
+        .barcode-volume svg,
+        .barcode-contato svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .volume-code {
+            position: absolute;
+            top: 16mm;
+            left: 49mm;
+            width: 48mm;
+            text-align: center;
+            font-family: "Courier New", monospace;
+            font-size: 5mm;
+            line-height: 6mm;
+        }
+
+        .transportadora {
+            position: absolute;
+            top: 29mm;
+            left: 4mm;
+            width: 92mm;
+            height: 14mm;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: "Arial Narrow", Arial, sans-serif;
+            font-size: 11mm;
+            font-weight: 900;
+            line-height: 13mm;
+        }
+
+        .nota-fiscal {
+            position: absolute;
+            top: 44mm;
+            left: 4mm;
+            width: 92mm;
+            height: 14mm;
+            overflow: hidden;
+            white-space: nowrap;
+            font-family: "Courier New", monospace;
+            font-size: 11mm;
+            font-weight: 900;
+            line-height: 13mm;
+            letter-spacing: .2mm;
+        }
+
+        .destino {
+            position: absolute;
+            top: 59mm;
+            left: 4mm;
+            width: 92mm;
+            height: 33mm;
+            overflow: hidden;
+            font-family: "Courier New", monospace;
+            font-size: 5.6mm;
+            font-weight: 900;
+            line-height: 6.2mm;
+            text-transform: uppercase;
+        }
+
+        .destino .cliente {
+            font-size: 7mm;
+            line-height: 8mm;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .grupo-volume {
+            position: absolute;
+            top: 92mm;
+            left: 4mm;
+            width: 92mm;
+            height: 19mm;
+            display: grid;
+            grid-template-columns: 43% 31% 26%;
+            font-family: "Courier New", monospace;
+            font-weight: 900;
+            text-align: left;
+        }
+
+        .grupo-volume .titulo {
+            font-size: 5mm;
+            line-height: 6mm;
+        }
+
+        .grupo-volume .valor {
+            font-size: 11mm;
+            line-height: 12mm;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .contato-titulo {
+            position: absolute;
+            top: 113mm;
+            left: 4mm;
+            width: 92mm;
+            text-align: center;
+            font-family: "Courier New", monospace;
+            font-size: 5mm;
+            font-weight: 900;
+            line-height: 6mm;
+        }
+
+        .contato {
+            position: absolute;
+            top: 120mm;
+            left: 4mm;
+            width: 92mm;
+            overflow: hidden;
+            text-align: center;
+            white-space: nowrap;
+            font-family: "Courier New", monospace;
+            font-size: 11mm;
+            font-weight: 900;
+            line-height: 12mm;
+        }
+
+        .barcode-contato {
+            position: absolute;
+            top: 133mm;
+            left: 20mm;
+            width: 60mm;
+            height: 10mm;
+        }
+
+        .rodape {
+            position: absolute;
+            top: 145mm;
+            left: 4mm;
+            width: 92mm;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            column-gap: 6mm;
+            font-family: "Courier New", monospace;
+            font-size: 3.5mm;
+            font-weight: 900;
+            line-height: 4mm;
+            white-space: nowrap;
+        }
+
+        @@media screen {
+            body {
+                background: #e5e5e5;
+            }
+
+            .label-page {
+                margin: 4mm auto;
+                box-shadow: 0 0 2mm rgba(0, 0, 0, .25);
+            }
+        }
+
+        @@media print {
+            html, body {
+                width: 100mm;
+                background: #fff;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .label-page {
+                margin: 0;
+                box-shadow: none;
+            }
+
+            /*
+               A midia fisica mede 100 x 150 mm, mas a impressora Zebra nao
+               utiliza toda a area como area imprimivel. A pagina conserva a
+               medida real e somente o conteudo recebe uma margem de seguranca.
+            */
+            .label-content {
+                position: absolute;
+                top: 2mm;
+                left: 2mm;
+                transform: scale(.70);
+                transform-origin: top left;
+            }
+        }
+    </style>
+</head>
+<body id="manual-label-document">
+    @foreach (var item in etiquetas)
+    {
+        var endereco = string.Join(" ", new[] { item.Endereco, item.Numero }
+            .Where(x => !string.IsNullOrWhiteSpace(x)));
+        var cidadeEstado = string.Join(" - ", new[] { item.Cidade, item.Estado }
+            .Where(x => !string.IsNullOrWhiteSpace(x)));
+        <section class="label-page">
+            <div class="label-content">
+                <img class="logo" src="@Url.Content("~/Content/img/logo.png")" alt="Automec" />
+                <div class="barcode-volume">@Html.Raw(item.CodigoBarrasVolumeSvg)</div>
+                <div class="volume-code">@item.VolumeNr</div>
+
+                <div class="transportadora">@item.Transportadora</div>
+                <div class="nota-fiscal">NF @item.NotaFiscal</div>
+
+                <div class="destino">
+                    <div class="cliente">@item.Cliente</div>
+                    <div>@endereco</div>
+                    @if (!string.IsNullOrWhiteSpace(item.Complemento))
+                    {
+                        <div>@item.Complemento</div>
+                    }
+                    <div>@item.Bairro</div>
+                    <div>@cidadeEstado</div>
+                </div>
+
+                <div class="grupo-volume">
+                    <div>
+                        <div class="titulo">VOLUME</div>
+                        <div class="valor">@item.Sequencia</div>
+                    </div>
+                    <div>
+                        <div class="titulo">ROTA</div>
+                        <div class="valor">@item.Rota</div>
+                    </div>
+                    <div>
+                        <div class="titulo">PARADA</div>
+                        <div class="valor">@item.Parada</div>
+                    </div>
+                </div>
+
+                <div class="contato-titulo">CONTATO NR</div>
+                <div class="contato">@item.Contato</div>
+                <div class="barcode-contato">@Html.Raw(item.CodigoBarrasContatoSvg)</div>
+
+                <div class="rodape">
+                    <span>@item.Origem</span>
+                    <span>@item.Data</span>
+                    <span>@item.Hora</span>
+                </div>
+            </div>
+        </section>
+    }
+</body>
+</html>

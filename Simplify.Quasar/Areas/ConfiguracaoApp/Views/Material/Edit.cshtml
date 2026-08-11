@@ -1,0 +1,92 @@
+@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.MaterialCadastroViewModel
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Editar Material";
+    ViewBag.IsEdit = true;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        @using (Html.BeginForm("Edit", "Material", new { area = "ConfiguracaoApp" }, FormMethod.Post, null))
+        {
+            @Html.AntiForgeryToken()
+            <div class="box-body">
+                @Html.Partial("_Form", Model)
+            </div>
+            <div class="box-footer">
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-success"><i class="fa fa-check fa-fw"></i> Salvar</button>
+                    @if (ViewBag.PodeExcluir == true)
+                    {
+                        <button id="btnDeleteMaterial" type="button" class="btn btn-danger">
+                            <i class="fa fa-trash fa-fw"></i> Excluir
+                        </button>
+                    }
+                    <a href="@Url.Action("Index", "Material", new { area = "ConfiguracaoApp" })" class="btn btn-default">
+                        <i class="fa fa-times fa-fw"></i> Cancelar
+                    </a>
+                </div>
+                <p class="text-muted">
+                    <small>Criado por <strong>@Model.CriadoPor</strong> em @Model.CriadoEm</small>
+                    @if (!string.IsNullOrWhiteSpace(Model.ModificadoPor))
+                    {
+                        <br />
+                        <small>Modificado por <strong>@Model.ModificadoPor</strong> em @Model.ModificadoEm</small>
+                    }
+                </p>
+                <div class="clearfix"></div>
+            </div>
+        }
+    </div>
+</section>
+
+@if (ViewBag.PodeExcluir == true)
+{
+    using (Html.BeginForm("Delete", "Material", new { area = "ConfiguracaoApp" }, FormMethod.Post, new { id = "deleteMaterialForm", style = "display:none" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("codigo", Model.Codigo)
+    }
+}
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#btnDeleteMaterial').on('click', function () {
+                var content = document.createElement('div');
+                var message = document.createElement('h4');
+                message.className = 'swal-text-warning';
+                message.textContent = 'Confirma a exclusão do material @Html.Raw(HttpUtility.JavaScriptStringEncode(Model.Codigo))?';
+                content.appendChild(message);
+
+                swal({
+                    title: 'Cadastro de Materiais',
+                    content: content,
+                    buttons: {
+                        cancel: {
+                            text: 'Não',
+                            className: 'swal-btn-danger',
+                            closeModal: true,
+                            visible: true
+                        },
+                        confirm: {
+                            text: 'Sim',
+                            className: 'swal-btn-success',
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then(function (confirm) {
+                    if (confirm) {
+                        $('#deleteMaterialForm').submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,339 @@
+@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.MaterialCadastroViewModel
+@{
+    bool isEdit = ViewBag.IsEdit == true;
+}
+
+<style>
+    .critical-flag {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        margin: 0;
+        padding: 9px 12px;
+        border: 1px solid rgba(23, 48, 66, 0.14);
+        border-radius: 10px;
+        background: rgba(245, 158, 11, 0.08);
+        cursor: pointer;
+    }
+
+    .critical-flag input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin: 0 9px 0 0;
+        accent-color: #f59e0b;
+    }
+
+    .critical-flag span {
+        color: var(--text-900);
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+</style>
+
+@Html.ValidationSummary(true, null, new { @class = "alert alert-danger" })
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Codigo)
+            @if (isEdit)
+            {
+                @Html.HiddenFor(m => m.Codigo)
+                @Html.TextBoxFor(m => m.Codigo, new { @class = "form-control", @readonly = "readonly" })
+            }
+            else
+            {
+                @Html.TextBoxFor(m => m.Codigo, new { @class = "form-control", maxlength = "100", autocomplete = "off" })
+            }
+            @Html.ValidationMessageFor(m => m.Codigo, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            @Html.LabelFor(m => m.ItemApollo)
+            @Html.TextBoxFor(m => m.ItemApollo, new { @class = "form-control", maxlength = "100", autocomplete = "off" })
+            @Html.ValidationMessageFor(m => m.ItemApollo, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Descricao)
+            @Html.TextBoxFor(m => m.Descricao, new { @class = "form-control", maxlength = "500", autocomplete = "off" })
+            @Html.ValidationMessageFor(m => m.Descricao, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Comp)
+            @Html.TextBoxFor(m => m.Comp, new { @class = "form-control", inputmode = "decimal" })
+            @Html.ValidationMessageFor(m => m.Comp, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Larg)
+            @Html.TextBoxFor(m => m.Larg, new { @class = "form-control", inputmode = "decimal" })
+            @Html.ValidationMessageFor(m => m.Larg, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Altu)
+            @Html.TextBoxFor(m => m.Altu, new { @class = "form-control", inputmode = "decimal" })
+            @Html.ValidationMessageFor(m => m.Altu, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h5><strong>Unidade</strong></h5>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Zona1Id)
+            @Html.DropDownListFor(
+                m => m.Zona1Id,
+                Model.Zonas1,
+                "Selecione",
+                new { @class = "form-control material-select2" })
+            @Html.ValidationMessageFor(m => m.Zona1Id, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Eqpto1Id)
+            @Html.DropDownListFor(
+                m => m.Eqpto1Id,
+                Model.Equipamentos1,
+                "Selecione",
+                new { @class = "form-control material-select2" })
+            @Html.ValidationMessageFor(m => m.Eqpto1Id, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            @Html.LabelFor(m => m.QtdePadrao1)
+            @Html.TextBoxFor(
+                m => m.QtdePadrao1,
+                new { @class = "form-control", type = "number", min = "1", step = "1" })
+            @Html.ValidationMessageFor(m => m.QtdePadrao1, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<h5><strong>Caixa</strong> <small class="text-muted">(opcional)</small></h5>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Zona2Id)
+            @Html.DropDownListFor(
+                m => m.Zona2Id,
+                Model.Zonas2,
+                "Selecione",
+                new { @class = "form-control material-select2" })
+            @Html.ValidationMessageFor(m => m.Zona2Id, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Eqpto2Id)
+            @Html.DropDownListFor(
+                m => m.Eqpto2Id,
+                Model.Equipamentos2,
+                "Selecione",
+                new { @class = "form-control material-select2" })
+            @Html.ValidationMessageFor(m => m.Eqpto2Id, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            @Html.LabelFor(m => m.QtdePadrao2)
+            @Html.TextBoxFor(
+                m => m.QtdePadrao2,
+                new { @class = "form-control", type = "number", min = "1", step = "1" })
+            @Html.ValidationMessageFor(m => m.QtdePadrao2, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<h5><strong>Palete</strong> <small class="text-muted">(opcional)</small></h5>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Zona3Id)
+            @Html.DropDownListFor(
+                m => m.Zona3Id,
+                Model.Zonas3,
+                "Selecione",
+                new { @class = "form-control material-select2" })
+            @Html.ValidationMessageFor(m => m.Zona3Id, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Eqpto3Id)
+            @Html.DropDownListFor(
+                m => m.Eqpto3Id,
+                Model.Equipamentos3,
+                "Selecione",
+                new { @class = "form-control material-select2" })
+            @Html.ValidationMessageFor(m => m.Eqpto3Id, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-group">
+            @Html.LabelFor(m => m.QtdePadrao3)
+            @Html.TextBoxFor(
+                m => m.QtdePadrao3,
+                new { @class = "form-control", type = "number", min = "1", step = "1" })
+            @Html.ValidationMessageFor(m => m.QtdePadrao3, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.CategoriaProduto)
+            @Html.DropDownListFor(
+                m => m.CategoriaProduto,
+                new[]
+                {
+                    new SelectListItem { Value = "Diretos", Text = "Diretos" },
+                    new SelectListItem { Value = "Indiretos", Text = "Indiretos" }
+                },
+                "Selecione",
+                new { @class = "form-control material-select2" })
+            @Html.ValidationMessageFor(m => m.CategoriaProduto, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.UN)
+            @Html.TextBoxFor(m => m.UN, new { @class = "form-control", maxlength = "100", autocomplete = "off" })
+            @Html.ValidationMessageFor(m => m.UN, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Curva)
+            @Html.TextBoxFor(m => m.Curva, new { @class = "form-control", maxlength = "100", autocomplete = "off" })
+            @Html.ValidationMessageFor(m => m.Curva, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.EmbalagemMin)
+            @Html.TextBoxFor(m => m.EmbalagemMin, new { @class = "form-control", type = "number", min = "0" })
+            @Html.ValidationMessageFor(m => m.EmbalagemMin, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.MediaVendas)
+            @Html.TextBoxFor(m => m.MediaVendas, new { @class = "form-control", inputmode = "decimal" })
+            @Html.ValidationMessageFor(m => m.MediaVendas, null, new { @class = "text-red" })
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            @Html.LabelFor(m => m.CustoUnitario)
+            @Html.TextBoxFor(m => m.CustoUnitario, new { @class = "form-control", inputmode = "decimal" })
+            @Html.ValidationMessageFor(m => m.CustoUnitario, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="form-group">
+            @Html.LabelFor(m => m.ItemCritico)
+            <label class="critical-flag" for="ItemCritico">
+                @Html.CheckBoxFor(m => m.ItemCritico, new { @class = "no-icheck" })
+                <span>Crítico</span>
+            </label>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="form-group">
+            @Html.LabelFor(m => m.ObsItemCritico)
+            <span id="critical-observation-required" class="text-red" style="display:none">Obrigatório</span>
+            @Html.TextBoxFor(m => m.ObsItemCritico, new { @class = "form-control", maxlength = "100", autocomplete = "off" })
+            @Html.ValidationMessageFor(m => m.ObsItemCritico, null, new { @class = "text-red" })
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function () {
+        $('#Zona1Id, #Zona2Id, #Zona3Id, #CategoriaProduto').select2({
+            width: '100%',
+            placeholder: 'Selecione',
+            allowClear: true
+        });
+
+        function configurarEquipamento(zonaSelector, equipamentoSelector) {
+            var zona = $(zonaSelector);
+            var equipamento = $(equipamentoSelector);
+
+            equipamento.select2({
+                width: '100%',
+                placeholder: 'Selecione',
+                allowClear: true,
+                language: {
+                    noResults: function () { return 'Nenhum equipamento disponível'; }
+                }
+            });
+
+            equipamento.prop('disabled', !zona.val());
+
+            zona.on('change.material-equipment', function () {
+                equipamento.empty().append(new Option('', '', true, true));
+                equipamento.prop('disabled', true).trigger('change');
+
+                if (!zona.val()) {
+                    return;
+                }
+
+                $.getJSON(
+                    '@Url.Action("GetEquipamentosPorZona", "Material", new { area = "ConfiguracaoApp" })',
+                    { zonaId: zona.val(), _: new Date().getTime() })
+                    .done(function (response) {
+                        $.each(response.results || [], function (_, item) {
+                            equipamento.append(new Option(item.text, item.id, false, false));
+                        });
+                    })
+                    .always(function () {
+                        equipamento.prop('disabled', false).trigger('change');
+                    });
+            });
+        }
+
+        configurarEquipamento('#Zona1Id', '#Eqpto1Id');
+        configurarEquipamento('#Zona2Id', '#Eqpto2Id');
+        configurarEquipamento('#Zona3Id', '#Eqpto3Id');
+
+        function atualizarObservacaoItemCritico() {
+            var itemCritico = $('#ItemCritico').is(':checked');
+            var observacao = $('#ObsItemCritico');
+
+            observacao.prop('disabled', !itemCritico).prop('required', itemCritico);
+            $('#critical-observation-required').toggle(itemCritico);
+            if (!itemCritico) {
+                observacao.val('');
+            }
+        }
+
+        $('#ItemCritico').on('change.material-critical', atualizarObservacaoItemCritico);
+        atualizarObservacaoItemCritico();
+
+        $('.input-validation-error').closest('.form-group').addClass('has-error');
+    });
+</script>

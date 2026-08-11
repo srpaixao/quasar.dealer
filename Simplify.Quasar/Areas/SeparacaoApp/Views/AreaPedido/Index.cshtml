@@ -1,0 +1,233 @@
+@model IEnumerable<Simplify.Quasar.Areas.SeparacaoApp.ViewModels.AreaPedidoViewModel>
+@{
+    ViewBag.Title = "Cadastros";
+    ViewBag.Description = "Origens";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string currentController = ViewContext.RouteData.Values["controller"].ToString();
+}
+
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    th, td {
+        vertical-align: middle !important;
+    }
+
+    td.actions {
+        width: 80px;
+        text-align: center;
+    }
+
+    td.flag-cell {
+        text-align: center;
+    }
+
+    .flag-badge {
+        display: inline-block;
+        min-width: 32px;
+    }
+
+    .flag-badge i {
+        font-size: 12px;
+    }
+</style>
+
+<section class="content-header">
+    <h1>@ViewBag.Title<small>@ViewBag.Description</small></h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li class="@(currentController == "AreaPedido" ? "active" : string.Empty)">
+                    <a href="@Url.Action("Index", "AreaPedido", new { area = "SeparacaoApp" })">Origens</a>
+                </li>
+                <li class="@(currentController == "AreaRomaneio" ? "active" : string.Empty)">
+                    <a href="@Url.Action("Index", "AreaRomaneio", new { area = "SeparacaoApp" })">Prioridades</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active">
+                    <div class="box-body">
+                        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "delete-token-form" }))
+                        {
+                            @Html.AntiForgeryToken()
+                        }
+
+                        <div class="row" style="margin-top:12px;">
+                            <div class="col-xs-12">
+                                <a href="#" class="btn btn-primary create"><i class="fa fa-fw fa-plus"></i> Novo</a>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top:12px;">
+                            <div class="col-xs-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped" id="tb-area-pedido">
+                                        <thead>
+                                            <tr>
+                                                <th>Vendedor</th>
+                                                <th>Área</th>
+                                                <th class="actions"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td><a href="#" class="edit" data-id="@item.Id"><b>@item.UsuarioApollo</b></a></td>
+                                                    <td>@(string.IsNullOrWhiteSpace(item.Area) ? "-" : item.Area)</td>
+                                                    <td class="actions">
+                                                        <a href="#" class="delete" data-id="@item.Id" data-name="@item.UsuarioApollo"><i class="fa fa-lg fa-trash-o text-red"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="myModalContent"></div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            var token = $('#delete-token-form input[name="__RequestVerificationToken"]').val();
+
+            $('#tb-area-pedido').DataTable({
+                pageLength: 25,
+                columnDefs: [
+                    { orderable: false, targets: -1 }
+                ],
+                order: [[0, 'asc']],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por página",
+                    search: "Pesquisar:",
+                    zeroRecords: "Nenhum registro localizado",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+
+            $.ajaxSetup({ cache: false });
+
+            $('a.create').click(function () {
+                $('#myModalContent').load('@Url.Action("Create", "AreaPedido", new { area = "SeparacaoApp" })', function () {
+                    $('#myModal').modal({ backdrop: 'static', keyboard: true }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            $('#tb-area-pedido').on('click', 'a.edit', function () {
+                var id = $(this).attr('data-id');
+                var url = '@Url.Action("Edit", "AreaPedido", new { area = "SeparacaoApp", id = "_id" })';
+                $('#myModalContent').load(url.replace('_id', id), function () {
+                    $('#myModal').modal({ backdrop: 'static', keyboard: true }, 'show');
+                    bindForm(this);
+                });
+                return false;
+            });
+
+            $('#tb-area-pedido').on('click', 'a.delete', function () {
+                var id = $(this).attr('data-id');
+                var nome = $(this).attr('data-name');
+                var div = document.createElement('div');
+                div.innerHTML = '<span>Confirma a exclusão do vendedor <b>' + nome + '</b> ?</span>';
+
+                swal({
+                    title: "Cadastro de Área Pedido",
+                    content: div,
+                    buttons: {
+                        cancel: {
+                            text: "Não",
+                            className: "swal-btn-danger",
+                            closeModal: true,
+                            visible: true
+                        },
+                        confirm: {
+                            text: "Sim",
+                            className: "swal-btn-success",
+                            closeModal: true,
+                            visible: true
+                        }
+                    }
+                }).then(function (confirm) {
+                    if (!confirm) {
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Delete", "AreaPedido", new { area = "SeparacaoApp" })',
+                        data: {
+                            __RequestVerificationToken: token,
+                            id: id
+                        },
+                        success: function (data) {
+                            if (data.success) {
+                                location.reload();
+                                return;
+                            }
+
+                            swal("Cadastro de Área Pedido", data.msg || "Não foi possível excluir o registro.", "error");
+                        },
+                        error: function () {
+                            swal("Cadastro de Área Pedido", "Não foi possível excluir o registro.", "error");
+                        }
+                    });
+                });
+
+                return false;
+            });
+
+            function bindForm(dialog) {
+                $('form', dialog).submit(function () {
+                    $.ajax({
+                        url: this.action,
+                        type: this.method,
+                        data: $(this).serialize(),
+                        success: function (result) {
+                            if (result.success) {
+                                $('#myModal').modal('hide');
+                                location.reload();
+                                return;
+                            }
+
+                            $('#myModalContent').html(result);
+                            bindForm($('#myModalContent'));
+                        },
+                        error: function () {
+                            swal("Cadastro de Área Pedido", "Não foi possível salvar o registro.", "error");
+                        }
+                    });
+                    return false;
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,20 @@
+@{
+    var action = Convert.ToString(ViewContext.RouteData.Values["action"] ?? string.Empty);
+}
+<ul class="nav nav-tabs" style="margin-bottom:20px">
+    <li class="@(string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty)">
+        <a href="@Url.Action("Index", "Locacao", new { area = "EstoqueApp" })">
+            <i class="fa fa-map-marker fa-fw"></i> Cadastro unitário
+        </a>
+    </li>
+    <li class="@(string.Equals(action, "Lote", StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty)">
+        <a href="@Url.Action("Lote", "Locacao", new { area = "EstoqueApp" })">
+            <i class="fa fa-file-excel-o fa-fw"></i> Cadastro em lote
+        </a>
+    </li>
+    <li class="@(string.Equals(action, "Etiquetas", StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty)">
+        <a href="@Url.Action("Etiquetas", "Locacao", new { area = "EstoqueApp" })">
+            <i class="fa fa-print fa-fw"></i> Impressão de etiquetas
+        </a>
+    </li>
+</ul>

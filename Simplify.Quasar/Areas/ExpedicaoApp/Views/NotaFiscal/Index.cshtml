@@ -72,7 +72,7 @@
                     <button type="button" class="btn btn-default btnMovimento" data-movto="5">Finalizado <span class="label label-warning">@(Model.TotalFinalizado > 0 ? Model.TotalFinalizado.ToString() : string.Empty)</span></button>
                     <div class="btn-group pull-right">
                         <button type="button" id="btnProcessarNotasFiscais" class="btn btn-success hide" style="margin-left:5px"><i class="fa-regular fw-lg fa-fw fa-object-ungroup"></i> Processar Notas Fiscais <span id="qtdNotasFicais"></span></button>
-                        <button type="button" id="btnImprimirRoteiros" class="btn btn-success hide" style="margin-left:5px"><i class="fa fw-lg fa-fw fa-map-o"></i> Imprimir Roteiro <span id="qtdRoteiros"></span></button>
+                        <button type="button" id="btnImprimirRoteiros" class="btn btn-primary hide" style="margin-left:5px"><i class="fa fw-lg fa-fw fa-map-o"></i> Imprimir Roteiro <span id="qtdRoteiros"></span></button>
                         <button type="button" id="btnFinalizarLancamentos" class="btn btn-success hide" style="margin-left:5px;"><i class="fa-solid fa-fw fa-clipboard-check"></i> Finalizar Lançamentos</button>
                     </div>
                 </div>
@@ -190,7 +190,7 @@
                     <div class="col-xs-12">
                         <div class="form-group">
                             <label>Impressora</label>
-                            @Html.DropDownList("ImpressoraDDL", ViewBag.ImpressoraDDL as SelectList, new { @class = "form-control" })
+                            @Html.DropDownList("ImpressoraDDL", ViewBag.ImpressoraDDL as IEnumerable<SelectListItem>, new { @class = "form-control" })
                         </div>
                     </div>
                 </div>
@@ -235,6 +235,8 @@
         //console.log('Print Server => IP:', ps_ip, ' Porta:', ps_port);
 
         function LoadData(movto) {
+
+            console.log(movto)
 
             $.ajax({
                 type: 'GET',
@@ -282,6 +284,7 @@
                             'selectCallback': function (nodes, selected) {
                                 $('input[type="checkbox"]', nodes).iCheck('update');
                                 EnableDisablePrintRoteiro();
+                                console.log('botão exibido')
                             },
                             'selectAllCallback': function (nodes, selected, indeterminate) {
                                 $('input[type="checkbox"]', nodes).iCheck('update');
@@ -311,47 +314,34 @@
 
             table = $('#tbNotaFiscal').DataTable({
                 deferRender: true,
+                serverSide: true,
+                processing: true,
                 autoWidth: false,
                 pageLength: 25,
                 order: [],
                 ajax: {
                     url: action.replace("_movimento", movto),
-                    type: 'GET',
-                    dataType: 'json'
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: function (d) { return JSON.stringify(d); }
                 },
                 columns: [
                             { data: 'Id' },
                             {
                                 data: 'Numero', title: 'Nota Fiscal', render: function (data, type, row) {
                                     var id = row['Id'];
-                                    if (movto != 0) {
-                                        return '<a href="#" class="historico" data-id="' + id + '">' + data + '</a>';
-                                    }
-                                    else {
-                                        return data;
-                                    }
+                                    return '<a href="#" class="historico" data-id="' + id + '">' + data + '</a>';
                                 }
                             },
                             {
-                                data: 'DataEmissao', title: 'Data de Emissão', visible: false, render: function (data, type) {
-                                    if (data) {
-                                        return moment(data).local().format('DD/MM/YYYY HH:mm:ss');
-                                    } else {
-                                        return data;
-                                    }
-                                }
+                                data: 'DataEmissaoTexto', title: 'Data de Emissão', visible: false
                             },
-                           { data: 'CodigoCliente', title: 'Cliente' },
-                           { data: 'NomeCliente', title: 'Cliente' },
-                           //{ data: 'LocalEntrega', title: 'Cidade' },
-                           { data:  'Cidade', title: 'Cidade',
-                               render: function (data, type, row, meta) {
-                                     return row.Cidade + "/" + row.Estado;
-                                }
-                           },
-                           { data: 'NomeTransportadora', title: 'Transportadora' },
-                           { data: 'QtdVolumes', title: 'Volumes' },
-                           { data: 'NomeTipoMovimento', title: 'Operação' },
+                           { data: 'Vendedor', title: 'Vendedor', visible: movto == 0 },
+                           { data: 'NomeCliente', title: 'Cliente', visible: movto == 0 },
+                           { data: 'NomeTransportadora', title: 'Transportadora', visible: movto != 0 },
+                           { data: 'QtdVolumes', title: 'Volumes', visible: movto != 0 },
+                           { data: 'NomeTipoMovimento', title: 'Operação', visible: movto != 0 },
                            { data: 'StatusNF', title: 'Status' },
                            { data: 'ModificadoPor', title: 'Usuário' },
                            //{
@@ -364,7 +354,7 @@
                            //    }
                            //},
                         {
-                            data: null, name: "btnActions", render: function (data, type, row) {
+                            data: null, name: "btnActions", visible: movto != 0, render: function (data, type, row) {
                                    if (movto == 0) {
                                        return null;
                                    }
@@ -410,40 +400,38 @@
                 fnInitComplete: function () {
                     $('div.datatable_filter').empty();
 
-                    if (movto != 0) {
-                        this.api().columns([6, 8, 10]).every(function (th) {
+                    this.api().columns([9]).every(function () {
 
-                            var column = this;
-                            var theadname = $("#tbNotaFiscal th").eq([th - 1]).text(); //used this specify table name and head
+                        var column = this;
+                        var theadname = 'Usuário';
 
-                            var select = $('<select class="form-control filter" id="filter' + theadname + '"> <option value="">' + theadname + '</option></select > ')
-                                .appendTo('div.datatable_filter')
-                                .on('change', function () {
-                                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                                    column
-                                        .search(val ? '^' + val + '$' : '', true, false)
-                                        .draw();
+                        var select = $('<select class="form-control filter" id="filter' + theadname + '"> <option value="">' + theadname + '</option></select > ')
+                            .appendTo('div.datatable_filter')
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                                column
+                                    .search(val ? '^' + val + '$' : '', true, false)
+                                    .draw();
 
-                                    if ($(this).prop('selectedIndex') == 0) {
-                                        $(this).removeClass('selected');
-                                    } else {
-                                        $(this).addClass('selected');
-                                    }
-                                    $(this).blur();
-
-                                });
-
-                            column.cells('', column[0]).render('display').sort().unique().each(function (d, j) {
-                                var regX = /(<([^>]+)>)/ig; // remove o texto se a coluna for uma tag anchor
-                                d = d.replace(regX, '').trim();
-                                select.append('<option value="' + d + '">' + d + '</option>')
-                                if (d == currentUser) {
-                                    $('#filterUsuário').val(currentUser).change();
+                                if ($(this).prop('selectedIndex') == 0) {
+                                    $(this).removeClass('selected');
+                                } else {
+                                    $(this).addClass('selected');
                                 }
+                                $(this).blur();
+
                             });
+
+                        column.cells('', column[0]).render('display').sort().unique().each(function (d, j) {
+                            var regX = /(<([^>]+)>)/ig; // remove o texto se a coluna for uma tag anchor
+                            d = d.replace(regX, '').trim();
+                            select.append('<option value="' + d + '">' + d + '</option>')
+                            if (d == currentUser) {
+                                $('#filterUsuário').val(currentUser).change();
+                            }
                         });
-                        //$('#rowButton').show();
-                    }
+                    });
+                    //$('#rowButton').show();
 
                     $('#processing').addClass('hide');
                     $('.data-container').removeClass('hide');
@@ -460,20 +448,9 @@
                     //    }
                     //}
 
-                    table.columns([9]).visible(false); // Status
-                    table.columns([3]).visible(false); // código cliente
+                    table.columns([8]).visible(false); // Status
 
 
-                    if (movto == 0) {
-                        table.columns([6]).visible(false); // Transportadora
-                        table.columns([7]).visible(false); // Volumes
-                        table.columns([9]).visible(false); // Status
-                        table.columns([8]).visible(false); // Operação
-                        table.columns([0]).visible(false); // Id
-                    }
-                    if (movto == 6) {
-                        table.columns([5]).visible(false); //Local Entrega
-                    }
                     if (movto == 0 || movto == 7 || movto == 5 || rowCount == 0) {
                         table.columns([0]).visible(false); // Id
                     }
@@ -716,7 +693,10 @@
         }
 
         function EnableDisablePrintRoteiro() {
+            console.log('habilitar botão')
             var rows_selected = $('#tbNotaFiscal').DataTable().column(0).checkboxes.selected();
+
+            console.log('rows_selected.length', rows_selected.length)
             if (rows_selected.length > 0) {
                 $('#qtdRoteiros').text("(" + rows_selected.length + ")");
                 $('#btnImprimirRoteiros').removeClass('hide');
@@ -851,13 +831,17 @@
             $('#ImpressoraDDL').on('change', function () {
                 var impressoraId = $(this).val();
 
-                $('#ip').empty();
-                $('#porta').empty();
+                $('#ip').val('');
+                $('#porta').val('');
+
+                if (!impressoraId) {
+                    return;
+                }
 
                 $.ajax({
                     type: 'GET',
                     dataType: 'json',
-                    url: '@Url.Action("GetPrinterData", "Printer", new { area = "ConfiguracaoApp" })',
+                    url: '@Url.Action("GetPrinterData", "NotaFiscal", new { area = "ExpedicaoApp" })',
                     data: { id: impressoraId },
                     success: function (response) {
                         //console.log(response.data);

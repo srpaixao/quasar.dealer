@@ -1,34 +1,237 @@
-﻿@{
-    ViewBag.Title = "Configuração";
-    ViewBag.Description = "Aplicação";
-
+﻿@model IList<Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.AppConfigViewModel>
+@{
+    ViewBag.Title = "Configura&ccedil;&atilde;o";
+    ViewBag.Description = "Par&acirc;metros do Sistema";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
 }
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .config-table th,
+    .config-table td {
+        vertical-align: middle !important;
+    }
+
+    .config-table tbody tr:nth-child(even) {
+        background-color: #fafcff;
+    }
+
+    .config-value {
+        word-break: break-word;
+        white-space: pre-wrap;
+    }
+
+    .config-toolbar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 15px;
+    }
+
+    .config-value-input {
+        min-width: 140px;
+    }
+</style>
 
 <section class="content-header">
     <h1>
-        @ViewBag.Title<small>@ViewBag.Description</small>
+        @Html.Raw(ViewBag.Title)<small>@Html.Raw(ViewBag.Description)</small>
     </h1>
 </section>
 
 <section class="content">
     <div class="box box-default">
-
         <div class="box-body">
-            <p>Conteúdo da página</p>
-        </div>
+            @if (TempData["Flash.Message"] != null)
+            {
+                <div class="alert alert-@TempData["Flash.Type"]">
+                    @TempData["Flash.Message"]
+                </div>
+            }
 
+            <div class="alert alert-warning js-config-validation-message" style="display:none;"></div>
+
+            @using (Html.BeginForm("Index", "App", new { area = "ConfiguracaoApp" }, FormMethod.Post, new { id = "appConfigForm" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="config-toolbar">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Salvar
+                    </button>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-responsive">
+                            <table class="table table-condensed table-bordered table-hover config-table" id="tbAppConfig">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Filial</th>
+                                        <th>Par&acirc;metro</th>
+                                        <th>DESCRI&Ccedil;&Atilde;O</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Count; i++)
+                                    {
+                                        <tr>
+                                            <td>@Model[i].Id</td>
+                                            <td>
+                                                @(string.IsNullOrWhiteSpace(Model[i].FilialNome) ? "-" : Model[i].FilialNome)
+                                                @Html.HiddenFor(m => m[i].Id)
+                                                @Html.HiddenFor(m => m[i].Nome)
+                                                @Html.HiddenFor(m => m[i].Descricao)
+                                                @Html.HiddenFor(m => m[i].ValorOriginal)
+                                                @Html.HiddenFor(m => m[i].FilialId)
+                                                @Html.HiddenFor(m => m[i].FilialNome)
+                                            </td>
+                                            <td>@Model[i].Nome</td>
+                                            <td>@(string.IsNullOrWhiteSpace(Model[i].Descricao) ? "-" : Model[i].Descricao)</td>
+                                            <td class="config-value">
+                                                @if (Model[i].UsaDDLValor)
+                                                {
+                                                    @Html.DropDownListFor(m => m[i].Valor, Model[i].ValorDDL, new
+                                                    {
+                                                        @class = "form-control config-value-input js-parametro-valor",
+                                                        data_parametro = Model[i].Nome,
+                                                        data_original = Model[i].ValorOriginal ?? Model[i].Valor
+                                                    })
+                                                }
+                                                else
+                                                {
+                                                    @Html.TextBoxFor(m => m[i].Valor, new
+                                                    {
+                                                        @class = "form-control config-value-input js-parametro-valor",
+                                                        autocomplete = "off",
+                                                        data_parametro = Model[i].Nome,
+                                                        data_original = Model[i].ValorOriginal ?? Model[i].Valor
+                                                    })
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </section>
 
 @section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
 
-    <script>
-
+    <script type="text/javascript">
         $(document).ready(function () {
+            var validationMessage = $('.js-config-validation-message');
 
+            $('#tbAppConfig').DataTable({
+                processing: true,
+                deferRender: true,
+                pageLength: 25,
+                order: [[0, 'asc']],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por pagina",
+                    search: "Pesquisar:",
+                    zeroRecords: "Nenhum registro localizado",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "Última",
+                        next: "Próxima",
+                        previous: "Anterior"
+                    }
+                }
+            });
 
+            $('#appConfigForm').on('submit', function (e) {
+                validationMessage.hide().text('');
+
+                var total = 0;
+                var parametros = {
+                    ROMANEIOS: false,
+                    LINHAS: false,
+                    PECAS: false
+                };
+
+                $('.js-parametro-valor').each(function () {
+                    var nome = ($(this).data('parametro') || '').toString()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .trim()
+                        .toUpperCase();
+
+                    if (nome !== 'ROMANEIOS' && nome !== 'LINHAS' && nome !== 'PECAS') {
+                        return;
+                    }
+
+                    parametros[nome] = true;
+
+                    var valorTexto = ($(this).val() || '').toString()
+                        .replace('%', '')
+                        .replace(',', '.')
+                        .trim();
+                    var valor = parseFloat(valorTexto);
+
+                    if (!isNaN(valor)) {
+                        total += valor;
+                    }
+                });
+
+                if (!parametros.ROMANEIOS || !parametros.LINHAS || !parametros.PECAS || Math.abs(total - 100) > 0.01) {
+                    e.preventDefault();
+                    validationMessage
+                        .text('A soma dos par\u00E2metros Romaneios, Linhas e Pe\u00E7as deve ser igual a 100%.')
+                        .show();
+
+                    $('html, body').animate({
+                        scrollTop: validationMessage.offset().top - 20
+                    }, 200);
+                    return false;
+                }
+
+                var controleNrInput = $('.js-parametro-valor').filter(function () {
+                    var nome = ($(this).data('parametro') || '').toString()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .trim()
+                        .toUpperCase();
+
+                    return nome === 'CONTROLENR';
+                }).first();
+
+                if (controleNrInput.length) {
+                    var valorAtualTexto = (controleNrInput.data('original') || '').toString().trim();
+                    var novoValorTexto = (controleNrInput.val() || '').toString().trim();
+                    var valorAtual = parseInt(valorAtualTexto, 10);
+                    var novoValor = parseInt(novoValorTexto, 10);
+
+                    if (isNaN(valorAtual) || isNaN(novoValor) || novoValor < valorAtual) {
+                        e.preventDefault();
+                        validationMessage
+                            .text('O par\u00E2metro "ControleNr" n\u00E3o pode ser reduzido. Informe um valor maior ou igual ao valor atual.')
+                            .show();
+
+                        $('html, body').animate({
+                            scrollTop: validationMessage.offset().top - 20
+                        }, 200);
+                        return false;
+                    }
+                }
+
+                return true;
+            });
         });
     </script>
 }
+

@@ -2,6 +2,7 @@
     ViewBag.Title = "Estoque";
     ViewBag.Description = "Upload";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    DateTime? ultimaAtualizacaoEstoque = ViewBag.UltimaAtualizacaoEstoque as DateTime?;
 }
 
 <link href="~/Content/jquery-filestyle/jquery-filestyle.min.css" rel="stylesheet" />
@@ -17,11 +18,60 @@
         background: #3c8dbc;
         color: #fff;
     }
+
+    .upload-summary {
+        margin-top: 18px;
+        text-align: left;
+    }
+
+    .upload-summary-table {
+        width: 100%;
+        margin-bottom: 14px;
+        border-collapse: collapse;
+    }
+
+    .upload-summary-table th,
+    .upload-summary-table td {
+        padding: 9px 12px;
+        border: 1px solid #dce5ec;
+    }
+
+    .upload-summary-table th {
+        color: #26394d;
+        background: #f2f7fa;
+        text-align: center;
+    }
+
+    .upload-summary-table td:not(:first-child) {
+        text-align: right;
+    }
+
+    .upload-summary-detail {
+        margin: 0;
+        color: #68798a;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .last-update {
+        font-size: 14px !important;
+        margin-top: 5px !important;
+        margin-right: 10px !important;
+    }
 </style>
 
 <section class="content-header">
     <h1>
         @ViewBag.Title<small>@ViewBag.Description</small>
+        <small class="pull-right last-update">
+            <i class="fa fa-clock-o fa-fw"></i>
+            Última atualização:
+            <span id="ultima-atualizacao-estoque">
+                @(ultimaAtualizacaoEstoque.HasValue
+                    ? ultimaAtualizacaoEstoque.Value.ToString("dd/MM/yyyy HH:mm:ss")
+                    : "Não realizada")
+            </span>
+        </small>
     </h1>
 </section>
 
@@ -95,6 +145,42 @@
             });
         }
 
+        function valorResumo(valor) {
+            var numero = Number(valor);
+            return isNaN(numero) ? 0 : numero;
+        }
+
+        function criarResumoUpload(response) {
+            var conteudo = document.createElement("div");
+            conteudo.className = "upload-summary";
+
+            var titulo = document.createElement("h4");
+            titulo.className = "swal-text-success";
+            titulo.textContent = "Arquivo de estoque importado com sucesso!";
+            conteudo.appendChild(titulo);
+
+            var tabela = document.createElement("table");
+            tabela.className = "upload-summary-table";
+            tabela.innerHTML =
+                "<thead><tr><th>Tabela</th><th>Criados</th><th>Atualizados</th></tr></thead>" +
+                "<tbody>" +
+                "<tr><td>Estoque</td><td>" + valorResumo(response.inseridos) + "</td><td>" + valorResumo(response.atualizados) + "</td></tr>" +
+                "<tr><td>Material</td><td>" + valorResumo(response.materiais_inseridos) + "</td><td>" + valorResumo(response.materiais_atualizados) + "</td></tr>" +
+                "<tr><td>Locação</td><td>" + valorResumo(response.locacoes_inseridas) + "</td><td>" + valorResumo(response.locacoes_atualizadas) + "</td></tr>" +
+                "</tbody>";
+            conteudo.appendChild(tabela);
+
+            var detalhe = document.createElement("p");
+            detalhe.className = "upload-summary-detail";
+            detalhe.textContent =
+                "Linhas lidas: " + valorResumo(response.qtd_linhas) +
+                " | Processadas: " + valorResumo(response.processados) +
+                " | Desconsideradas: " + valorResumo(response.desconsiderados);
+            conteudo.appendChild(detalhe);
+
+            return conteudo;
+        }
+
         $(document).ready(function () {
 
             $('#uploadestoque').on('change', function (ev) {
@@ -157,15 +243,17 @@
                             }).done(function (response) {
                                 $('#btn-importar-estoque').html("<i class='fa fa-fw fa-upload'></i> Importar");
                                 if (response.erro == false) {
+                                    if (response.atualizado_em) {
+                                        $('#ultima-atualizacao-estoque').text(response.atualizado_em);
+                                    }
 
                                     setTimeout(function () {
-                                        var div = document.createElement("div");
-                                        div.innerHTML = "<h4 class='swal-text-success'>Arquivo de estoque importado com sucesso!</h4>";
                                         swal({
                                             title: "Atualizar estoque",
-                                            content: div,
+                                            content: criarResumoUpload(response),
                                             buttons: {
                                                 confirm: {
+                                                    text: "OK",
                                                     className: "swal-btn-info"
                                                 }
                                             }

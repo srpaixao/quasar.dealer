@@ -1,0 +1,81 @@
+@model Simplify.Quasar.Areas.ControleAcessoApp.ViewModels.PerfilViewModel
+@{
+    ViewBag.Title = "Detail Perfil";
+    Layout = null;
+}
+
+<div class="modal-header bg-blue-gradient">
+    <span><i class="fa-solid fa-eye fa-lg fa-fw"></i>&nbsp;&nbsp;Detalhes do Perfil de Acesso</span>
+</div>
+
+<div class="modal-body">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="form-label">Nome</label>
+                <input type="text" class="form-control" value="@Model.Nome" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-control" readonly rows="3">@Model.Descricao</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Filial</label>
+                <input type="text" class="form-control" value="@Model.NomeFilial" readonly />
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Criado por</label>
+                <input type="text" class="form-control" value="@Model.CriadoPorNome" readonly />
+            </div>
+        </div>
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Criado em</label>
+                <input type="text" class="form-control" value="@Model.CriadoEm" readonly />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Modificado por</label>
+                <input type="text" class="form-control" value="@Model.ModificadoPorNome" readonly />
+            </div>
+        </div>
+        <div class="col-xs-12 col-lg-6">
+            <div class="form-group">
+                <label class="form-label">Modificado em</label>
+                <input type="text" class="form-control" value="@Model.ModificadoEm" readonly />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <div class="pull-right">
+        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa-solid fa-xmark fa-fw"></i> Fechar</button>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+    });
+</script>

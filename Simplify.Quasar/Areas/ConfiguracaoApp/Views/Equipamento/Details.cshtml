@@ -1,0 +1,33 @@
+@model Simplify.Quasar.Areas.ConfiguracaoApp.ViewModels.EquipamentoCadastroViewModel
+@{
+    ViewBag.Title = "Configuração";
+    ViewBag.Description = "Visualizar Equipamento";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header"><h1>@ViewBag.Title<small>@ViewBag.Description</small></h1></section>
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            <dl class="dl-horizontal">
+                <dt>Nome</dt><dd>@Model.Nome</dd>
+                <dt>Descrição</dt><dd>@Model.Descricao</dd>
+                <dt>Tipo</dt><dd>@Model.Tipo</dd>
+                <dt>Zonas</dt><dd>@Model.Zonas</dd>
+                <dt>Quantidade</dt><dd>@Model.Qtde</dd>
+                <dt>Comprimento</dt><dd>@Model.Comp</dd>
+                <dt>Largura</dt><dd>@Model.Larg</dd>
+                <dt>Altura</dt><dd>@Model.Altu</dd>
+                <dt>Bloqueado</dt><dd>@(Model.Bloqueado ? "True" : "False")</dd>
+                <dt>Observações</dt><dd>@Model.Observacoes</dd>
+                <dt>Criado por</dt><dd>@Model.CriadoPor</dd>
+                <dt>Criado em</dt><dd>@Model.CriadoEm</dd>
+                <dt>Modificado por</dt><dd>@Model.ModificadoPor</dd>
+                <dt>Modificado em</dt><dd>@Model.ModificadoEm</dd>
+            </dl>
+        </div>
+        <div class="box-footer text-right">
+            <a class="btn btn-default" href="@Url.Action("Index")"><i class="fa fa-arrow-left fa-fw"></i> Voltar</a>
+        </div>
+    </div>
+</section>

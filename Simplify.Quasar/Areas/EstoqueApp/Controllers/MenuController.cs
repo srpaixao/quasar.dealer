@@ -12,8 +12,9 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
     {
         Quasar_Entities db = new Quasar_Entities();
 
-        // GET: Menu
-        public ActionResult Index()
+        int filialId = Util.GetCurrentFilial();
+
+        public ActionResult Index(string menuContext)
         {
             string area = ControllerContext.RouteData.DataTokens["area"].ToString();
             if (area == "")
@@ -21,37 +22,25 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 throw new HttpException(500, "Area not found");
             }
 
-            var itens_menu = (from m in db.AppMenu
-                              where m.Nivel == 1 && m.Status == true && m.Area == area
-                              orderby m.Sequencia
-                              select new MenuViewModel
-                              {
-                                  Id = m.Id,
-                                  Titulo = m.Titulo,
-                                  Area = m.Area,
-                                  Controller = m.Controller,
-                                  Action = m.Action,
-                                  Css = m.Css,
-                                  Status = m.Status,
-                                  Nivel = m.Nivel,
-                                  IdNivelSup = m.IdNivelSup,
-                                  Sequencia = m.Sequencia,
-                                  _menu = (from m2 in db.AppMenu
-                                           where m2.IdNivelSup == m.Id && m2.Status == true && m.Area == area
-                                           orderby m2.Sequencia
-                                           select new SubMenu
-                                           {
-                                               Id = m2.Id,
-                                               Titulo = m2.Titulo,
-                                               Area = m.Area,
-                                               Controller = m2.Controller,
-                                               Action = m2.Action,
-                                               Css = m2.Css,
-                                               Status = m2.Status,
-                                               IdNivelSup = m2.IdNivelSup,
-                                               Sequencia = m2.Sequencia
-                                           }).ToList()
-                              }).ToList();
+            int perfilId = Util.GetPerfilId();
+            var itens_menu = Util.GetMenusByPerfil(perfilId, db, area);
+
+            if (string.Equals(menuContext, "Locacao", System.StringComparison.OrdinalIgnoreCase))
+            {
+                var menuGlobal = Util.GetMenusByPerfil(perfilId, db);
+                var raizLocacao = menuGlobal.FirstOrDefault(item =>
+                    item._menu.Any(sub => string.Equals(sub.Controller, "Locacao", System.StringComparison.OrdinalIgnoreCase)));
+
+                if (raizLocacao != null)
+                {
+                    raizLocacao.Titulo = "Cadastros";
+                    raizLocacao.Css = "fa fa-folder-open";
+                    raizLocacao._menu = raizLocacao._menu
+                        .Where(sub => string.Equals(sub.Controller, "Locacao", System.StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    itens_menu = new System.Collections.Generic.List<MenuViewModel> { raizLocacao };
+                }
+            }
 
             return PartialView("_ItensMenu", itens_menu);
         }

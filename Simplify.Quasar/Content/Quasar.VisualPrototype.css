@@ -1,0 +1,480 @@
+:root {
+    --qd-navy-950: #03101d;
+    --qd-navy-900: #071a2d;
+    --qd-navy-800: #0b2a48;
+    --qd-blue-500: #18aef0;
+    --qd-blue-400: #43c4ff;
+    --qd-green-500: #27d3a2;
+    --qd-surface: #f3f7fb;
+    --qd-card: #ffffff;
+    --qd-ink: #102a43;
+    --qd-muted: #6b8297;
+    --qd-line: #dbe6ef;
+    --qd-shadow: 0 18px 45px rgba(7, 26, 45, .09);
+}
+
+body.quasar-visual-prototype {
+    color: var(--qd-ink);
+    background: var(--qd-surface);
+}
+
+.quasar-visual-prototype .wrapper,
+.quasar-visual-prototype .content-wrapper,
+.quasar-visual-prototype .right-side {
+    background: var(--qd-surface);
+}
+
+.quasar-visual-prototype .main-header .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    background: var(--qd-navy-950) !important;
+    box-shadow: none;
+}
+
+.quasar-visual-prototype .main-header .logo .logo-lg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.quasar-visual-prototype .main-header .logo img {
+    display: block;
+    width: 120px;
+    height: 36px;
+    margin: 0 auto;
+    transform: translateX(8px);
+}
+
+.quasar-visual-prototype .main-header .navbar {
+    background: linear-gradient(100deg, var(--qd-navy-950), var(--qd-navy-800)) !important;
+    box-shadow: 0 12px 30px rgba(3, 16, 29, .17);
+}
+
+.quasar-visual-prototype .navbar-title > span:first-child {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+}
+
+.quasar-visual-prototype .main-sidebar {
+    background: linear-gradient(180deg, var(--qd-navy-950), #071f36 72%, #092945) !important;
+    box-shadow: 14px 0 35px rgba(3, 16, 29, .08);
+}
+
+.quasar-visual-prototype .sidebar-menu > li.header {
+    color: #7892a9;
+    background: transparent;
+    letter-spacing: .12em;
+}
+
+.quasar-visual-prototype .sidebar-menu > li > a {
+    border-left: 3px solid transparent;
+    color: #b9cada;
+}
+
+.quasar-visual-prototype .sidebar-menu > li:hover > a,
+.quasar-visual-prototype .sidebar-menu > li.active > a,
+.quasar-visual-prototype .sidebar-menu > li.menu-open > a {
+    color: #fff;
+    border-left-color: var(--qd-green-500);
+    background: rgba(24, 174, 240, .12);
+}
+
+.quasar-visual-prototype .treeview-menu {
+    background: rgba(0, 0, 0, .16) !important;
+}
+
+.quasar-visual-prototype .content-header {
+    padding: 28px 28px 10px;
+}
+
+.quasar-visual-prototype .content-header h1 {
+    color: var(--qd-ink);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -.025em;
+}
+
+.quasar-visual-prototype .content-header h1 small {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: #075c80;
+    background: #dff5ff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.quasar-visual-prototype .content {
+    padding: 15px 28px 30px;
+}
+
+.quasar-visual-prototype .box {
+    border: 1px solid rgba(219, 230, 239, .8);
+    border-radius: 20px;
+    background: var(--qd-card);
+    box-shadow: var(--qd-shadow);
+    overflow: hidden;
+}
+
+.quasar-visual-prototype .box.box-default {
+    border-top: 1px solid rgba(219, 230, 239, .8);
+}
+
+.quasar-visual-prototype .box-body {
+    padding: 24px;
+}
+
+.quasar-visual-prototype .form-control,
+.quasar-visual-prototype .input-group-addon {
+    border-color: var(--qd-line);
+    border-radius: 11px;
+    box-shadow: none;
+}
+
+.quasar-visual-prototype .form-control:focus {
+    border-color: var(--qd-blue-500);
+    box-shadow: 0 0 0 3px rgba(24, 174, 240, .13);
+}
+
+.quasar-visual-prototype .btn-primary,
+.quasar-visual-prototype .btn-info {
+    border-color: var(--qd-blue-500);
+    border-radius: 10px;
+    background: var(--qd-blue-500);
+}
+
+.quasar-visual-prototype .main-footer {
+    border-top: 0;
+    padding: 16px 28px 22px;
+    color: #c7d6e3;
+    background: var(--qd-surface);
+}
+
+.quasar-visual-prototype .main-footer .footer-shell {
+    padding: 18px 22px;
+    border: 1px solid rgba(143, 233, 255, .12);
+    border-radius: 16px;
+    color: #c7d6e3;
+    background: linear-gradient(105deg, var(--qd-navy-950), var(--qd-navy-800));
+    box-shadow: 0 14px 34px rgba(3, 16, 29, .14);
+}
+
+.quasar-visual-prototype .main-footer a,
+.quasar-visual-prototype .main-footer .footer-kicker {
+    color: #fff;
+}
+
+.quasar-visual-prototype .main-footer .footer-kicker {
+    border: 1px solid rgba(24, 174, 240, .2);
+    background: rgba(24, 174, 240, .13);
+}
+
+.quasar-visual-prototype .main-footer .footer-meta {
+    color: #c7d6e3;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.quasar-visual-prototype .main-footer .footer-meta strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.quasar-visual-prototype .main-footer .footer-meta a {
+    color: var(--qd-green-500);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.quasar-visual-prototype .main-footer .footer-meta a:hover,
+.quasar-visual-prototype .main-footer .footer-meta a:focus {
+    color: var(--qd-blue-400);
+    text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+    .quasar-visual-prototype .main-footer {
+        margin-left: 230px;
+    }
+
+    .quasar-visual-prototype.sidebar-collapse .main-footer {
+        margin-left: 50px;
+    }
+}
+
+/* Página inicial */
+.quasar-visual-prototype .qd-home-hero {
+    position: relative;
+    margin: 28px 28px 20px;
+    padding: 34px 38px;
+    overflow: hidden;
+    border-radius: 22px;
+    color: #fff;
+    background:
+        radial-gradient(circle at 82% 25%, rgba(24, 174, 240, .28), transparent 30%),
+        linear-gradient(115deg, var(--qd-navy-950), var(--qd-navy-800));
+    box-shadow: 0 22px 48px rgba(3, 16, 29, .17);
+}
+
+.quasar-visual-prototype .qd-home-hero:after {
+    content: "";
+    position: absolute;
+    right: -55px;
+    bottom: -90px;
+    width: 260px;
+    height: 260px;
+    border: 1px solid rgba(143, 233, 255, .24);
+    border-radius: 50%;
+    box-shadow: 0 0 0 28px rgba(24, 174, 240, .05), 0 0 0 58px rgba(39, 211, 162, .04);
+}
+
+.quasar-visual-prototype .qd-home-eyebrow {
+    color: var(--qd-green-500);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.quasar-visual-prototype .qd-home-hero h1 {
+    margin: 8px 0 6px;
+    color: #fff;
+    font-size: 31px;
+    font-weight: 800;
+    letter-spacing: -.035em;
+}
+
+.quasar-visual-prototype .qd-home-hero p {
+    max-width: none;
+    margin: 0;
+    color: #a9bfd2;
+    white-space: nowrap;
+}
+
+.quasar-visual-prototype .qd-home-content {
+    padding: 0 28px 30px;
+}
+
+.quasar-visual-prototype .qd-home-content .box {
+    margin-bottom: 0;
+}
+
+.quasar-visual-prototype .summary-card {
+    position: relative;
+    min-height: 148px;
+    padding: 20px;
+    overflow: hidden;
+    border: 1px solid var(--qd-line) !important;
+    border-radius: 16px;
+    background: #fff !important;
+    box-shadow: 0 9px 25px rgba(7, 26, 45, .06);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.quasar-visual-prototype .summary-card:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 4px;
+    background: var(--qd-blue-500);
+}
+
+.quasar-visual-prototype .summary-card.is-orange:before { background: #ffac3d; }
+.quasar-visual-prototype .summary-card.is-green:before { background: var(--qd-green-500); }
+.quasar-visual-prototype .summary-card.is-purple:before { background: #736de2; }
+.quasar-visual-prototype .summary-card.is-blue:before { background: #287de0; }
+
+.quasar-visual-prototype .summary-link:hover .summary-card {
+    transform: translateY(-3px);
+    border-color: #b9dff0 !important;
+    box-shadow: 0 16px 34px rgba(7, 26, 45, .11);
+}
+
+.quasar-visual-prototype .summary-card .summary-value {
+    margin-top: 8px;
+    color: var(--qd-ink);
+    font-size: 34px;
+}
+
+.quasar-visual-prototype .summary-card .summary-label {
+    color: var(--qd-blue-500);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.quasar-visual-prototype .summary-card .summary-title {
+    color: var(--qd-ink);
+}
+
+.quasar-visual-prototype .summary-card .summary-detail {
+    color: var(--qd-muted);
+}
+
+/* Conferência de volumes */
+.quasar-visual-prototype .small-box {
+    min-height: 128px !important;
+    overflow: hidden;
+    border: 0;
+    border-radius: 17px;
+    box-shadow: 0 13px 28px rgba(7, 26, 45, .1);
+}
+
+.quasar-visual-prototype .small-box.bg-purple { background: linear-gradient(135deg, #123d69, #226aa5) !important; }
+.quasar-visual-prototype .small-box.bg-orange { background: linear-gradient(135deg, #e88c22, #ffb64f) !important; }
+.quasar-visual-prototype .small-box.bg-green { background: linear-gradient(135deg, #11936d, #27d3a2) !important; }
+.quasar-visual-prototype .small-box.bg-red { background: linear-gradient(135deg, #c74455, #ef7080) !important; }
+
+.quasar-visual-prototype .small-box .inner {
+    padding: 18px;
+}
+
+.quasar-visual-prototype .small-box h3 {
+    font-size: 36px;
+    font-weight: 800;
+}
+
+.quasar-visual-prototype .small-box .icon {
+    top: 10px;
+    right: 14px;
+    color: rgba(255, 255, 255, .17);
+}
+
+.quasar-visual-prototype .conference-refresh-status {
+    border: 1px solid #cceaf7;
+    border-radius: 12px;
+    color: #315269;
+    background: #edf9fe;
+}
+
+.quasar-visual-prototype #volume {
+    width: 100% !important;
+    border-radius: 0 13px 13px 0;
+    color: var(--qd-ink);
+    background: #f8fbfd;
+}
+
+.quasar-visual-prototype .table > thead > tr > th {
+    color: #49667c;
+    background: #eef5f9;
+    border-color: var(--qd-line);
+    font-size: 11px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+/* Login do protótipo */
+body.login-screen.qd-login-prototype {
+    background: var(--qd-navy-950);
+}
+
+.qd-login-prototype .login-background-video {
+    opacity: .56;
+    filter: saturate(.85) contrast(1.04) brightness(1.08);
+}
+
+.qd-login-prototype .login-stage:before {
+    background:
+        radial-gradient(circle at 75% 20%, rgba(24, 174, 240, .16), transparent 35%),
+        linear-gradient(90deg, rgba(3, 16, 29, .88) 0%, rgba(3, 16, 29, .68) 44%, rgba(3, 16, 29, .24) 100%);
+}
+
+.qd-login-prototype .login-frame {
+    max-width: 370px;
+    border: 1px solid rgba(143, 233, 255, .16);
+    border-radius: 22px;
+    background: rgba(7, 26, 45, .88);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, .35);
+}
+
+.qd-login-prototype .login-card {
+    padding: 30px 28px 24px;
+}
+
+.qd-login-prototype .qd-login-logo {
+    display: block;
+    width: 225px;
+    height: auto;
+    max-width: 100%;
+    margin: 0 auto 12px;
+    transform: translateX(8px);
+}
+
+.qd-login-prototype .login-card-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+}
+
+.qd-login-prototype .qd-login-caption {
+    margin: 0 0 22px;
+    color: #91a9bd;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.qd-login-prototype .login-select,
+.qd-login-prototype .login-card .form-group {
+    border-color: rgba(143, 233, 255, .15);
+    background: rgba(255, 255, 255, .055);
+}
+
+.qd-login-prototype .login-submit {
+    height: 50px;
+    background: linear-gradient(120deg, #078fd0, var(--qd-blue-500));
+    box-shadow: 0 14px 30px rgba(24, 174, 240, .22);
+}
+
+.qd-login-prototype .login-submit:hover,
+.qd-login-prototype .login-submit:focus {
+    box-shadow: 0 17px 34px rgba(24, 174, 240, .32);
+}
+
+.qd-login-prototype .login-company-link {
+    color: var(--qd-green-500);
+}
+
+@media (max-width: 767px) {
+    .quasar-visual-prototype .content-header,
+    .quasar-visual-prototype .content {
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+
+    .quasar-visual-prototype .qd-home-hero {
+        margin: 16px 15px;
+        padding: 26px 22px;
+    }
+
+    .quasar-visual-prototype .qd-home-hero h1 {
+        font-size: 25px;
+    }
+
+    .quasar-visual-prototype .qd-home-hero p {
+        white-space: normal;
+    }
+
+    .quasar-visual-prototype .qd-home-content {
+        padding: 0 15px 20px;
+    }
+
+    .qd-login-prototype .login-stage:before {
+        background: rgba(3, 16, 29, .82);
+    }
+}

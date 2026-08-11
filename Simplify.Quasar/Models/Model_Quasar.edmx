@@ -131,15 +131,40 @@
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Nome" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="Descricao" Type="varchar" MaxLength="500" />
-          <Property Name="Etiqueta" Type="bit" />
-          <Property Name="QtdeArmazenagem" Type="int" />
-          <Property Name="QtdeSeparacao" Type="int" />
           <Property Name="CriadoPor" Type="varchar" MaxLength="100" />
           <Property Name="CriadoEm" Type="datetime" />
           <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
-          <Property Name="Tipo" Type="varchar" MaxLength="50" />
+          <Property Name="TipoAreaId" Type="int" />
+          <Property Name="Etiqueta" Type="bit" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Quasar_Automec.dbo.AreaPedido' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="AreaPedido">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="UsuarioApollo" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UsuarioApollo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Area" Type="varchar" MaxLength="50" />
+          <Property Name="AreaId" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Quasar_Automec.dbo.AreaRomaneio' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="AreaRomaneio">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="Area" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Area" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Prioridade" Type="int" />
+          <Property Name="Separar" Type="bit" />
+          <Property Name="Conferir" Type="bit" />
+          <Property Name="Alocar" Type="bit" />
+          <Property Name="Mapa" Type="bit" />
         </EntityType>
         <EntityType Name="Cliente">
           <Key>
@@ -171,6 +196,68 @@
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
           <Property Name="TransportadoraId" Type="int" />
+          <Property Name="Etiqueta" Type="bit" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Quasar_Automec.dbo.Devolucao' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Devolucao">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="DevolucaoNr" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DevolucaoNr" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Movimento" Type="varchar" MaxLength="50" />
+          <Property Name="Retirar" Type="varchar" MaxLength="50" />
+          <Property Name="MotivoId" Type="int" />
+          <Property Name="NFVenda" Type="varchar" MaxLength="50" />
+          <Property Name="Cliente" Type="varchar" MaxLength="150" />
+          <Property Name="Vendedor" Type="varchar" MaxLength="150" />
+          <Property Name="TransportadoraId" Type="int" />
+          <Property Name="NFDevolucao" Type="varchar" MaxLength="50" />
+          <Property Name="Sinistro" Type="varchar" MaxLength="50" />
+          <Property Name="PlacaVeiculo" Type="varchar" MaxLength="50" />
+          <Property Name="Observacao" Type="varchar(max)" />
+          <Property Name="StatusId" Type="int" />
+          <Property Name="FilialId" Type="int" />
+          <Property Name="CriadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="CriadoEm" Type="datetime" />
+          <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="ModificadoEm" Type="datetime" />
+        </EntityType>
+        <EntityType Name="DevolucaoComplemento">
+          <Key>
+            <PropertyRef Name="DevolucaoId" />
+          </Key>
+          <Property Name="DevolucaoId" Type="int" Nullable="false" />
+          <Property Name="DocExpedicaoId" Type="int" />
+          <Property Name="NotaFiscalId" Type="int" />
+          <Property Name="DataVenda" Type="datetime" />
+          <Property Name="CriadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="CriadoEm" Type="datetime" />
+          <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="ModificadoEm" Type="datetime" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Quasar_Automec.dbo.DevolucaoItem' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="DevolucaoItem">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="DevolucaoId" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DevolucaoId" Type="int" Nullable="false" />
+          <Property Name="ItemNr" Type="varchar" MaxLength="50" />
+          <Property Name="Quantidade" Type="int" />
+          <Property Name="ValorUnitário" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="Observacao" Type="varchar(max)" />
+          <Property Name="CriadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="CriadoEm" Type="datetime" />
+          <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="ModificadoEm" Type="datetime" />
+          <Property Name="StatusId" Type="int" />
+          <Property Name="OcorrenciaId" Type="int" />
+          <Property Name="QtdeOcorrencia" Type="int" />
         </EntityType>
         <EntityType Name="DocExpedicao">
           <Key>
@@ -245,6 +332,11 @@
           <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
+          <Property Name="Comp" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="Larg" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="Altu" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="Zonas" Type="varchar" MaxLength="200" />
+          <Property Name="Qtde" Type="int" />
         </EntityType>
         <EntityType Name="Estado">
           <Key>
@@ -390,18 +482,15 @@
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="Locacao">
           <Key>
             <PropertyRef Name="Codigo" />
-            
           </Key>
           <Property Name="Codigo" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="Tipo" Type="varchar" MaxLength="100" />
           <Property Name="Descricao" Type="varchar" MaxLength="100" />
           <Property Name="Bloqueado" Type="bit" Nullable="false" />
-          <Property Name="AreaId" Type="int" />
+          <Property Name="ZonaId" Type="int" />
           <Property Name="EquipamentoId" Type="int" />
           <Property Name="Curva" Type="varchar" MaxLength="100" />
           <Property Name="Estrategia" Type="varchar" MaxLength="100" />
@@ -411,6 +500,8 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
+          <Property Name="AreaId" Type="int" />
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
         </EntityType>
         <EntityType Name="LocalDestino">
           <Key>
@@ -486,6 +577,31 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
+          <Property Name="CategoriaProduto" Type="varchar" MaxLength="20" />
+          <Property Name="ItemApollo" Type="varchar" MaxLength="100" />
+          <Property Name="Zona1Id" Type="int" />
+          <Property Name="Eqpto1Id" Type="int" />
+          <Property Name="QtdePadrao1" Type="int" />
+            <Property Name="Zona2Id" Type="int" />
+            <Property Name="Eqpto2Id" Type="int" />
+            <Property Name="QtdePadrao2" Type="int" />
+            <Property Name="Zona3Id" Type="int" />
+            <Property Name="Eqpto3Id" Type="int" />
+            <Property Name="QtdePadrao3" Type="int" />
+            <Property Name="Comp" Type="decimal" Precision="15" Scale="2" />
+            <Property Name="Larg" Type="decimal" Precision="15" Scale="2" />
+            <Property Name="Altu" Type="decimal" Precision="15" Scale="2" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Quasar_Automec.dbo.MotivoDevolucao' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="MotivoDevolucao">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="Motivo" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Motivo" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="FilialId" Type="nchar" MaxLength="10" />
         </EntityType>
         <EntityType Name="Movimentacao">
           <Key>
@@ -547,7 +663,13 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="NotaFiscalId" Type="int" Nullable="false" />
           <Property Name="Item" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="Quantidade" Type="decimal" Precision="15" Scale="3" Nullable="false" />
+          <Property Name="QtdConferida" Type="decimal" Precision="15" Scale="3" />
           <Property Name="QtdArmazenada" Type="decimal" Precision="15" Scale="3" />
+          <Property Name="Conferido" Type="bit" Nullable="false" />
+          <Property Name="UsuarioConferencia" Type="varchar" MaxLength="100" />
+          <Property Name="DtHrConferencia" Type="datetime" />
+          <Property Name="UsuarioArmazenagem" Type="varchar" MaxLength="100" />
+          <Property Name="DtHrArmazenagem" Type="datetime" />
           <Property Name="Volume" Type="varchar" MaxLength="100" />
           <Property Name="Pedido" Type="varchar" MaxLength="100" />
           <Property Name="StatusId" Type="int" />
@@ -557,6 +679,33 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Quasar_Automec.dbo.NotaFiscalTransportadora' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="NotaFiscalTransportadora">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Transportadora" Type="varchar" MaxLength="150" />
+          <Property Name="NotaFiscal" Type="varchar" MaxLength="50" />
+          <Property Name="Volumes" Type="int" />
+          <Property Name="Cliente" Type="varchar" MaxLength="150" />
+          <Property Name="Contato" Type="varchar" MaxLength="50" />
+          <Property Name="VolumeNr" Type="varchar" MaxLength="50" />
+          <Property Name="FilialId" Type="int" />
+          <Property Name="Sequencia" Type="varchar" MaxLength="50" />
+          <Property Name="ZPL" Type="varchar(max)" />
+        </EntityType>
+        <EntityType Name="Ocorrencia">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nome" Type="varchar" MaxLength="50" />
+          <Property Name="Observacao" Type="varchar" MaxLength="500" />
+          <Property Name="CriadoPor" Type="varchar" MaxLength="50" />
+          <Property Name="CriadoEm" Type="datetime" />
         </EntityType>
         <EntityType Name="OrigemNotaFiscal">
           <Key>
@@ -580,6 +729,19 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
+        </EntityType>
+        <EntityType Name="PerfilAreaAcesso">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PerfilId" Type="int" Nullable="false" />
+          <Property Name="Area" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Status" Type="bit" Nullable="false" />
+          <Property Name="CriadoPor" Type="nvarchar" MaxLength="100" />
+          <Property Name="CriadoEm" Type="datetime" />
+          <Property Name="ModificadoPor" Type="nvarchar" MaxLength="100" />
+          <Property Name="ModificadoEm" Type="datetime" />
         </EntityType>
         <EntityType Name="PerfilFuncao">
           <Key>
@@ -640,7 +802,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="CriadoEm" Type="datetime" />
           <Property Name="ModificadoPor" Type="varchar" MaxLength="50" />
           <Property Name="ModificadoEm" Type="datetime" />
-          <Property Name="FilialId" Type="int" />
         </EntityType>
         <EntityType Name="Romaneio">
           <Key>
@@ -662,6 +823,34 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
+          <Property Name="Itens" Type="int" />
+          <Property Name="Pecas" Type="int" />
+          <Property Name="OS" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="RomaneioItem">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RomaneioId" Type="int" Nullable="false" />
+          <Property Name="ItemNr" Type="varchar" MaxLength="100" />
+          <Property Name="Qtde" Type="int" />
+          <Property Name="CriadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="CriadoEm" Type="datetime" />
+          <Property Name="FilialId" Type="int" />
+          <Property Name="TarefaNr" Type="varchar" MaxLength="50" />
+          <Property Name="Descricao" Type="varchar" MaxLength="250" />
+          <Property Name="ValorUnitario" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="ValorTotal" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="StatusId" Type="int" />
+          <Property Name="SeparadorId" Type="int" />
+          <Property Name="DataSeparador" Type="datetime" />
+          <Property Name="ConferenteId" Type="int" />
+          <Property Name="DataConferente" Type="datetime" />
+          <Property Name="LocacaoId" Type="int" />
+          <Property Name="ZonaId" Type="int" />
+          <Property Name="QtdeSeparada" Type="int" />
+          <Property Name="QtdeConferida" Type="int" />
         </EntityType>
         <EntityType Name="Rota">
           <Key>
@@ -707,6 +896,21 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="Nome" Type="varchar" MaxLength="100" />
           <Property Name="Descricao" Type="varchar(max)" />
           <Property Name="FilialId" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Quasar_Automec.dbo.StatusDevolucao' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="StatusDevolucao">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="Nome" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Nome" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="FilialId" Type="int" />
+          <Property Name="CriadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="CriadoEm" Type="datetime" />
+          <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="ModificadoEm" Type="datetime" />
         </EntityType>
         <EntityType Name="StatusDocExpedicao">
           <Key>
@@ -810,6 +1014,15 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="Prazo" Type="int" />
           <Property Name="Formulario" Type="varchar" MaxLength="50" />
           <Property Name="FilialId" Type="int" />
+        </EntityType>
+        <EntityType Name="TipoArea">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Descricao" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="FilialId" Type="int" />
+          <Property Name="Codigo" Type="varchar" MaxLength="5" />
         </EntityType>
         <EntityType Name="TipoDefeito">
           <Key>
@@ -984,13 +1197,58 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoEm" Type="datetime" />
           <Property Name="FilialId" Type="int" />
         </EntityType>
+        <EntityType Name="Zona">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Codigo" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Descricao" Type="varchar" MaxLength="500" />
+          <Property Name="ProntoDespacho" Type="bit" />
+          <Property Name="QtdeArmazenagem" Type="int" />
+          <Property Name="QtdeLinha" Type="int" />
+          <Property Name="ValorPedido" Type="numeric" Precision="18" Scale="2" />
+          <Property Name="QtdeCliente" Type="int" />
+          <Property Name="CriadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="CriadoEm" Type="datetime" />
+          <Property Name="ModificadoPor" Type="varchar" MaxLength="100" />
+          <Property Name="ModificadoEm" Type="datetime" />
+          <Property Name="FilialId" Type="int" />
+          <Property Name="AreaId" Type="int" />
+          <Property Name="Nome" Type="varchar" MaxLength="100" />
+          <Property Name="Ativo" Type="bit" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Locacao_Zona">
+          <End Role="Zona" Type="Self.Zona" Multiplicity="0..1" />
+          <End Role="Locacao" Type="Self.Locacao" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Zona">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Locacao">
+              <PropertyRef Name="ZonaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <!--Errors Found During Generation:
+warning 6035: The relationship 'FK_RomaneioItem_Locacao' has columns that are not part of the key of the table on the primary side of the relationship. The relationship was excluded.
+        <Association Name="FK_RomaneioItem_Locacao" />-->
+        <Association Name="FK_Zona_Area">
+          <End Role="Area" Type="Self.Area" Multiplicity="0..1" />
+          <End Role="Zona" Type="Self.Zona" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Zona">
+              <PropertyRef Name="AreaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Function Name="SP_GetHistorico" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
-        <Function Name="SP_GetItensEstoque" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
-          <Parameter Name="filialId" Type="int" Mode="In" />
-        </Function>
+        <Function Name="SP_GetItensEstoque" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="SP_GetLocacoesDisponiveis" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="param" Type="varchar" Mode="In" />
-          <Parameter Name="filialId" Type="int" Mode="In" />
         </Function>
         <EntityContainer Name="Quasar_ModelStoreContainer">
           <EntitySet Name="Anomalia" EntityType="Self.Anomalia" Schema="dbo" store:Type="Tables" />
@@ -1003,6 +1261,7 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <EntitySet Name="AppSQL" EntityType="Self.AppSQL" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Area" EntityType="Self.Area" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Cliente" EntityType="Self.Cliente" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DevolucaoComplemento" EntityType="Self.DevolucaoComplemento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DocExpedicao" EntityType="Self.DocExpedicao" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Empresa" EntityType="Self.Empresa" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Equipamento" EntityType="Self.Equipamento" Schema="dbo" store:Type="Tables" />
@@ -1015,6 +1274,7 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <EntitySet Name="HistoricoDocExpedicao" EntityType="Self.HistoricoDocExpedicao" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="HistoricoRecebimento" EntityType="Self.HistoricoRecebimento" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Impressora" EntityType="Self.Impressora" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Locacao" EntityType="Self.Locacao" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LocalDestino" EntityType="Self.LocalDestino" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LocalOrigem" EntityType="Self.LocalOrigem" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LogImpressao" EntityType="Self.LogImpressao" Schema="dbo" store:Type="Tables" />
@@ -1025,13 +1285,16 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <EntitySet Name="MovimentacaoDestino" EntityType="Self.MovimentacaoDestino" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="NotaFiscal" EntityType="Self.NotaFiscal" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="NotaFiscalItem" EntityType="Self.NotaFiscalItem" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Ocorrencia" EntityType="Self.Ocorrencia" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OrigemNotaFiscal" EntityType="Self.OrigemNotaFiscal" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Parada" EntityType="Self.Parada" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PerfilAreaAcesso" EntityType="Self.PerfilAreaAcesso" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PerfilFuncao" EntityType="Self.PerfilFuncao" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PerfilUsuario" EntityType="Self.PerfilUsuario" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RetornoInterno" EntityType="Self.RetornoInterno" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="RetornoInternoItem" EntityType="Self.RetornoInternoItem" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Romaneio" EntityType="Self.Romaneio" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="RomaneioItem" EntityType="Self.RomaneioItem" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Rota" EntityType="Self.Rota" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roteiro" EntityType="Self.Roteiro" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StatusAnomalia" EntityType="Self.StatusAnomalia" Schema="dbo" store:Type="Tables" />
@@ -1047,6 +1310,7 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <EntitySet Name="StatusTransportadora" EntityType="Self.StatusTransportadora" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="StatusVolume" EntityType="Self.StatusVolume" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TipoAnomalia" EntityType="Self.TipoAnomalia" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TipoArea" EntityType="Self.TipoArea" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TipoDefeito" EntityType="Self.TipoDefeito" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TipoDocumentoRetorno" EntityType="Self.TipoDocumentoRetorno" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TipoEmpresa" EntityType="Self.TipoEmpresa" Schema="dbo" store:Type="Tables" />
@@ -1061,24 +1325,106 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <EntitySet Name="Usuario" EntityType="Self.Usuario" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Veiculo" EntityType="Self.Veiculo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Volume" EntityType="Self.Volume" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="Locacao" EntityType="Self.Locacao" store:Type="Tables" store:Schema="dbo">
+          <EntitySet Name="Zona" EntityType="Self.Zona" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="AreaPedido" EntityType="Self.AreaPedido" store:Type="Tables" store:Schema="dbo">
             <DefiningQuery>SELECT 
-    [Locacao].[Codigo] AS [Codigo], 
-    [Locacao].[Tipo] AS [Tipo], 
-    [Locacao].[Descricao] AS [Descricao], 
-    [Locacao].[Bloqueado] AS [Bloqueado], 
-    [Locacao].[AreaId] AS [AreaId], 
-    [Locacao].[EquipamentoId] AS [EquipamentoId], 
-    [Locacao].[Curva] AS [Curva], 
-    [Locacao].[Estrategia] AS [Estrategia], 
-    [Locacao].[Observacoes] AS [Observacoes], 
-    [Locacao].[CriadoPor] AS [CriadoPor], 
-    [Locacao].[CriadoEm] AS [CriadoEm], 
-    [Locacao].[ModificadoPor] AS [ModificadoPor], 
-    [Locacao].[ModificadoEm] AS [ModificadoEm], 
-    [Locacao].[FilialId] AS [FilialId]
-    FROM [dbo].[Locacao] AS [Locacao]</DefiningQuery>
+    [AreaPedido].[Id] AS [Id], 
+    [AreaPedido].[UsuarioApollo] AS [UsuarioApollo], 
+    [AreaPedido].[Area] AS [Area], 
+    [AreaPedido].[AreaId] AS [AreaId]
+    FROM [dbo].[AreaPedido] AS [AreaPedido]</DefiningQuery>
           </EntitySet>
+          <EntitySet Name="AreaRomaneio" EntityType="Self.AreaRomaneio" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [AreaRomaneio].[Id] AS [Id], 
+    [AreaRomaneio].[Area] AS [Area], 
+    [AreaRomaneio].[Prioridade] AS [Prioridade], 
+    [AreaRomaneio].[Separar] AS [Separar], 
+    [AreaRomaneio].[Conferir] AS [Conferir], 
+    [AreaRomaneio].[Alocar] AS [Alocar], 
+    [AreaRomaneio].[Mapa] AS [Mapa]
+    FROM [dbo].[AreaRomaneio] AS [AreaRomaneio]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="Devolucao" EntityType="Self.Devolucao" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Devolucao].[Id] AS [Id], 
+    [Devolucao].[DevolucaoNr] AS [DevolucaoNr], 
+    [Devolucao].[Movimento] AS [Movimento], 
+    [Devolucao].[Retirar] AS [Retirar], 
+    [Devolucao].[MotivoId] AS [MotivoId], 
+    [Devolucao].[NFVenda] AS [NFVenda], 
+    [Devolucao].[Cliente] AS [Cliente], 
+    [Devolucao].[Vendedor] AS [Vendedor], 
+    [Devolucao].[TransportadoraId] AS [TransportadoraId], 
+    [Devolucao].[NFDevolucao] AS [NFDevolucao], 
+    [Devolucao].[Sinistro] AS [Sinistro], 
+    [Devolucao].[PlacaVeiculo] AS [PlacaVeiculo], 
+    [Devolucao].[Observacao] AS [Observacao], 
+    [Devolucao].[StatusId] AS [StatusId], 
+    [Devolucao].[FilialId] AS [FilialId], 
+    [Devolucao].[CriadoPor] AS [CriadoPor], 
+    [Devolucao].[CriadoEm] AS [CriadoEm], 
+    [Devolucao].[ModificadoPor] AS [ModificadoPor], 
+    [Devolucao].[ModificadoEm] AS [ModificadoEm]
+    FROM [dbo].[Devolucao] AS [Devolucao]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="DevolucaoItem" EntityType="Self.DevolucaoItem" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [DevolucaoItem].[Id] AS [Id], 
+    [DevolucaoItem].[DevolucaoId] AS [DevolucaoId], 
+    [DevolucaoItem].[ItemNr] AS [ItemNr], 
+    [DevolucaoItem].[Quantidade] AS [Quantidade], 
+    [DevolucaoItem].[ValorUnitário] AS [ValorUnitário], 
+    [DevolucaoItem].[Observacao] AS [Observacao], 
+    [DevolucaoItem].[CriadoPor] AS [CriadoPor], 
+    [DevolucaoItem].[CriadoEm] AS [CriadoEm], 
+    [DevolucaoItem].[ModificadoPor] AS [ModificadoPor], 
+    [DevolucaoItem].[ModificadoEm] AS [ModificadoEm], 
+    [DevolucaoItem].[StatusId] AS [StatusId], 
+    [DevolucaoItem].[OcorrenciaId] AS [OcorrenciaId], 
+    [DevolucaoItem].[QtdeOcorrencia] AS [QtdeOcorrencia]
+    FROM [dbo].[DevolucaoItem] AS [DevolucaoItem]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="MotivoDevolucao" EntityType="Self.MotivoDevolucao" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [MotivoDevolucao].[Id] AS [Id], 
+    [MotivoDevolucao].[Motivo] AS [Motivo], 
+    [MotivoDevolucao].[FilialId] AS [FilialId]
+    FROM [dbo].[MotivoDevolucao] AS [MotivoDevolucao]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="NotaFiscalTransportadora" EntityType="Self.NotaFiscalTransportadora" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [NotaFiscalTransportadora].[Id] AS [Id], 
+    [NotaFiscalTransportadora].[Transportadora] AS [Transportadora], 
+    [NotaFiscalTransportadora].[NotaFiscal] AS [NotaFiscal], 
+    [NotaFiscalTransportadora].[Volumes] AS [Volumes], 
+    [NotaFiscalTransportadora].[Cliente] AS [Cliente], 
+    [NotaFiscalTransportadora].[Contato] AS [Contato], 
+    [NotaFiscalTransportadora].[VolumeNr] AS [VolumeNr], 
+    [NotaFiscalTransportadora].[FilialId] AS [FilialId], 
+    [NotaFiscalTransportadora].[Sequencia] AS [Sequencia], 
+    [NotaFiscalTransportadora].[ZPL] AS [ZPL]
+    FROM [dbo].[NotaFiscalTransportadora] AS [NotaFiscalTransportadora]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="StatusDevolucao" EntityType="Self.StatusDevolucao" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [StatusDevolucao].[Id] AS [Id], 
+    [StatusDevolucao].[Nome] AS [Nome], 
+    [StatusDevolucao].[FilialId] AS [FilialId], 
+    [StatusDevolucao].[CriadoPor] AS [CriadoPor], 
+    [StatusDevolucao].[CriadoEm] AS [CriadoEm], 
+    [StatusDevolucao].[ModificadoPor] AS [ModificadoPor], 
+    [StatusDevolucao].[ModificadoEm] AS [ModificadoEm]
+    FROM [dbo].[StatusDevolucao] AS [StatusDevolucao]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="FK_Locacao_Zona" Association="Self.FK_Locacao_Zona">
+            <End Role="Zona" EntitySet="Zona" />
+            <End Role="Locacao" EntitySet="Locacao" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Zona_Area" Association="Self.FK_Zona_Area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="Zona" EntitySet="Zona" />
+          </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -1086,22 +1432,18 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
       <Schema Namespace="Quasar_Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="Quasar_Entities" annotation:LazyLoadingEnabled="true">
           <FunctionImport Name="SP_GetLocacoesDisponiveis" ReturnType="Collection(Quasar_Model.SP_GetLocacoesDisponiveis_Result)">
-            <Parameter Name="param" Mode="In" Type="String" />
-            <Parameter Name="filialId" Mode="In" Type="Int32" />
+          <Parameter Name="param" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="SP_GetItensEstoque" ReturnType="Collection(Quasar_Model.SP_GetItensEstoque_Result)" >
-          <Parameter Name="filialId" Mode="In" Type="Int32" />
           </FunctionImport>
           <EntitySet Name="Anomalia" EntityType="Quasar_Model.Anomalia" />
           <EntitySet Name="AnomaliaItem" EntityType="Quasar_Model.AnomaliaItem" />
           <EntitySet Name="AppComponente" EntityType="Quasar_Model.AppComponente" />
-          <EntitySet Name="AppConfig" EntityType="Quasar_Model.AppConfig" />
           <EntitySet Name="AppFuncao" EntityType="Quasar_Model.AppFuncao" />
           <EntitySet Name="AppLogErro" EntityType="Quasar_Model.AppLogErro" />
           <EntitySet Name="AppMenu" EntityType="Quasar_Model.AppMenu" />
           <EntitySet Name="AppSQL" EntityType="Quasar_Model.AppSQL" />
           <EntitySet Name="DocExpedicao" EntityType="Quasar_Model.DocExpedicao" />
-          <EntitySet Name="Empresa" EntityType="Quasar_Model.Empresa" />
           <EntitySet Name="Equipamento" EntityType="Quasar_Model.Equipamento" />
           <EntitySet Name="Estado" EntityType="Quasar_Model.Estado" />
           <EntitySet Name="Estoque" EntityType="Quasar_Model.Estoque" />
@@ -1151,17 +1493,44 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <FunctionImport Name="SP_GetHistorico" ReturnType="Collection(Quasar_Model.SP_GetHistorico_Result)" />
           <EntitySet Name="LocalDestino" EntityType="Quasar_Model.LocalDestino" />
           <EntitySet Name="LocalOrigem" EntityType="Quasar_Model.LocalOrigem" />
-          <EntitySet Name="Romaneio" EntityType="Quasar_Model.Romaneio" />
           <EntitySet Name="StatusRomaneio" EntityType="Quasar_Model.StatusRomaneio" />
           <EntitySet Name="StatusRetorno" EntityType="Quasar_Model.StatusRetorno" />
           <EntitySet Name="TipoDocumentoRetorno" EntityType="Quasar_Model.TipoDocumentoRetorno" />
-          <EntitySet Name="RetornoInternoItem" EntityType="Quasar_Model.RetornoInternoItem" />
           <EntitySet Name="RetornoInterno" EntityType="Quasar_Model.RetornoInterno" />
-          <EntitySet Name="Locacao" EntityType="Quasar_Model.Locacao" />
+          <EntitySet Name="Cliente" EntityType="Quasar_Model.Cliente" />
+          <EntitySet Name="Romaneio" EntityType="Quasar_Model.Romaneio" />
+          <EntitySet Name="AppConfig" EntityType="Quasar_Model.AppConfig" />
+          <EntitySet Name="PerfilAreaAcesso" EntityType="Quasar_Model.PerfilAreaAcesso" />
+          <AssociationSet Name="FK_PerfilAreaAcesso_PerfilUsuario" Association="Quasar_Model.FK_PerfilAreaAcesso_PerfilUsuario">
+            <End Role="PerfilUsuario" EntitySet="PerfilUsuario" />
+            <End Role="PerfilAreaAcesso" EntitySet="PerfilAreaAcesso" />
+          </AssociationSet>
+          <EntitySet Name="Empresa" EntityType="Quasar_Model.Empresa" />
           <EntitySet Name="Movimentacao" EntityType="Quasar_Model.Movimentacao" />
           <EntitySet Name="MovimentacaoDestino" EntityType="Quasar_Model.MovimentacaoDestino" />
+          <EntitySet Name="RetornoInternoItem" EntityType="Quasar_Model.RetornoInternoItem" />
+          <EntitySet Name="NotaFiscalTransportadora" EntityType="Quasar_Model.NotaFiscalTransportadora" />
+          <EntitySet Name="MotivoDevolucao" EntityType="Quasar_Model.MotivoDevolucao" />
+          <EntitySet Name="StatusDevolucao" EntityType="Quasar_Model.StatusDevolucao" />
+          <EntitySet Name="DevolucaoComplemento" EntityType="Quasar_Model.DevolucaoComplemento" />
+          <EntitySet Name="Locacao" EntityType="Quasar_Model.Locacao" />
+          <EntitySet Name="Ocorrencia" EntityType="Quasar_Model.Ocorrencia" />
+          <EntitySet Name="Devolucao" EntityType="Quasar_Model.Devolucao" />
+          <EntitySet Name="DevolucaoItem" EntityType="Quasar_Model.DevolucaoItem" />
+          <EntitySet Name="TipoArea" EntityType="Quasar_Model.TipoArea" />
+          <EntitySet Name="Zona" EntityType="Quasar_Model.Zona" />
+          <EntitySet Name="AreaPedido" EntityType="Quasar_Model.AreaPedido" />
+          <EntitySet Name="AreaRomaneio" EntityType="Quasar_Model.AreaRomaneio" />
+          <AssociationSet Name="FK_Locacao_Zona" Association="Quasar_Model.FK_Locacao_Zona">
+            <End Role="Zona" EntitySet="Zona" />
+            <End Role="Locacao" EntitySet="Locacao" />
+          </AssociationSet>
           <EntitySet Name="Area" EntityType="Quasar_Model.Area" />
-          <EntitySet Name="Cliente" EntityType="Quasar_Model.Cliente" />
+          <AssociationSet Name="FK_Zona_Area" Association="Quasar_Model.FK_Zona_Area">
+            <End Role="Area" EntitySet="Area" />
+            <End Role="Zona" EntitySet="Zona" />
+          </AssociationSet>
+          <EntitySet Name="RomaneioItem" EntityType="Quasar_Model.RomaneioItem" />
           </EntityContainer>
         <ComplexType Name="SP_GetLocacoesDisponiveis_Result">
           <Property Type="String" Name="Codigo" Nullable="false" MaxLength="100" />
@@ -1228,20 +1597,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="RespUltAtlz" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="IdMenu" Type="Int32" />
           <Property Name="Status" Type="Boolean" />
-          <Property Name="FilialId" Type="Int32" />
-        </EntityType>
-        <EntityType Name="AppConfig">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Nome" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Descricao" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="Valor" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
-          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
           <Property Name="FilialId" Type="Int32" />
         </EntityType>
         <EntityType Name="AppFuncao">
@@ -1333,31 +1688,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
           <Property Name="FilialId" Type="Int32" />
         </EntityType>
-        <EntityType Name="Empresa">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Nome" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CNPJ" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="StatusId" Type="Int32" Nullable="false" />
-          <Property Name="TipoId" Type="Int32" />
-          <Property Name="Endereco_Logradouro" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Endereco_Numero" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Endereco_Complemento" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Endereco_Bairro" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Endereco_Cidade" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Endereco_UF" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Endereco_CEP" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Telefone1" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Telefone2" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Telefone3" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Observacoes" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
-          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="Equipamento">
           <Key>
             <PropertyRef Name="Id" />
@@ -1373,6 +1703,11 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
           <Property Name="FilialId" Type="Int32" />
+          <Property Name="Comp" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Larg" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Altu" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Zonas" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Qtde" Type="Int32" />
         </EntityType>
         <EntityType Name="Estado">
           <Key>
@@ -1549,6 +1884,20 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
           <Property Name="FilialId" Type="Int32" />
+          <Property Name="CategoriaProduto" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ItemApollo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Zona1Id" Type="Int32" />
+          <Property Name="Eqpto1Id" Type="Int32" />
+          <Property Name="QtdePadrao1" Type="Int32" />
+            <Property Name="Zona2Id" Type="Int32" />
+            <Property Name="Eqpto2Id" Type="Int32" />
+            <Property Name="QtdePadrao2" Type="Int32" />
+            <Property Name="Zona3Id" Type="Int32" />
+            <Property Name="Eqpto3Id" Type="Int32" />
+            <Property Name="QtdePadrao3" Type="Int32" />
+            <Property Name="Comp" Type="Decimal" Precision="15" Scale="2" />
+            <Property Name="Larg" Type="Decimal" Precision="15" Scale="2" />
+            <Property Name="Altu" Type="Decimal" Precision="15" Scale="2" />
         </EntityType>
         <EntityType Name="NotaFiscal">
           <Key>
@@ -1582,7 +1931,13 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="NotaFiscalId" Type="Int32" Nullable="false" />
           <Property Name="Item" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Quantidade" Type="Decimal" Nullable="false" Precision="15" Scale="3" />
+          <Property Name="QtdConferida" Type="Decimal" Precision="15" Scale="3" />
           <Property Name="QtdArmazenada" Type="Decimal" Precision="15" Scale="3" />
+          <Property Name="Conferido" Type="Boolean" Nullable="false" />
+          <Property Name="UsuarioConferencia" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DtHrConferencia" Type="DateTime" Precision="3" />
+          <Property Name="UsuarioArmazenagem" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DtHrArmazenagem" Type="DateTime" Precision="3" />
           <Property Name="Volume" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Pedido" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="StatusId" Type="Int32" />
@@ -1642,6 +1997,7 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
           <Property Name="FilialId" Type="Int32" />
+          <NavigationProperty Name="PerfilAreaAcesso" Relationship="Quasar_Model.FK_PerfilAreaAcesso_PerfilUsuario" FromRole="PerfilUsuario" ToRole="PerfilAreaAcesso" />
         </EntityType>
         <EntityType Name="Rota">
           <Key>
@@ -1675,7 +2031,7 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Key>
             <PropertyRef Name="Id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Descricao" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="FilialId" Type="Int32" />
         </EntityType>
@@ -1990,27 +2346,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
           <Property Name="FilialId" Type="Int32" />
         </EntityType>
-        <EntityType Name="Romaneio">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="RomaneioNr" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="DataEmissao" Type="DateTime" Precision="3" />
-          <Property Name="VendedorId" Type="Int32" />
-          <Property Name="Contato" Type="Int32" />
-          <Property Name="SeparadorId" Type="Int32" />
-          <Property Name="DataSeparador" Type="DateTime" Precision="3" />
-          <Property Name="ConferenteId" Type="Int32" />
-          <Property Name="DataConferente" Type="DateTime" Precision="3" />
-          <Property Name="StatusId" Type="Int32" />
-          <Property Name="Localizacao" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
-          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
-          <Property Name="FilialId" Type="Int32" />
-        </EntityType>
         <EntityType Name="StatusRomaneio">
           <Key>
             <PropertyRef Name="Id" />
@@ -2040,22 +2375,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="Descricao" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="FilialId" Type="Int32" />
         </EntityType>
-        <EntityType Name="RetornoInternoItem">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="RetornoInternoId" Type="Int32" Nullable="false" />
-          <Property Name="ItemNr" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Quantidade" Type="Decimal" Precision="15" Scale="2" />
-          <Property Name="StatusRetornoId" Type="Int32" Nullable="false" />
-          <Property Name="QtdArmazenada" Type="Decimal" Precision="15" Scale="2" />
-          <Property Name="CriadoPor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
-          <Property Name="ModificadoPor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
-          <Property Name="FilialId" Type="Int32" />
-        </EntityType>
         <EntityType Name="RetornoInterno">
           <Key>
             <PropertyRef Name="Id" />
@@ -2073,70 +2392,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoPor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
           <Property Name="FilialId" Type="Int32" />
-        </EntityType>
-        <EntityType Name="Locacao">
-          <Key>
-            <PropertyRef Name="Codigo" />
-          </Key>
-          <Property Name="Codigo" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Tipo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Descricao" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Bloqueado" Type="Boolean" Nullable="false" />
-          <Property Name="AreaId" Type="Int32" />
-          <Property Name="EquipamentoId" Type="Int32" />
-          <Property Name="Curva" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Estrategia" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Observacoes" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
-          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
-          <Property Name="FilialId" Type="Int32" />
-        </EntityType>
-        <EntityType Name="Movimentacao">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ItemNr" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="LocacaoOrigem" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="QtdOrigem" Type="Int32" />
-          <Property Name="LocacaoDestino" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="QtdDestino" Type="Int32" />
-          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
-          <Property Name="FinalizadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="FinalizadoEm" Type="DateTime" Precision="3" />
-          <Property Name="UrlDMS" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
-          <Property Name="Payload" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="Response" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="FilialId" Type="Int32" />
-        </EntityType>
-        <EntityType Name="MovimentacaoDestino">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ItemNr" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Locacao" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="FilialId" Type="Int32" />
-        </EntityType>
-        <EntityType Name="Area">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Nome" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="Descricao" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
-          <Property Name="Etiqueta" Type="Boolean" />
-          <Property Name="QtdeArmazenagem" Type="Int32" />
-          <Property Name="QtdeSeparacao" Type="Int32" />
-          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
-          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
-          <Property Name="FilialId" Type="Int32" />
-          <Property Name="Tipo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="Cliente">
           <Key>
@@ -2168,6 +2423,387 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
           <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
           <Property Name="FilialId" Type="Int32" />
           <Property Name="TransportadoraId" Type="Int32" />
+          <Property Name="Etiqueta" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="Romaneio">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RomaneioNr" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DataEmissao" Type="DateTime" Precision="3" />
+          <Property Name="VendedorId" Type="Int32" />
+          <Property Name="Contato" Type="Int32" />
+          <Property Name="SeparadorId" Type="Int32" />
+          <Property Name="DataSeparador" Type="DateTime" Precision="3" />
+          <Property Name="ConferenteId" Type="Int32" />
+          <Property Name="DataConferente" Type="DateTime" Precision="3" />
+          <Property Name="StatusId" Type="Int32" />
+          <Property Name="Localizacao" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="Itens" Type="Int32" />
+          <Property Name="Pecas" Type="Int32" />
+          <Property Name="OS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="AppConfig">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nome" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Descricao" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Valor" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+          <Property Name="FilialId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="PerfilAreaAcesso">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PerfilId" Type="Int32" Nullable="false" />
+          <Property Name="Area" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="Boolean" Nullable="false" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="PerfilUsuario" Relationship="Quasar_Model.FK_PerfilAreaAcesso_PerfilUsuario" FromRole="PerfilAreaAcesso" ToRole="PerfilUsuario" />
+        </EntityType>
+        <Association Name="FK_PerfilAreaAcesso_PerfilUsuario">
+          <End Type="Quasar_Model.PerfilUsuario" Role="PerfilUsuario" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Quasar_Model.PerfilAreaAcesso" Role="PerfilAreaAcesso" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PerfilUsuario">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="PerfilAreaAcesso">
+              <PropertyRef Name="PerfilId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Empresa">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nome" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CNPJ" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="StatusId" Type="Int32" Nullable="false" />
+          <Property Name="TipoId" Type="Int32" />
+          <Property Name="Endereco_Logradouro" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Endereco_Numero" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Endereco_Complemento" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Endereco_Bairro" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Endereco_Cidade" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Endereco_UF" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Endereco_CEP" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Telefone1" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Telefone2" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Telefone3" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Observacoes" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Movimentacao">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ItemNr" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="LocacaoOrigem" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="QtdOrigem" Type="Int32" />
+          <Property Name="LocacaoDestino" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="QtdDestino" Type="Int32" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="FinalizadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="FinalizadoEm" Type="DateTime" Precision="3" />
+          <Property Name="UrlDMS" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="Payload" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Response" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="FilialId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="MovimentacaoDestino">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ItemNr" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Locacao" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="FilialId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="RetornoInternoItem">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RetornoInternoId" Type="Int32" Nullable="false" />
+          <Property Name="ItemNr" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Quantidade" Type="Decimal" Precision="15" Scale="2" />
+          <Property Name="StatusRetornoId" Type="Int32" Nullable="false" />
+          <Property Name="QtdArmazenada" Type="Decimal" Precision="15" Scale="2" />
+          <Property Name="CriadoPor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="NotaFiscalTransportadora">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Transportadora" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="NotaFiscal" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Volumes" Type="Int32" />
+          <Property Name="Cliente" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Contato" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="VolumeNr" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="Sequencia" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ZPL" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="MotivoDevolucao">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="Motivo" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Motivo" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="FilialId" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
+        </EntityType>
+        <EntityType Name="StatusDevolucao">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="Nome" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nome" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="DevolucaoComplemento">
+          <Key>
+            <PropertyRef Name="DevolucaoId" />
+          </Key>
+          <Property Name="DevolucaoId" Type="Int32" Nullable="false" />
+          <Property Name="DocExpedicaoId" Type="Int32" />
+          <Property Name="NotaFiscalId" Type="Int32" />
+          <Property Name="DataVenda" Type="DateTime" Precision="3" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Locacao">
+          <Key>
+            <PropertyRef Name="Codigo" />
+          </Key>
+          <Property Name="Codigo" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Tipo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Descricao" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Bloqueado" Type="Boolean" Nullable="false" />
+          <Property Name="AreaId" Type="Int32" />
+          <Property Name="EquipamentoId" Type="Int32" />
+          <Property Name="Curva" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Estrategia" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Observacoes" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="ZonaId" Type="Int32" />
+          <NavigationProperty Name="Zona" Relationship="Quasar_Model.FK_Locacao_Zona" FromRole="Locacao" ToRole="Zona" />
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+        </EntityType>
+        <EntityType Name="Ocorrencia">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nome" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Observacao" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoPor" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Devolucao">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="DevolucaoNr" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DevolucaoNr" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Movimento" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Retirar" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MotivoId" Type="Int32" />
+          <Property Name="NFVenda" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Cliente" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Vendedor" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="TransportadoraId" Type="Int32" />
+          <Property Name="NFDevolucao" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Sinistro" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PlacaVeiculo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Observacao" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="StatusId" Type="Int32" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="DevolucaoItem">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="DevolucaoId" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DevolucaoId" Type="Int32" Nullable="false" />
+          <Property Name="ItemNr" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Quantidade" Type="Int32" />
+          <Property Name="ValorUnitário" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Observacao" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+          <Property Name="StatusId" Type="Int32" />
+          <Property Name="OcorrenciaId" Type="Int32" />
+          <Property Name="QtdeOcorrencia" Type="Int32" />
+        </EntityType>
+        <EntityType Name="TipoArea">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Descricao" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="Codigo" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Zona">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Codigo" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Descricao" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="ProntoDespacho" Type="Boolean" />
+          <Property Name="QtdeArmazenagem" Type="Int32" />
+          <Property Name="QtdeLinha" Type="Int32" />
+          <Property Name="ValorPedido" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="QtdeCliente" Type="Int32" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="AreaId" Type="Int32" />
+          <Property Name="Nome" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Ativo" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Locacao" Relationship="Quasar_Model.FK_Locacao_Zona" FromRole="Zona" ToRole="Locacao" />
+          <NavigationProperty Name="Area" Relationship="Quasar_Model.FK_Zona_Area" FromRole="Zona" ToRole="Area" />
+        </EntityType>
+        <EntityType Name="AreaPedido">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="UsuarioApollo" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UsuarioApollo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Area" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AreaId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="AreaRomaneio">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="Area" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Area" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Prioridade" Type="Int32" />
+          <Property Name="Separar" Type="Boolean" />
+          <Property Name="Conferir" Type="Boolean" />
+          <Property Name="Alocar" Type="Boolean" />
+          <Property Name="Mapa" Type="Boolean" />
+        </EntityType>
+        <Association Name="FK_Locacao_Zona">
+          <End Type="Quasar_Model.Zona" Role="Zona" Multiplicity="0..1" />
+          <End Type="Quasar_Model.Locacao" Role="Locacao" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Zona">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Locacao">
+              <PropertyRef Name="ZonaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Area">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Nome" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Descricao" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="ModificadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ModificadoEm" Type="DateTime" Precision="3" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="TipoAreaId" Type="Int32" />
+          <Property Name="Etiqueta" Type="Boolean" />
+          <NavigationProperty Name="Zona" Relationship="Quasar_Model.FK_Zona_Area" FromRole="Area" ToRole="Zona" />
+        </EntityType>
+        <Association Name="FK_Zona_Area">
+          <End Type="Quasar_Model.Area" Role="Area" Multiplicity="0..1" />
+          <End Type="Quasar_Model.Zona" Role="Zona" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Area">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Zona">
+              <PropertyRef Name="AreaId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="RomaneioItem">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RomaneioId" Type="Int32" Nullable="false" />
+          <Property Name="ItemNr" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Qtde" Type="Int32" />
+          <Property Name="CriadoPor" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CriadoEm" Type="DateTime" Precision="3" />
+          <Property Name="FilialId" Type="Int32" />
+          <Property Name="TarefaNr" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Descricao" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ValorUnitario" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="ValorTotal" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="StatusId" Type="Int32" />
+          <Property Name="SeparadorId" Type="Int32" />
+          <Property Name="DataSeparador" Type="DateTime" Precision="3" />
+          <Property Name="ConferenteId" Type="Int32" />
+          <Property Name="DataConferente" Type="DateTime" Precision="3" />
+          <Property Name="LocacaoId" Type="Int32" />
+          <Property Name="ZonaId" Type="Int32" />
+          <Property Name="QtdeSeparada" Type="Int32" />
+          <Property Name="QtdeConferida" Type="Int32" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2249,21 +2885,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
                 <ScalarProperty Name="DescES" ColumnName="DescES" />
                 <ScalarProperty Name="DescPTBR" ColumnName="DescPTBR" />
                 <ScalarProperty Name="Codigo" ColumnName="Codigo" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="AppConfig">
-            <EntityTypeMapping TypeName="Quasar_Model.AppConfig">
-              <MappingFragment StoreEntitySet="AppConfig">
-                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
-                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
-                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
-                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
-                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
-                <ScalarProperty Name="Valor" ColumnName="Valor" />
-                <ScalarProperty Name="Descricao" ColumnName="Descricao" />
-                <ScalarProperty Name="Nome" ColumnName="Nome" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -2362,35 +2983,14 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Empresa">
-            <EntityTypeMapping TypeName="Quasar_Model.Empresa">
-              <MappingFragment StoreEntitySet="Empresa">
-                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
-                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
-                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
-                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
-                <ScalarProperty Name="Observacoes" ColumnName="Observacoes" />
-                <ScalarProperty Name="Telefone3" ColumnName="Telefone3" />
-                <ScalarProperty Name="Telefone2" ColumnName="Telefone2" />
-                <ScalarProperty Name="Telefone1" ColumnName="Telefone1" />
-                <ScalarProperty Name="Endereco_CEP" ColumnName="Endereco_CEP" />
-                <ScalarProperty Name="Endereco_UF" ColumnName="Endereco_UF" />
-                <ScalarProperty Name="Endereco_Cidade" ColumnName="Endereco_Cidade" />
-                <ScalarProperty Name="Endereco_Bairro" ColumnName="Endereco_Bairro" />
-                <ScalarProperty Name="Endereco_Complemento" ColumnName="Endereco_Complemento" />
-                <ScalarProperty Name="Endereco_Numero" ColumnName="Endereco_Numero" />
-                <ScalarProperty Name="Endereco_Logradouro" ColumnName="Endereco_Logradouro" />
-                <ScalarProperty Name="TipoId" ColumnName="TipoId" />
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
-                <ScalarProperty Name="CNPJ" ColumnName="CNPJ" />
-                <ScalarProperty Name="Nome" ColumnName="Nome" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Equipamento">
             <EntityTypeMapping TypeName="Quasar_Model.Equipamento">
               <MappingFragment StoreEntitySet="Equipamento">
+                <ScalarProperty Name="Qtde" ColumnName="Qtde" />
+                <ScalarProperty Name="Zonas" ColumnName="Zonas" />
+                <ScalarProperty Name="Altu" ColumnName="Altu" />
+                <ScalarProperty Name="Larg" ColumnName="Larg" />
+                <ScalarProperty Name="Comp" ColumnName="Comp" />
                 <ScalarProperty Name="FilialId" ColumnName="FilialId" />
                 <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
                 <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
@@ -2574,8 +3174,22 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="Material">
-            <EntityTypeMapping TypeName="Quasar_Model.Material">
-              <MappingFragment StoreEntitySet="Material">
+              <EntityTypeMapping TypeName="Quasar_Model.Material">
+                <MappingFragment StoreEntitySet="Material">
+                  <ScalarProperty Name="Altu" ColumnName="Altu" />
+                  <ScalarProperty Name="Larg" ColumnName="Larg" />
+                  <ScalarProperty Name="Comp" ColumnName="Comp" />
+                  <ScalarProperty Name="QtdePadrao3" ColumnName="QtdePadrao3" />
+                  <ScalarProperty Name="Eqpto3Id" ColumnName="Eqpto3Id" />
+                  <ScalarProperty Name="Zona3Id" ColumnName="Zona3Id" />
+                  <ScalarProperty Name="QtdePadrao2" ColumnName="QtdePadrao2" />
+                <ScalarProperty Name="Eqpto2Id" ColumnName="Eqpto2Id" />
+                <ScalarProperty Name="Zona2Id" ColumnName="Zona2Id" />
+                <ScalarProperty Name="QtdePadrao1" ColumnName="QtdePadrao1" />
+                <ScalarProperty Name="Eqpto1Id" ColumnName="Eqpto1Id" />
+                <ScalarProperty Name="Zona1Id" ColumnName="Zona1Id" />
+                <ScalarProperty Name="ItemApollo" ColumnName="ItemApollo" />
+                <ScalarProperty Name="CategoriaProduto" ColumnName="CategoriaProduto" />
                 <ScalarProperty Name="FilialId" ColumnName="FilialId" />
                 <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
                 <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
@@ -2622,6 +3236,11 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
             <EntityTypeMapping TypeName="Quasar_Model.NotaFiscalItem">
               <MappingFragment StoreEntitySet="NotaFiscalItem">
                 <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="DtHrArmazenagem" ColumnName="DtHrArmazenagem" />
+                <ScalarProperty Name="UsuarioArmazenagem" ColumnName="UsuarioArmazenagem" />
+                <ScalarProperty Name="DtHrConferencia" ColumnName="DtHrConferencia" />
+                <ScalarProperty Name="UsuarioConferencia" ColumnName="UsuarioConferencia" />
+                <ScalarProperty Name="Conferido" ColumnName="Conferido" />
                 <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
                 <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
                 <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
@@ -2631,6 +3250,7 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
                 <ScalarProperty Name="Pedido" ColumnName="Pedido" />
                 <ScalarProperty Name="Volume" ColumnName="Volume" />
                 <ScalarProperty Name="QtdArmazenada" ColumnName="QtdArmazenada" />
+                <ScalarProperty Name="QtdConferida" ColumnName="QtdConferida" />
                 <ScalarProperty Name="Quantidade" ColumnName="Quantidade" />
                 <ScalarProperty Name="Item" ColumnName="Item" />
                 <ScalarProperty Name="NotaFiscalId" ColumnName="NotaFiscalId" />
@@ -3070,28 +3690,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Romaneio">
-            <EntityTypeMapping TypeName="Quasar_Model.Romaneio">
-              <MappingFragment StoreEntitySet="Romaneio">
-                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
-                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
-                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
-                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
-                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
-                <ScalarProperty Name="Localizacao" ColumnName="Localizacao" />
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
-                <ScalarProperty Name="DataConferente" ColumnName="DataConferente" />
-                <ScalarProperty Name="ConferenteId" ColumnName="ConferenteId" />
-                <ScalarProperty Name="DataSeparador" ColumnName="DataSeparador" />
-                <ScalarProperty Name="SeparadorId" ColumnName="SeparadorId" />
-                <ScalarProperty Name="Contato" ColumnName="Contato" />
-                <ScalarProperty Name="VendedorId" ColumnName="VendedorId" />
-                <ScalarProperty Name="DataEmissao" ColumnName="DataEmissao" />
-                <ScalarProperty Name="RomaneioNr" ColumnName="RomaneioNr" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="StatusRomaneio">
             <EntityTypeMapping TypeName="Quasar_Model.StatusRomaneio">
               <MappingFragment StoreEntitySet="StatusRomaneio">
@@ -3124,23 +3722,6 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="RetornoInternoItem">
-            <EntityTypeMapping TypeName="Quasar_Model.RetornoInternoItem">
-              <MappingFragment StoreEntitySet="RetornoInternoItem">
-                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
-                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
-                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
-                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
-                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
-                <ScalarProperty Name="QtdArmazenada" ColumnName="QtdArmazenada" />
-                <ScalarProperty Name="StatusRetornoId" ColumnName="StatusRetornoId" />
-                <ScalarProperty Name="Quantidade" ColumnName="Quantidade" />
-                <ScalarProperty Name="ItemNr" ColumnName="ItemNr" />
-                <ScalarProperty Name="RetornoInternoId" ColumnName="RetornoInternoId" />
-                <ScalarProperty Name="Id" ColumnName="Id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="RetornoInterno">
             <EntityTypeMapping TypeName="Quasar_Model.RetornoInterno">
               <MappingFragment StoreEntitySet="RetornoInterno">
@@ -3160,23 +3741,116 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Locacao">
-            <EntityTypeMapping TypeName="Quasar_Model.Locacao">
-              <MappingFragment StoreEntitySet="Locacao">
+          <EntitySetMapping Name="Cliente">
+            <EntityTypeMapping TypeName="Quasar_Model.Cliente">
+              <MappingFragment StoreEntitySet="Cliente">
+                <ScalarProperty Name="Etiqueta" ColumnName="Etiqueta" />
+                <ScalarProperty Name="TransportadoraId" ColumnName="TransportadoraId" />
                 <ScalarProperty Name="FilialId" ColumnName="FilialId" />
                 <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
                 <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
                 <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
                 <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
                 <ScalarProperty Name="Observacoes" ColumnName="Observacoes" />
-                <ScalarProperty Name="Estrategia" ColumnName="Estrategia" />
-                <ScalarProperty Name="Curva" ColumnName="Curva" />
-                <ScalarProperty Name="EquipamentoId" ColumnName="EquipamentoId" />
-                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
-                <ScalarProperty Name="Bloqueado" ColumnName="Bloqueado" />
+                <ScalarProperty Name="Telefone3" ColumnName="Telefone3" />
+                <ScalarProperty Name="Telefone2" ColumnName="Telefone2" />
+                <ScalarProperty Name="Telefone1" ColumnName="Telefone1" />
+                <ScalarProperty Name="Endereco_CEP" ColumnName="Endereco_CEP" />
+                <ScalarProperty Name="Endereco_UF" ColumnName="Endereco_UF" />
+                <ScalarProperty Name="Endereco_Cidade" ColumnName="Endereco_Cidade" />
+                <ScalarProperty Name="Endereco_Bairro" ColumnName="Endereco_Bairro" />
+                <ScalarProperty Name="Endereco_Complemento" ColumnName="Endereco_Complemento" />
+                <ScalarProperty Name="Endereco_Numero" ColumnName="Endereco_Numero" />
+                <ScalarProperty Name="Endereco_Logradouro" ColumnName="Endereco_Logradouro" />
+                <ScalarProperty Name="ParadaId" ColumnName="ParadaId" />
+                <ScalarProperty Name="RotaId" ColumnName="RotaId" />
+                <ScalarProperty Name="VendedorId" ColumnName="VendedorId" />
+                <ScalarProperty Name="TipoId" ColumnName="TipoId" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="CodigoDMS" ColumnName="CodigoDMS" />
+                <ScalarProperty Name="CNPJ" ColumnName="CNPJ" />
+                <ScalarProperty Name="Nome" ColumnName="Nome" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Romaneio">
+            <EntityTypeMapping TypeName="Quasar_Model.Romaneio">
+              <MappingFragment StoreEntitySet="Romaneio">
+                <ScalarProperty Name="OS" ColumnName="OS" />
+                <ScalarProperty Name="Pecas" ColumnName="Pecas" />
+                <ScalarProperty Name="Itens" ColumnName="Itens" />
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="Localizacao" ColumnName="Localizacao" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="DataConferente" ColumnName="DataConferente" />
+                <ScalarProperty Name="ConferenteId" ColumnName="ConferenteId" />
+                <ScalarProperty Name="DataSeparador" ColumnName="DataSeparador" />
+                <ScalarProperty Name="SeparadorId" ColumnName="SeparadorId" />
+                <ScalarProperty Name="Contato" ColumnName="Contato" />
+                <ScalarProperty Name="VendedorId" ColumnName="VendedorId" />
+                <ScalarProperty Name="DataEmissao" ColumnName="DataEmissao" />
+                <ScalarProperty Name="RomaneioNr" ColumnName="RomaneioNr" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AppConfig">
+            <EntityTypeMapping TypeName="Quasar_Model.AppConfig">
+              <MappingFragment StoreEntitySet="AppConfig">
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="Valor" ColumnName="Valor" />
                 <ScalarProperty Name="Descricao" ColumnName="Descricao" />
-                <ScalarProperty Name="Tipo" ColumnName="Tipo" />
-                <ScalarProperty Name="Codigo" ColumnName="Codigo" />
+                <ScalarProperty Name="Nome" ColumnName="Nome" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PerfilAreaAcesso">
+            <EntityTypeMapping TypeName="Quasar_Model.PerfilAreaAcesso">
+              <MappingFragment StoreEntitySet="PerfilAreaAcesso">
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Area" ColumnName="Area" />
+                <ScalarProperty Name="PerfilId" ColumnName="PerfilId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Empresa">
+            <EntityTypeMapping TypeName="Quasar_Model.Empresa">
+              <MappingFragment StoreEntitySet="Empresa">
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="Observacoes" ColumnName="Observacoes" />
+                <ScalarProperty Name="Telefone3" ColumnName="Telefone3" />
+                <ScalarProperty Name="Telefone2" ColumnName="Telefone2" />
+                <ScalarProperty Name="Telefone1" ColumnName="Telefone1" />
+                <ScalarProperty Name="Endereco_CEP" ColumnName="Endereco_CEP" />
+                <ScalarProperty Name="Endereco_UF" ColumnName="Endereco_UF" />
+                <ScalarProperty Name="Endereco_Cidade" ColumnName="Endereco_Cidade" />
+                <ScalarProperty Name="Endereco_Bairro" ColumnName="Endereco_Bairro" />
+                <ScalarProperty Name="Endereco_Complemento" ColumnName="Endereco_Complemento" />
+                <ScalarProperty Name="Endereco_Numero" ColumnName="Endereco_Numero" />
+                <ScalarProperty Name="Endereco_Logradouro" ColumnName="Endereco_Logradouro" />
+                <ScalarProperty Name="TipoId" ColumnName="TipoId" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="CNPJ" ColumnName="CNPJ" />
+                <ScalarProperty Name="Nome" ColumnName="Nome" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -3210,52 +3884,244 @@ warning 6002: The table/view 'Quasar.dbo.Locacao' does not have a primary key de
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Area">
-            <EntityTypeMapping TypeName="Quasar_Model.Area">
-              <MappingFragment StoreEntitySet="Area">
-                <ScalarProperty Name="Tipo" ColumnName="Tipo" />
-                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+          <EntitySetMapping Name="RetornoInternoItem">
+            <EntityTypeMapping TypeName="Quasar_Model.RetornoInternoItem">
+              <MappingFragment StoreEntitySet="RetornoInternoItem">
                 <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
                 <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
                 <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
                 <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
-                <ScalarProperty Name="QtdeSeparacao" ColumnName="QtdeSeparacao" />
-                <ScalarProperty Name="QtdeArmazenagem" ColumnName="QtdeArmazenagem" />
-                <ScalarProperty Name="Etiqueta" ColumnName="Etiqueta" />
-                <ScalarProperty Name="Descricao" ColumnName="Descricao" />
+                <ScalarProperty Name="QtdArmazenada" ColumnName="QtdArmazenada" />
+                <ScalarProperty Name="StatusRetornoId" ColumnName="StatusRetornoId" />
+                <ScalarProperty Name="Quantidade" ColumnName="Quantidade" />
+                <ScalarProperty Name="ItemNr" ColumnName="ItemNr" />
+                <ScalarProperty Name="RetornoInternoId" ColumnName="RetornoInternoId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="NotaFiscalTransportadora">
+            <EntityTypeMapping TypeName="Quasar_Model.NotaFiscalTransportadora">
+              <MappingFragment StoreEntitySet="NotaFiscalTransportadora">
+                <ScalarProperty Name="ZPL" ColumnName="ZPL" />
+                <ScalarProperty Name="Sequencia" ColumnName="Sequencia" />
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="VolumeNr" ColumnName="VolumeNr" />
+                <ScalarProperty Name="Contato" ColumnName="Contato" />
+                <ScalarProperty Name="Cliente" ColumnName="Cliente" />
+                <ScalarProperty Name="Volumes" ColumnName="Volumes" />
+                <ScalarProperty Name="NotaFiscal" ColumnName="NotaFiscal" />
+                <ScalarProperty Name="Transportadora" ColumnName="Transportadora" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MotivoDevolucao">
+            <EntityTypeMapping TypeName="Quasar_Model.MotivoDevolucao">
+              <MappingFragment StoreEntitySet="MotivoDevolucao">
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="Motivo" ColumnName="Motivo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="StatusDevolucao">
+            <EntityTypeMapping TypeName="Quasar_Model.StatusDevolucao">
+              <MappingFragment StoreEntitySet="StatusDevolucao">
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
                 <ScalarProperty Name="Nome" ColumnName="Nome" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Cliente">
-            <EntityTypeMapping TypeName="Quasar_Model.Cliente">
-              <MappingFragment StoreEntitySet="Cliente">
-                <ScalarProperty Name="TransportadoraId" ColumnName="TransportadoraId" />
+          <EntitySetMapping Name="DevolucaoComplemento">
+            <EntityTypeMapping TypeName="Quasar_Model.DevolucaoComplemento">
+              <MappingFragment StoreEntitySet="DevolucaoComplemento">
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="DataVenda" ColumnName="DataVenda" />
+                <ScalarProperty Name="NotaFiscalId" ColumnName="NotaFiscalId" />
+                <ScalarProperty Name="DocExpedicaoId" ColumnName="DocExpedicaoId" />
+                <ScalarProperty Name="DevolucaoId" ColumnName="DevolucaoId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Locacao">
+            <EntityTypeMapping TypeName="Quasar_Model.Locacao">
+              <MappingFragment StoreEntitySet="Locacao">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="ZonaId" ColumnName="ZonaId" />
                 <ScalarProperty Name="FilialId" ColumnName="FilialId" />
                 <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
                 <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
                 <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
                 <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
                 <ScalarProperty Name="Observacoes" ColumnName="Observacoes" />
-                <ScalarProperty Name="Telefone3" ColumnName="Telefone3" />
-                <ScalarProperty Name="Telefone2" ColumnName="Telefone2" />
-                <ScalarProperty Name="Telefone1" ColumnName="Telefone1" />
-                <ScalarProperty Name="Endereco_CEP" ColumnName="Endereco_CEP" />
-                <ScalarProperty Name="Endereco_UF" ColumnName="Endereco_UF" />
-                <ScalarProperty Name="Endereco_Cidade" ColumnName="Endereco_Cidade" />
-                <ScalarProperty Name="Endereco_Bairro" ColumnName="Endereco_Bairro" />
-                <ScalarProperty Name="Endereco_Complemento" ColumnName="Endereco_Complemento" />
-                <ScalarProperty Name="Endereco_Numero" ColumnName="Endereco_Numero" />
-                <ScalarProperty Name="Endereco_Logradouro" ColumnName="Endereco_Logradouro" />
-                <ScalarProperty Name="ParadaId" ColumnName="ParadaId" />
-                <ScalarProperty Name="RotaId" ColumnName="RotaId" />
-                <ScalarProperty Name="VendedorId" ColumnName="VendedorId" />
-                <ScalarProperty Name="TipoId" ColumnName="TipoId" />
-                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
-                <ScalarProperty Name="CodigoDMS" ColumnName="CodigoDMS" />
-                <ScalarProperty Name="CNPJ" ColumnName="CNPJ" />
+                <ScalarProperty Name="Estrategia" ColumnName="Estrategia" />
+                <ScalarProperty Name="Curva" ColumnName="Curva" />
+                <ScalarProperty Name="EquipamentoId" ColumnName="EquipamentoId" />
+                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
+                <ScalarProperty Name="Bloqueado" ColumnName="Bloqueado" />
+                <ScalarProperty Name="Descricao" ColumnName="Descricao" />
+                <ScalarProperty Name="Tipo" ColumnName="Tipo" />
+                <ScalarProperty Name="Codigo" ColumnName="Codigo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Ocorrencia">
+            <EntityTypeMapping TypeName="Quasar_Model.Ocorrencia">
+              <MappingFragment StoreEntitySet="Ocorrencia">
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="Observacao" ColumnName="Observacao" />
                 <ScalarProperty Name="Nome" ColumnName="Nome" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Devolucao">
+            <EntityTypeMapping TypeName="Quasar_Model.Devolucao">
+              <MappingFragment StoreEntitySet="Devolucao">
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="Observacao" ColumnName="Observacao" />
+                <ScalarProperty Name="PlacaVeiculo" ColumnName="PlacaVeiculo" />
+                <ScalarProperty Name="Sinistro" ColumnName="Sinistro" />
+                <ScalarProperty Name="NFDevolucao" ColumnName="NFDevolucao" />
+                <ScalarProperty Name="TransportadoraId" ColumnName="TransportadoraId" />
+                <ScalarProperty Name="Vendedor" ColumnName="Vendedor" />
+                <ScalarProperty Name="Cliente" ColumnName="Cliente" />
+                <ScalarProperty Name="NFVenda" ColumnName="NFVenda" />
+                <ScalarProperty Name="MotivoId" ColumnName="MotivoId" />
+                <ScalarProperty Name="Retirar" ColumnName="Retirar" />
+                <ScalarProperty Name="Movimento" ColumnName="Movimento" />
+                <ScalarProperty Name="DevolucaoNr" ColumnName="DevolucaoNr" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DevolucaoItem">
+            <EntityTypeMapping TypeName="Quasar_Model.DevolucaoItem">
+              <MappingFragment StoreEntitySet="DevolucaoItem">
+                <ScalarProperty Name="QtdeOcorrencia" ColumnName="QtdeOcorrencia" />
+                <ScalarProperty Name="OcorrenciaId" ColumnName="OcorrenciaId" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="Observacao" ColumnName="Observacao" />
+                <ScalarProperty Name="ValorUnitário" ColumnName="ValorUnitário" />
+                <ScalarProperty Name="Quantidade" ColumnName="Quantidade" />
+                <ScalarProperty Name="ItemNr" ColumnName="ItemNr" />
+                <ScalarProperty Name="DevolucaoId" ColumnName="DevolucaoId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TipoArea">
+            <EntityTypeMapping TypeName="Quasar_Model.TipoArea">
+              <MappingFragment StoreEntitySet="TipoArea">
+                <ScalarProperty Name="Codigo" ColumnName="Codigo" />
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="Descricao" ColumnName="Descricao" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Zona">
+            <EntityTypeMapping TypeName="Quasar_Model.Zona">
+              <MappingFragment StoreEntitySet="Zona">
+                <ScalarProperty Name="Ativo" ColumnName="Ativo" />
+                <ScalarProperty Name="Nome" ColumnName="Nome" />
+                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="QtdeCliente" ColumnName="QtdeCliente" />
+                <ScalarProperty Name="ValorPedido" ColumnName="ValorPedido" />
+                <ScalarProperty Name="QtdeLinha" ColumnName="QtdeLinha" />
+                <ScalarProperty Name="QtdeArmazenagem" ColumnName="QtdeArmazenagem" />
+                <ScalarProperty Name="ProntoDespacho" ColumnName="ProntoDespacho" />
+                <ScalarProperty Name="Descricao" ColumnName="Descricao" />
+                <ScalarProperty Name="Codigo" ColumnName="Codigo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AreaPedido">
+            <EntityTypeMapping TypeName="Quasar_Model.AreaPedido">
+              <MappingFragment StoreEntitySet="AreaPedido">
+                <ScalarProperty Name="AreaId" ColumnName="AreaId" />
+                <ScalarProperty Name="Area" ColumnName="Area" />
+                <ScalarProperty Name="UsuarioApollo" ColumnName="UsuarioApollo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AreaRomaneio">
+            <EntityTypeMapping TypeName="Quasar_Model.AreaRomaneio">
+              <MappingFragment StoreEntitySet="AreaRomaneio">
+                <ScalarProperty Name="Mapa" ColumnName="Mapa" />
+                <ScalarProperty Name="Alocar" ColumnName="Alocar" />
+                <ScalarProperty Name="Conferir" ColumnName="Conferir" />
+                <ScalarProperty Name="Separar" ColumnName="Separar" />
+                <ScalarProperty Name="Prioridade" ColumnName="Prioridade" />
+                <ScalarProperty Name="Area" ColumnName="Area" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Area">
+            <EntityTypeMapping TypeName="Quasar_Model.Area">
+              <MappingFragment StoreEntitySet="Area">
+                <ScalarProperty Name="Etiqueta" ColumnName="Etiqueta" />
+                <ScalarProperty Name="TipoAreaId" ColumnName="TipoAreaId" />
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="ModificadoEm" ColumnName="ModificadoEm" />
+                <ScalarProperty Name="ModificadoPor" ColumnName="ModificadoPor" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="Descricao" ColumnName="Descricao" />
+                <ScalarProperty Name="Nome" ColumnName="Nome" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="RomaneioItem">
+            <EntityTypeMapping TypeName="Quasar_Model.RomaneioItem">
+              <MappingFragment StoreEntitySet="RomaneioItem">
+                <ScalarProperty Name="QtdeConferida" ColumnName="QtdeConferida" />
+                <ScalarProperty Name="QtdeSeparada" ColumnName="QtdeSeparada" />
+                <ScalarProperty Name="ZonaId" ColumnName="ZonaId" />
+                <ScalarProperty Name="LocacaoId" ColumnName="LocacaoId" />
+                <ScalarProperty Name="DataConferente" ColumnName="DataConferente" />
+                <ScalarProperty Name="ConferenteId" ColumnName="ConferenteId" />
+                <ScalarProperty Name="DataSeparador" ColumnName="DataSeparador" />
+                <ScalarProperty Name="SeparadorId" ColumnName="SeparadorId" />
+                <ScalarProperty Name="StatusId" ColumnName="StatusId" />
+                <ScalarProperty Name="ValorTotal" ColumnName="ValorTotal" />
+                <ScalarProperty Name="ValorUnitario" ColumnName="ValorUnitario" />
+                <ScalarProperty Name="Descricao" ColumnName="Descricao" />
+                <ScalarProperty Name="TarefaNr" ColumnName="TarefaNr" />
+                <ScalarProperty Name="FilialId" ColumnName="FilialId" />
+                <ScalarProperty Name="CriadoEm" ColumnName="CriadoEm" />
+                <ScalarProperty Name="CriadoPor" ColumnName="CriadoPor" />
+                <ScalarProperty Name="Qtde" ColumnName="Qtde" />
+                <ScalarProperty Name="ItemNr" ColumnName="ItemNr" />
+                <ScalarProperty Name="RomaneioId" ColumnName="RomaneioId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

@@ -1,0 +1,113 @@
+@model IEnumerable<Simplify.Quasar.Areas.DevolucaoApp.ViewModels.DevolucaoConsultaViewModel>
+@{
+    ViewBag.Title = "Devolu&ccedil;&atilde;o";
+    ViewBag.Description = "Consulta de Processos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/DataTables/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    .devolucao-consulta-table th,
+    .devolucao-consulta-table td {
+        vertical-align: middle !important;
+    }
+
+    .devolucao-consulta-table th {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .devolucao-consulta-table td:nth-child(2),
+    .devolucao-consulta-table td:nth-child(4) {
+        text-align: center;
+    }
+
+    .devolucao-consulta-link {
+        font-weight: 700;
+    }
+    
+</style>
+
+<section class="content-header">
+    <h1>
+        @Html.Raw(ViewBag.Title)<small>@Html.Raw(ViewBag.Description)</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered table-hover table-small devolucao-consulta-table" id="tbDevolucaoConsulta">
+                    <thead>
+                        <tr>
+                            <th>Controle Nr</th>
+                            <th>Cliente</th>
+                            <th>Transportadora</th>
+                            <th>Status</th>
+                            <th>Data / Hora do Cadastro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a class="devolucao-consulta-link" href="@Url.Action("Detalhe", "Home", new { area = "DevolucaoApp", id = item.Id })">
+                                        @item.ControleNr
+                                    </a>
+                                </td>
+                                <td>@item.Cliente</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.Transportadora) ? "-" : item.Transportadora)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.StatusNome) ? "-" : item.StatusNome)</td>
+                                <td data-order="@(item.DataCadastro.HasValue ? item.DataCadastro.Value.ToString("yyyyMMddHHmmss") : string.Empty)">
+                                    @(item.DataCadastro.HasValue ? item.DataCadastro.Value.ToString("dd/MM/yyyy HH:mm:ss") : string.Empty)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/Scripts/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/DataTables/dataTables.bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#tbDevolucaoConsulta').DataTable({
+                processing: true,
+                deferRender: true,
+                pageLength: 25,
+                order: [[4, 'desc']],
+                language: {
+                    processing: "Carregando dados...",
+                    lengthMenu: "Exibir _MENU_ registros por pagina",
+                    search: "Consultar:",
+                    zeroRecords: "Nenhum registro localizado",
+                    info: "Exibindo de _START_ a _END_ de um total de _TOTAL_ registros",
+                    infoEmpty: "Exibindo 0 de 0 registros",
+                    infoFiltered: "",
+                    thousands: ".",
+                    decimal: ",",
+                    paginate: {
+                        first: "Primeira",
+                        last: "\u00DAltima",
+                        next: "Pr\u00F3xima",
+                        previous: "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,31 +1,80 @@
 $(function () {
     'use strict';
+    var loginFormSelector = '.login-form';
+    var visibleCredentialSelector = '#UsuarioDisplay, #SenhaDisplay';
 
-    if ($('.user-error').find('span').html().trim() != '') {
-        $('.form-group.first').addClass('invalid-input');
+    function hasValidationMessage($container) {
+        return $.trim($container.text()) !== '';
     }
 
-    $("#Usuario").on('blur', function () {
-        $('.form-group.first').removeClass('invalid-input');
-        $('.user-error').hide();
-    })
-
-    if ($('.pwd-error').find('span').html().trim() != '') {
-        $('.form-group.last').addClass('invalid-input');
+    function syncValidationState($container, $field, forceHide) {
+        var showMessage = !forceHide && hasValidationMessage($container);
+        $field.toggleClass('invalid-input', showMessage);
+        $container.toggleClass('has-message', showMessage);
     }
 
-    $("#Senha").on('blur', function () {
-        $('.form-group.last').removeClass('invalid-input');
-        $('.pwd-error').hide();
-    })
+    function syncFieldState($input) {
+        var $field = $input.closest('.form-group');
+        if ($field.length === 0) {
+            return;
+        }
 
-    $('.form-control').on('input', function () {
-        var $field = $(this).closest('.form-group');
-        if (this.value) {
+        if (($input.val() || '').trim() !== '') {
             $field.addClass('field--not-empty');
         } else {
             $field.removeClass('field--not-empty');
         }
+    }
+
+    function syncAllFieldStates() {
+        $('.form-group .form-control').each(function () {
+            syncFieldState($(this));
+        });
+    }
+
+    function syncLoginCredentialPayload() {
+        $('#Usuario').val($('#UsuarioDisplay').val() || '');
+        $('#Senha').val($('#SenhaDisplay').val() || '');
+    }
+
+    function resetLoginCredentials() {
+        $('#Usuario, #Senha, #UsuarioDisplay, #SenhaDisplay').val('');
+        syncAllFieldStates();
+    }
+
+    syncValidationState($('.user-error'), $('.form-group.first'), false);
+
+    $("#UsuarioDisplay").on('blur', function () {
+        syncValidationState($('.user-error'), $('.form-group.first'), true);
+    });
+
+    syncValidationState($('.pwd-error'), $('.form-group.last'), false);
+
+    $("#SenhaDisplay").on('blur', function () {
+        syncValidationState($('.pwd-error'), $('.form-group.last'), true);
+    });
+
+    $('.form-control').on('input change blur', function () {
+        syncFieldState($(this));
+    });
+
+    $(visibleCredentialSelector).on('input change', function () {
+        syncLoginCredentialPayload();
+    });
+
+    $(loginFormSelector).on('submit', function () {
+        syncLoginCredentialPayload();
+    });
+
+    resetLoginCredentials();
+    syncAllFieldStates();
+
+    $(window).on('load', function () {
+        resetLoginCredentials();
+    });
+
+    $(window).on('pageshow', function () {
+        resetLoginCredentials();
     });
 
     $("#myModal").on('shown.bs.modal', function () {
@@ -45,23 +94,6 @@ $(function () {
         });
         return false;
     }
-
-
-
-    $("#frmAtualizarSenha").submit(function (e) {
-        e.preventDefault();
-        if ($(this).valid()) {
-            $.ajax({
-                type: "POST",
-                url: $(this).attr('action'),
-                data: $(this).serialize(),
-                success: function (response) {
-                    alert(response.message);
-                }
-            });
-        }
-    });
-
     function bindForm(dialog) {
         $('form', dialog).submit(function () {
             $.ajax({
@@ -70,38 +102,37 @@ $(function () {
                 data: $(this).serialize(),
                 success: function (result) {
                     if (result.success) {
+                        resetLoginCredentials();
+                        $('#Id').val('');
                         $('#SenhaExpirada').val('');
+                        $('#myModalContent').html('');
                         $('#myModal').modal('hide');
-                        var div = document.createElement("div");
-                        div.innerHTML = "<h4 class='swal-text-success'>"+ result.message + "</h4>";
-
                         swal({
                             title: "Controle de Acesso",
-                            content: div,
-                            html: true,
+                            text: result.message || "Senha atualizada com sucesso.",
+                            icon: "success",
                             buttons: {
                                 confirm: {
-                                    className: "swal-btn-info"
+                                    text: "OK",
+                                    className: "swal-btn-success",
+                                    closeModal: true,
+                                    visible: true
                                 }
                             }
-                        })
+                        }).then(function () {
+                            $('#UsuarioDisplay').focus();
+                        });
 
-                        //bootbox.alert({
-                        //    title: "Controle de Acesso",
-                        //    closeButton: false,
-                        //    message: result.message,
-                        //    callback: function () {
-                        //        $('#Senha').focus();
-                        //    }
-                        //});
                     } else {
                         $('#myModalContent').html(result);
                         bindForm();
                     }
                 },
                 error: function (jqXhr, textStatus, errorMessage) {
+                    var response = jqXhr && jqXhr.responseJSON ? jqXhr.responseJSON : {};
+                    var detalhe = response.message || errorMessage || 'Falha ao atualizar a senha.';
                     var div = document.createElement("div");
-                    div.innerHTML = "<h4 class='swal-text-error'>Falha na atualização da senha de acesso!</h4><p class='swal-text-error-detail'>" + response.mensagem + "</p>";
+                    div.innerHTML = "<h4 class='swal-text-error'>Falha na atualiza\u00E7\u00E3o da senha de acesso!</h4><p class='swal-text-error-detail'>" + detalhe + "</p>";
                     swal({
                         title: "Controle de Acesso",
                         content: div,
