@@ -65,7 +65,10 @@
                     <i class="fa fa-square-o fa-fw"></i> DESMARCAR TODOS
                 </button>
                 <button type="button" id="btn-imprimir-selecionados" class="btn btn-success">
-                    <i class="fa fa-print fa-fw"></i> IMPRIMIR SELECIONADOS
+                    <i class="fa fa-print fa-fw"></i> IMPRIMIR MODELO PADRÃO
+                </button>
+                <button type="button" id="btn-imprimir-alternativo" class="btn btn-info">
+                    <i class="fa fa-qrcode fa-fw"></i> IMPRIMIR MODELO ALTERNATIVO
                 </button>
                 <span id="quantidade-selecionada" class="etiqueta-selected-count">0 selecionada(s)</span>
             </div>
@@ -157,9 +160,16 @@
                     type: 'POST',
                     contentType: 'application/json; charset=utf-8',
                     dataType: 'json',
+                    timeout: 30000,
                     data: function (d) {
                         $.extend(d, filtros());
                         return JSON.stringify(d);
+                    },
+                    error: function () {
+                        $('#processing')
+                            .removeClass('hide')
+                            .text('Não foi possível carregar as locações. Tente novamente.');
+                        $('.data-container').addClass('hide');
                     }
                 },
                 columns: [
@@ -258,7 +268,7 @@
             $('#btn-marcar-todos').on('click', function () { alterarTodosFiltrados(true); });
             $('#btn-desmarcar-todos').on('click', function () { alterarTodosFiltrados(false); });
 
-            $('#btn-imprimir-selecionados').on('click', function () {
+            function imprimirSelecionados(modelo) {
                 var ids = idsSelecionados();
                 if (ids.length === 0) {
                     avisar('Selecione pelo menos uma locação para imprimir.');
@@ -269,7 +279,7 @@
                 $.ajax({
                     url: '@Url.Action("PrepararEtiquetas", "Locacao", new { area = "EstoqueApp" })',
                     type: 'POST',
-                    data: { ids: ids.join(','), __RequestVerificationToken: antiForgeryToken }
+                    data: { ids: ids.join(','), modelo: modelo, __RequestVerificationToken: antiForgeryToken }
                 }).done(function (result) {
                     if (!result.success) {
                         if (janela) janela.close();
@@ -282,7 +292,10 @@
                     if (janela) janela.close();
                     avisar('Não foi possível preparar as etiquetas.');
                 });
-            });
+            }
+
+            $('#btn-imprimir-selecionados').on('click', function () { imprimirSelecionados('padrao'); });
+            $('#btn-imprimir-alternativo').on('click', function () { imprimirSelecionados('alternativo'); });
         });
     </script>
 }

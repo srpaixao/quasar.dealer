@@ -868,6 +868,7 @@
     <Content Include="Areas\EstoqueApp\Views\Locacao\Lote.cshtml" />
     <Content Include="Areas\EstoqueApp\Views\Locacao\Etiquetas.cshtml" />
     <Content Include="Areas\EstoqueApp\Views\Locacao\LayoutEtiquetas.cshtml" />
+    <Content Include="Areas\EstoqueApp\Views\Locacao\LayoutEtiquetasAlternativo.cshtml" />
     <Content Include="Areas\EstoqueApp\Views\Locacao\_Tabs.cshtml" />
     <Content Include="Areas\EstoqueApp\Views\Locacao\_Create.cshtml" />
     <Content Include="Areas\EstoqueApp\Views\Locacao\_Edit.cshtml" />

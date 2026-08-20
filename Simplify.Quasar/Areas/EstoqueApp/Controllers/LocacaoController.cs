@@ -292,31 +292,88 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 model.equipamentoId, model.demanda, pesquisa);
             int recordsFiltered = query.Count();
 
-            var dados = query.Select(l => new LocacaoEtiquetaGridItemViewModel
+            var areasDaFilial = db.Area.AsNoTracking()
+                .Where(a => a.FilialId == filialId || a.FilialId == null);
+            var zonasDaFilial = db.Zona.AsNoTracking()
+                .Where(z => z.FilialId == filialId || z.FilialId == null);
+            var equipamentosDaFilial = db.Equipamento.AsNoTracking()
+                .Where(e => e.FilialId == filialId || e.FilialId == null);
+
+            int sortColumn = model.order != null && model.order.Length > 0 ? model.order[0].column : 1;
+            bool desc = model.order != null && model.order.Length > 0 && model.order[0].dir == "desc";
+            IQueryable<Locacao> ordenada;
+            switch (sortColumn)
+            {
+                case 2:
+                    ordenada = desc ? query.OrderByDescending(x => x.Descricao) : query.OrderBy(x => x.Descricao);
+                    break;
+                case 3:
+                    ordenada = desc
+                        ? from l in query
+                          join a in areasDaFilial on l.AreaId equals (int?)a.Id into areaJoin
+                          from a in areaJoin.DefaultIfEmpty()
+                          orderby a.Nome descending, l.Codigo
+                          select l
+                        : from l in query
+                          join a in areasDaFilial on l.AreaId equals (int?)a.Id into areaJoin
+                          from a in areaJoin.DefaultIfEmpty()
+                          orderby a.Nome, l.Codigo
+                          select l;
+                    break;
+                case 4:
+                    ordenada = desc
+                        ? from l in query
+                          join z in zonasDaFilial on l.ZonaId equals (int?)z.Id into zonaJoin
+                          from z in zonaJoin.DefaultIfEmpty()
+                          orderby (z.Codigo ?? z.Nome) descending, l.Codigo
+                          select l
+                        : from l in query
+                          join z in zonasDaFilial on l.ZonaId equals (int?)z.Id into zonaJoin
+                          from z in zonaJoin.DefaultIfEmpty()
+                          orderby (z.Codigo ?? z.Nome), l.Codigo
+                          select l;
+                    break;
+                case 5:
+                    ordenada = desc
+                        ? from l in query
+                          join e in equipamentosDaFilial on l.EquipamentoId equals (int?)e.Id into equipamentoJoin
+                          from e in equipamentoJoin.DefaultIfEmpty()
+                          orderby e.Nome descending, l.Codigo
+                          select l
+                        : from l in query
+                          join e in equipamentosDaFilial on l.EquipamentoId equals (int?)e.Id into equipamentoJoin
+                          from e in equipamentoJoin.DefaultIfEmpty()
+                          orderby e.Nome, l.Codigo
+                          select l;
+                    break;
+                case 6:
+                    ordenada = desc ? query.OrderByDescending(x => x.Curva) : query.OrderBy(x => x.Curva);
+                    break;
+                default:
+                    ordenada = desc ? query.OrderByDescending(x => x.Codigo) : query.OrderBy(x => x.Codigo);
+                    break;
+            }
+
+            int length = model.length > 0 ? Math.Min(model.length, 100) : 25;
+            // Primeiro pagina Locacao usando o índice; os nomes auxiliares são
+            // resolvidos somente para os poucos registros exibidos na página.
+            var locacoesPagina = ordenada.Skip(model.start).Take(length).ToList();
+            var areaIds = locacoesPagina.Where(x => x.AreaId.HasValue).Select(x => x.AreaId.Value).Distinct().ToList();
+            var zonaIds = locacoesPagina.Where(x => x.ZonaId.HasValue).Select(x => x.ZonaId.Value).Distinct().ToList();
+            var equipamentoIds = locacoesPagina.Where(x => x.EquipamentoId.HasValue).Select(x => x.EquipamentoId.Value).Distinct().ToList();
+            var areas = areasDaFilial.Where(x => areaIds.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Nome);
+            var zonas = zonasDaFilial.Where(x => zonaIds.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Codigo ?? x.Nome);
+            var equipamentos = equipamentosDaFilial.Where(x => equipamentoIds.Contains(x.Id)).ToDictionary(x => x.Id, x => x.Nome);
+            var pagina = locacoesPagina.Select(l => new LocacaoEtiquetaGridItemViewModel
             {
                 Id = l.Id,
                 Codigo = l.Codigo,
                 Descricao = l.Descricao,
-                Area = db.Area.Where(a => a.Id == l.AreaId && (a.FilialId == filialId || a.FilialId == null)).Select(a => a.Nome).FirstOrDefault(),
-                Zona = db.Zona.Where(z => z.Id == l.ZonaId && (z.FilialId == filialId || z.FilialId == null)).Select(z => z.Codigo ?? z.Nome).FirstOrDefault(),
-                Equipamento = db.Equipamento.Where(e => e.Id == l.EquipamentoId && (e.FilialId == filialId || e.FilialId == null)).Select(e => e.Nome).FirstOrDefault(),
+                Area = l.AreaId.HasValue && areas.ContainsKey(l.AreaId.Value) ? areas[l.AreaId.Value] : string.Empty,
+                Zona = l.ZonaId.HasValue && zonas.ContainsKey(l.ZonaId.Value) ? zonas[l.ZonaId.Value] : string.Empty,
+                Equipamento = l.EquipamentoId.HasValue && equipamentos.ContainsKey(l.EquipamentoId.Value) ? equipamentos[l.EquipamentoId.Value] : string.Empty,
                 Demanda = l.Curva
-            });
-
-            int sortColumn = model.order != null && model.order.Length > 0 ? model.order[0].column : 1;
-            bool desc = model.order != null && model.order.Length > 0 && model.order[0].dir == "desc";
-            switch (sortColumn)
-            {
-                case 2: dados = desc ? dados.OrderByDescending(x => x.Descricao) : dados.OrderBy(x => x.Descricao); break;
-                case 3: dados = desc ? dados.OrderByDescending(x => x.Area) : dados.OrderBy(x => x.Area); break;
-                case 4: dados = desc ? dados.OrderByDescending(x => x.Zona) : dados.OrderBy(x => x.Zona); break;
-                case 5: dados = desc ? dados.OrderByDescending(x => x.Equipamento) : dados.OrderBy(x => x.Equipamento); break;
-                case 6: dados = desc ? dados.OrderByDescending(x => x.Demanda) : dados.OrderBy(x => x.Demanda); break;
-                default: dados = desc ? dados.OrderByDescending(x => x.Codigo) : dados.OrderBy(x => x.Codigo); break;
-            }
-
-            int length = model.length > 0 ? Math.Min(model.length, 100) : 25;
-            var pagina = dados.Skip(model.start).Take(length).ToList();
+            }).ToList();
             JsonResult result = Json(new { draw = model.draw, recordsFiltered, recordsTotal, data = pagina });
             result.MaxJsonLength = int.MaxValue;
             return result;
@@ -340,7 +397,7 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult PrepararEtiquetas(string ids)
+        public ActionResult PrepararEtiquetas(string ids, string modelo)
         {
             var selecionados = (ids ?? string.Empty)
                 .Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries)
@@ -374,11 +431,23 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             return Json(new
             {
                 success = true,
-                url = Url.Action("LayoutEtiquetas", "Locacao", new { area = "EstoqueApp", token })
+                url = string.Equals(modelo, "alternativo", StringComparison.OrdinalIgnoreCase)
+                    ? Url.Action("LayoutEtiquetasAlternativo", "Locacao", new { area = "EstoqueApp", token })
+                    : Url.Action("LayoutEtiquetas", "Locacao", new { area = "EstoqueApp", token })
             });
         }
 
         public ActionResult LayoutEtiquetas(string token)
+        {
+            return MontarLayoutEtiquetas(token, "LayoutEtiquetas");
+        }
+
+        public ActionResult LayoutEtiquetasAlternativo(string token)
+        {
+            return MontarLayoutEtiquetas(token, "LayoutEtiquetasAlternativo");
+        }
+
+        private ActionResult MontarLayoutEtiquetas(string token, string nomeView)
         {
             LocacaoEtiquetaLoteSessao sessao = ObterSessaoEtiqueta(token);
             if (sessao == null)
@@ -417,7 +486,7 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 });
             }
 
-            return View(vm);
+            return View(nomeView, vm);
         }
 
         [HttpPost]

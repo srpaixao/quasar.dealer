@@ -21,17 +21,10 @@ namespace Simplify.Quasar
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 
-            try
-            {
-                Simplify.Quasar.Custom.Util.EnsureRecebimentoConferenciaVolumeMenuTarget();
-                Simplify.Quasar.Custom.Util.EnsureExpedicaoConferenciaRomaneioMenu();
-                Simplify.Quasar.Custom.Util.EnsureEstoqueAssociacaoLocacaoMenu();
-                Simplify.Quasar.Custom.Util.EnsureControleAcessoAtividadesMenu();
-                Simplify.Quasar.Custom.Util.EnsureOnlineUserTimeoutParameters();
-            }
-            catch (Exception)
-            {
-            }
+            // Ajustes de estrutura e dados devem ser aplicados no processo de
+            // atualização, não durante a primeira requisição do usuário. Executar
+            // consultas e gravações aqui fazia a tela de login aguardar o SQL Server
+            // sempre que o IIS/Visual Studio reiniciava a aplicação.
         }
 
         protected void Session_Start(object sender, EventArgs e)

@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 //      Revision        Not used
 //
 // A versão é alterada somente quando uma nova publicação é preparada.
-[assembly: AssemblyVersion("1.0.7.0")]
-[assembly: AssemblyFileVersion("1.0.7.0")]
+[assembly: AssemblyVersion("1.0.8.0")]
+[assembly: AssemblyFileVersion("1.0.8.0")]

@@ -1,3 +1,5 @@
+@using System
+@using System.Linq
 @model Simplify.Quasar.Areas.EstoqueApp.ViewModels.LocacaoEtiquetaImpressaoViewModel
 @{
     Layout = null;
@@ -7,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Etiquetas de locações</title>
+    <title>Etiquetas de locações — modelo alternativo</title>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; background: #eef1f4; color: #231f20; font-family: Arial, Helvetica, sans-serif; }
@@ -16,12 +18,13 @@
         .print-toolbar button:disabled { cursor: wait; opacity: .65; }
         .print-toolbar a { color: #fff; }
         .labels { padding: 20px; }
-        .label-page { width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 1mm 2mm; background: #fff; border: .25mm solid #231f20; display: grid; grid-template-rows: 28mm 19mm; overflow: hidden; page-break-after: always; break-after: page; }
+        .label-page { width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 1.5mm; background: #fff; border: .25mm solid #231f20; display: flex; align-items: stretch; gap: 1.5mm; overflow: hidden; page-break-after: always; break-after: page; }
         .label-page:last-child { page-break-after: auto; break-after: auto; }
-        .label-qr { align-self: center; justify-self: center; width: 27mm; height: 27mm; }
-        .label-qr canvas, .label-qr img { display: block; width: 27mm !important; height: 27mm !important; }
-        .label-code { align-self: center; justify-self: center; width: 100%; overflow: hidden; text-align: center; white-space: nowrap; }
-        .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 40pt; font-weight: 900; line-height: 1; letter-spacing: -.35mm; transform-origin: center center; white-space: nowrap; }
+        .label-qr { flex: 0 0 44mm; width: 44mm; height: 44mm; align-self: center; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .label-qr canvas, .label-qr img { display: block; width: 44mm !important; height: 44mm !important; }
+        .label-code { flex: 1 1 auto; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: stretch; overflow: hidden; }
+        .label-code-line { flex: 1 1 0; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+        .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 38pt; font-weight: 900; line-height: .9; letter-spacing: -.3mm; transform-origin: center center; white-space: nowrap; }
         @@page { size: 100mm 50mm; margin: 0; }
         @@media print {
             body { background: #fff; }
@@ -35,16 +38,44 @@
     <div class="print-toolbar">
         <button id="btn-imprimir" type="button" disabled>Preparando QR Codes...</button>
         <span>@Model.Etiquetas.Count.ToString("N0") etiqueta(s)</span>
-        <a href="@Url.Action("LayoutEtiquetasAlternativo", "Locacao", new { area = "EstoqueApp", token = Request.QueryString["token"] })">Ver modelo alternativo</a>
+        <a href="@Url.Action("LayoutEtiquetas", "Locacao", new { area = "EstoqueApp", token = Request.QueryString["token"] })">Ver modelo padrão</a>
         <a href="javascript:window.close()">Fechar</a>
     </div>
     <main class="labels">
         @for (int indice = 0; indice < Model.Etiquetas.Count; indice++)
         {
             var etiqueta = Model.Etiquetas[indice];
+            string[] partes = (etiqueta.CodigoFormatado ?? string.Empty)
+                .Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] linhas;
+            if (partes.Length >= 5)
+            {
+                linhas = new[]
+                {
+                    partes[0],
+                    string.Join(".", partes.Skip(1).Take(2)),
+                    string.Join(".", partes.Skip(3))
+                };
+            }
+            else if (partes.Length >= 3)
+            {
+                linhas = new[] { partes[0], partes[1], string.Join(".", partes.Skip(2)) };
+            }
+            else
+            {
+                linhas = partes.Length == 2
+                    ? new[] { partes[0], partes[1] }
+                    : new[] { etiqueta.CodigoFormatado ?? string.Empty };
+            }
+
             <section class="label-page">
                 <div class="label-qr" data-value="@etiqueta.CodigoSemEspacos"></div>
-                <div class="label-code"><span class="label-code-text">@etiqueta.CodigoFormatado</span></div>
+                <div class="label-code">
+                    @foreach (string linha in linhas)
+                    {
+                        <div class="label-code-line"><span class="label-code-text">@linha</span></div>
+                    }
+                </div>
             </section>
         }
     </main>
@@ -57,22 +88,23 @@
                 for (var i = 0; i < elementos.length; i++) {
                     new QRCode(elementos[i], {
                         text: elementos[i].getAttribute('data-value') || '',
-                        width: 256,
-                        height: 256,
+                        width: 320,
+                        height: 320,
                         colorDark: '#000000',
                         colorLight: '#ffffff',
                         correctLevel: QRCode.CorrectLevel.M
                     });
                 }
+
                 function ajustarCodigos() {
-                    var codigos = document.querySelectorAll('.label-code');
-                    for (var j = 0; j < codigos.length; j++) {
-                        var texto = codigos[j].querySelector('.label-code-text');
+                    var linhas = document.querySelectorAll('.label-code-line');
+                    for (var j = 0; j < linhas.length; j++) {
+                        var texto = linhas[j].querySelector('.label-code-text');
                         texto.style.transform = 'none';
-                        var larguraDisponivel = codigos[j].clientWidth * 0.94;
+                        var larguraDisponivel = linhas[j].clientWidth * 0.94;
                         var larguraTexto = texto.offsetWidth;
                         var escalaHorizontal = larguraTexto > 0 ? larguraDisponivel / larguraTexto : 1;
-                        escalaHorizontal = Math.min(1.25, escalaHorizontal);
+                        escalaHorizontal = Math.min(1.65, escalaHorizontal);
                         texto.style.transform = 'scaleX(' + escalaHorizontal.toFixed(3) + ')';
                     }
                     botao.disabled = false;
