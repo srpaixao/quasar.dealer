@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 using QuasarApi.Extensions;
-var version = "2026.04.22";
+var version = "2026.01.20";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddArchitectures();
@@ -11,7 +11,7 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-// Recuperando info de conexï¿½o ao banco de dados
+// Recuperando info de conexão ao banco de dados
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var sqlBuilder = new SqlConnectionStringBuilder(connectionString);
 var dataSource = sqlBuilder.DataSource;
@@ -28,7 +28,7 @@ app.UseArchitectures();
 app.UseServices();
 
 app.MapGet("/", () =>
-    $"Quasar Dealer Nova Chevrolet API is running (version date => {version}){Environment.NewLine}{Environment.NewLine}" +
+    $"Quasar API is running (version date => {version}){Environment.NewLine}{Environment.NewLine}" +
     $"Server name => {dataSource}{Environment.NewLine}" +
     $"Database name => {initialCatalog}{Environment.NewLine}{Environment.NewLine}" +
     $"Active environment => {builder.Environment.EnvironmentName}");

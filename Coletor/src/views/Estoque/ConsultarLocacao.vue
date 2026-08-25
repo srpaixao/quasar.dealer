@@ -101,7 +101,7 @@ const consultarItem = async () => {
   loading.value = true;
 
   try {
-    const response = await apiService.consultarLocacao(form.itemnr, user.filialId);
+    const response = await apiService.consultarLocacao(form.itemnr);
     console.log(response.data)
 
     loading.value = false;

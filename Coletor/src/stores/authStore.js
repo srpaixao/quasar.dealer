@@ -8,7 +8,6 @@ export const useAuthStore = defineStore('auth', {
       fullName: null,
       email: null,
       filialId: null,
-      filialName: null,
     },
   }),
   actions: {
@@ -21,7 +20,6 @@ export const useAuthStore = defineStore('auth', {
         fullName: null,
         email: null,
         filialId: null,
-        filialName: null,
       };
     },
   },

@@ -19,9 +19,14 @@ namespace QuasarApi.Database.Models
         public int? QtdOrigem { get; set; }
 
         [MaxLength(100)]
+        public string? LocacaoEspera { get; set; }
+
+        [MaxLength(100)]
         public string? LocacaoDestino { get; set; }
 
         public int? QtdDestino { get; set; }
+
+        public int? FilialId { get; set; }
 
         [MaxLength(100)]
         public string? CriadoPor { get; set; }
@@ -36,7 +41,6 @@ namespace QuasarApi.Database.Models
         public string? UrlDMS { get; set; }
         public string? Payload { get; set; }
         public string? Response { get; set; }
-        public int? FilialId { get; set; }
     }
 }
 

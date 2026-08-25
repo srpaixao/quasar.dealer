@@ -16,8 +16,12 @@ namespace QuasarApi.Routes.Operations
             {
                 try
                 {
-                    var query = db.Transportadora
-                        .Where(t => t.FilialId == filialId);
+                    var query = db.Transportadora.AsQueryable();
+
+                    if (filialId.HasValue)
+                    {
+                        query = query.Where(t => t.FilialId == filialId.Value);
+                    }
 
                     var list = await query
                         .OrderBy(t => t.Nome)
@@ -43,3 +47,4 @@ namespace QuasarApi.Routes.Operations
         }
     }
 }
+

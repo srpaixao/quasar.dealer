@@ -7,6 +7,7 @@ if (import.meta.env.MODE != 'production') {
 
 import { ref, computed } from 'vue';
 import apiService from '../../http/request.js';
+import { APP_VERSION } from '@/config/version.js';
 
 import { stateSession } from '../../router/index.js';
 
@@ -43,35 +44,11 @@ const passwordRules = [
     // v => (v && v.length >= 6) || 'Password must be at least 6 characters'
 ];
 
-const filiais = ref([]);
-const filialId = ref(null);
-const filialErrors = ref([]);
-const filialRules = [
-    v => v !== null || 'Filial is required'
-];
-
-const loadFiliais = async () => {
-    try {
-        const response = await apiService.obterEmpresas();
-        filiais.value = response.data;
-    } catch (error) {
-        console.error('Erro ao carregar filiais:', error);
-        apiError.value = 'Erro ao carregar filiais.';
-    }
-};
-
-import { onMounted } from 'vue';
-onMounted(() => {
-    loadFiliais();
-});
-
 const clearError = (field) => {
     if (field === 'username') {
         usernameErrors.value = [];
     } else if (field === 'password') {
         passwordErrors.value = [];
-    } else if (field === 'filial') {
-        filialErrors.value = [];
     }
     apiError.value = '';
 };
@@ -83,16 +60,14 @@ const submitLogin = async () => {
     if (validation.valid) {
         try {
             processing.value = true;
-            const response = await apiService.login(username.value, password.value, filialId.value);
+            const response = await apiService.login(username.value, password.value);
             console.log(response.data);
 
-            const selectedFilial = filiais.value.find(f => f.id === filialId.value);
             authStore.setUser({
                 account: response.data.useraccount,
                 fullName: response.data.username,
                 email: response.data.email,
-                filialId: response.data.filialId,
-                filialName: selectedFilial ? selectedFilial.nome : null
+                filialId: response.data.filialId
             });
 
             sessionStorage.setItem('quasarJWT', response.data.token);
@@ -154,7 +129,6 @@ const submitLogin = async () => {
     } else {
         usernameErrors.value = usernameRules.map(rule => rule(username.value)).filter(message => message !== true);
         passwordErrors.value = passwordRules.map(rule => rule(password.value)).filter(message => message !== true);
-        filialErrors.value = filialRules.map(rule => rule(filialId.value)).filter(message => message !== true);
     }
 };
 
@@ -170,11 +144,12 @@ const submitLogin = async () => {
                             <v-row justify="center">
                                 <v-col>
                                     <h2 class="text-center">
-                                        Quasar Dealer Nova Chevrolet
+                                        Quasar Dealer
                                         <div>
                                             <small class="ambiente">{{ ambiente }}</small>
                                         </div>
                                     </h2>
+                                    <div class="version text-center">Versão {{ APP_VERSION }}</div>
                                 </v-col>
                             </v-row>
                             <v-row>
@@ -191,14 +166,6 @@ const submitLogin = async () => {
                                         type="password" variant="outlined" density="comfortable" :rules="passwordRules"
                                         :error-messages="passwordErrors" @focus="clearError('password')"
                                         autocomplete="current-password"></v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col>
-                                    <v-select v-model="filialId" :items="filiais" item-title="nome" item-value="id"
-                                        label="Filial" variant="outlined" density="comfortable" :rules="filialRules"
-                                        :error-messages="filialErrors" @focus="clearError('filial')"
-                                        prepend-inner-icon="mdi-office-building"></v-select>
                                 </v-col>
                             </v-row>
                             <v-row>
@@ -261,6 +228,12 @@ small.ambiente {
     font-size: 60%;
     font-style: italic;
     color: tomato;
+}
+
+.version {
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 0.75rem;
 }
 
 .mdi-spin:before {

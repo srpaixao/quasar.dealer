@@ -23,9 +23,12 @@ namespace QuasarApi.DataBase
         public DbSet<NotaFiscalItem> NotaFiscalItem { get; set; }
         public DbSet<RetornoInterno> RetornoInterno { get; set; }
         public DbSet<RetornoInternoItem> RetornoInternoItem { get; set; }
+        public DbSet<Romaneio> Romaneio { get; set; }
+        public DbSet<RomaneioItem> RomaneioItem { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Volume> Volume { get; set; }
         public DbSet<StatusVolume> StatusVolume { get; set; }
+        public DbSet<Zona> Zona { get; set; }
         public DbSet<HistoricoArmazenagem> HistoricoArmazenagem { get; set; }
         public DbSet<Movimentacao> Movimentacao { get; set; }
         public DbSet<MovimentacaoDestino> MovimentacaoDestino { get; set; }
@@ -68,7 +71,14 @@ namespace QuasarApi.DataBase
 
             modelBuilder.Entity<Locacao>(entity =>
             {
-                entity.HasKey(e => e.Codigo);
+                entity.ToTable("Locacao");
+                entity.HasKey(e => e.Id);
+            });
+
+            modelBuilder.Entity<AppConfig>(entity =>
+            {
+                entity.ToTable("AppConfig");
+                entity.HasKey(e => e.Id);
             });
 
             modelBuilder.Entity<Material>(entity =>
@@ -84,10 +94,27 @@ namespace QuasarApi.DataBase
             modelBuilder.Entity<NotaFiscalItem>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.Quantidade).HasPrecision(15, 3);
+                entity.Property(e => e.QtdConferida).HasPrecision(15, 3);
+                entity.Property(e => e.QtdArmazenada).HasPrecision(15, 3);
+                entity.Property(e => e.UsuarioConferencia).HasMaxLength(100).IsUnicode(false);
+                entity.Property(e => e.UsuarioArmazenagem).HasMaxLength(100).IsUnicode(false);
             });
 
             modelBuilder.Entity<RetornoInterno>(entity =>
             {
+                entity.HasKey(e => e.Id);
+            });
+
+            modelBuilder.Entity<Romaneio>(entity =>
+            {
+                entity.ToTable("Romaneio");
+                entity.HasKey(e => e.Id);
+            });
+
+            modelBuilder.Entity<RomaneioItem>(entity =>
+            {
+                entity.ToTable("RomaneioItem");
                 entity.HasKey(e => e.Id);
             });
 
@@ -122,10 +149,15 @@ namespace QuasarApi.DataBase
 
                 entity.Property(e => e.QtdOrigem);
 
+                entity.Property(e => e.LocacaoEspera)
+                    .HasMaxLength(100);
+
                 entity.Property(e => e.LocacaoDestino)
                     .HasMaxLength(100);
 
                 entity.Property(e => e.QtdDestino);
+
+                entity.Property(e => e.FilialId);
 
                 entity.Property(e => e.CriadoPor)
                     .HasMaxLength(100);
@@ -147,6 +179,7 @@ namespace QuasarApi.DataBase
                     .HasMaxLength(100);
                 entity.Property(e => e.Locacao)
                     .HasMaxLength(100);
+                entity.Property(e => e.FilialId);
             });
 
             modelBuilder.Entity<DocExpedicao>(entity =>
@@ -169,6 +202,13 @@ namespace QuasarApi.DataBase
                 entity.Property(e => e.Responsavel).HasMaxLength(100);
                 entity.Property(e => e.CriadoEm).IsRequired();
                 entity.Property(e => e.CriadoPor).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<Zona>(entity =>
+            {
+                entity.ToTable("Zona");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Nome).HasMaxLength(100);
             });
 
 

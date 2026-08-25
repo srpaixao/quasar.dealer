@@ -18,6 +18,11 @@ const total = ref(0);
 const pendentes = ref(0);
 const confirmados = ref(0);
 const incorretos = ref(0);
+const volumesPendentes = ref([]);
+const pendentesDialog = ref(false);
+const pendentesLoading = ref(false);
+const pendentesErro = ref('');
+const tecladoAtivo = ref(false);
 
 let dialogMessage = '';
 const dialog = ref(false);
@@ -40,6 +45,46 @@ const setFocus = (field) => {
   });
 };
 
+const alternarTeclado = async () => {
+  tecladoAtivo.value = !tecladoAtivo.value;
+  await nextTick();
+
+  const input = itemInput.value?.$el?.querySelector('input');
+  if (input) {
+    input.blur();
+    input.focus();
+  } else {
+    focusItem();
+  }
+};
+
+const desativarTeclado = () => {
+  tecladoAtivo.value = false;
+};
+
+const abrirPendentes = async () => {
+  if (!selectedArea.value || pendentesLoading.value) return;
+
+  pendentesDialog.value = true;
+  pendentesLoading.value = true;
+  pendentesErro.value = '';
+  volumesPendentes.value = [];
+
+  try {
+    const response = await apiService.obterVolumesPendentesRecebimento(selectedArea.value);
+    volumesPendentes.value = response.data
+      .map(item => item.volumeNr ?? item.VolumeNr)
+      .filter(volumeNr => volumeNr !== null && volumeNr !== undefined && String(volumeNr).trim() !== '')
+      .map(volumeNr => String(volumeNr).trim());
+    pendentes.value = volumesPendentes.value.length;
+  } catch (error) {
+    pendentesErro.value = error?.response?.data?.mensagem
+      || 'Não foi possível obter os volumes pendentes.';
+  } finally {
+    pendentesLoading.value = false;
+  }
+};
+
 const consultarItem = async () => {
 
   if (form.itemnr.trim().length === 0) {
@@ -49,9 +94,10 @@ const consultarItem = async () => {
   dialog.value = false;
   //loading.value = true;
   try {
-    const response = await apiService.processarVolume(form.itemnr, selectedArea.value, user.filialId, user.account);
+    const response = await apiService.processarVolume(form.itemnr, selectedArea.value);
     console.log(response.data)
     form.itemnr = '';
+    desativarTeclado();
     focusItem();
 
     if (!response.data.erro) {
@@ -107,10 +153,20 @@ watch(dialog, (newVal) => {
   }
 });
 
+watch(pendentesDialog, (aberto) => {
+  if (!aberto) {
+    desativarTeclado();
+    focusItem();
+  }
+});
+
 watch(selectedArea, async (newVal) => {
+  desativarTeclado();
+  pendentesDialog.value = false;
+  volumesPendentes.value = [];
   if (newVal) {
     try {
-      const response = await apiService.contarVolume(newVal, user.filialId);
+      const response = await apiService.contarVolume(newVal);
       console.log(response.data);
       total.value = response.data.filter(status => status.statusId != 3).length;;
       pendentes.value = response.data.filter(status => status.statusId === 1).length;
@@ -139,9 +195,9 @@ function confirmLogout() {
 
 onMounted(async () => {
   try {
-    const response = await apiService.obterAreas(user.filialId);
+    const response = await apiService.obterAreas();
     // console.log(response.data)
-    areas.value = response.data;
+    areas.value = response.data.filter(area => area.id > 13);
   }
   catch (error) {
     loading.value = false;
@@ -187,7 +243,11 @@ const statusList = [
       <div v-if="!isVolumeDisabled">
         <v-row dense>
           <v-col cols="12" md="6" lg="4">
-            <v-text-field label="Volume NR" v-model="form.itemnr" ref="itemInput" @blur="consultarItem" outlined
+            <v-text-field label="Volume NR" v-model="form.itemnr" ref="itemInput"
+              :inputmode="tecladoAtivo ? 'text' : 'none'"
+              :append-inner-icon="tecladoAtivo ? 'mdi-keyboard-off' : 'mdi-keyboard'"
+              aria-label="Volume NR" @click:append-inner="alternarTeclado"
+              @keyup.enter.prevent="consultarItem" @keydown.tab.prevent="consultarItem" outlined
               density="comfortable" hide-details="true">
             </v-text-field>
           </v-col>
@@ -195,11 +255,15 @@ const statusList = [
 
 
         <v-list>
-          <v-list-item class="bg-orange-lighten-1 pa-4 my-1 rounded" height="30">
+          <v-list-item class="bg-orange-lighten-1 pa-4 my-1 rounded pending-card" height="30"
+            role="button" tabindex="0" @click="abrirPendentes" @keyup.enter="abrirPendentes">
             <template #default>
               <div class="d-flex justify-space-between w-100">
                 <span class="font-weight-medium text-white text-h6">Pendentes</span>
-                <span class="font-weight-bold text-white text-h6">{{ pendentes }}</span>
+                <span class="d-flex align-center text-white">
+                  <strong class="text-h6">{{ pendentes }}</strong>
+                  <v-icon class="ml-2">mdi-chevron-right</v-icon>
+                </span>
               </div>
             </template>
           </v-list-item>
@@ -207,7 +271,7 @@ const statusList = [
           <v-list-item class="bg-green-lighten-1 pa-4 my-1 rounded" height="30">
             <template #default>
               <div class="d-flex justify-space-between w-100">
-                <span class="font-weight-medium text-h6">Confirmados</span>
+                <span class="font-weight-medium text-h6">Conferidos</span>
                 <span class="font-weight-bold text-white text-h6">{{ confirmados }}</span>
               </div>
             </template>
@@ -301,6 +365,37 @@ const statusList = [
       </v-card>
     </v-dialog>
 
+    <!-- Volumes pendentes -->
+    <v-dialog v-model="pendentesDialog" max-width="420">
+      <v-card>
+        <v-card-title class="text-subtitle-1 d-flex align-center justify-space-between">
+          <span>Volumes pendentes ({{ volumesPendentes.length }})</span>
+          <v-btn icon="mdi-refresh" variant="text" size="small" :loading="pendentesLoading"
+            aria-label="Atualizar volumes pendentes" @click="abrirPendentes" />
+        </v-card-title>
+
+        <v-card-text class="pt-1">
+          <div v-if="pendentesLoading" class="text-center pa-6">
+            <v-progress-circular indeterminate color="primary" />
+          </div>
+          <v-alert v-else-if="pendentesErro" type="error" variant="tonal" density="compact">
+            {{ pendentesErro }}
+          </v-alert>
+          <div v-else-if="!volumesPendentes.length" class="text-center text-medium-emphasis pa-6">
+            Nenhum volume pendente.
+          </div>
+          <v-list v-else class="pending-volume-list" lines="one">
+            <v-list-item v-for="volumeNr in volumesPendentes" :key="volumeNr" :title="volumeNr"
+              prepend-icon="mdi-package-variant-closed" />
+          </v-list>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn color="primary" variant="elevated" block @click="pendentesDialog = false">Fechar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Dialog de confirmação -->
     <v-dialog v-model="confirmationdialog" max-width="500" persistent>
       <v-card>
@@ -339,6 +434,15 @@ div.v-input__details {
 
 .mdi-spin:before {
   animation: mdi-spin 1s infinite linear !important;
+}
+
+.pending-card {
+  cursor: pointer;
+}
+
+.pending-volume-list {
+  max-height: 55vh;
+  overflow-y: auto;
 }
 
 :deep(.v-skeleton-loader__bone.v-skeleton-loader__text) {

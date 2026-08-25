@@ -1,204 +1,341 @@
 <script setup>
-import { reactive, ref, nextTick, onMounted, watch } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref } from 'vue';
 import { logout } from '@/router';
 import apiService from '../../http/request.js';
-
 import { useAuthStore } from '@/stores/authStore.js';
 
 const authStore = useAuthStore();
 const user = authStore.getUser;
 
-const form = reactive({
-  itemnr: '',
-  descricao: '',
-  locacao: '',
-  quantidade: null,
-  locacaoconfirmada: '',
-});
-
-let dialogMessage = '';
-const dialog = ref(false);
-const confirmationdialog = ref(false);
-const processing = ref(false);
-
+const form = reactive({ volume: '' });
+const itens = ref([]);
+const volumeCarregado = ref('');
 const loading = ref(false);
+const processingId = ref(null);
+const volumeInput = ref(null);
 
-const itemInput = ref(null);
-const focusItem = () => {
-  setFocus(itemInput);
+const messageDialog = ref(false);
+const messageText = ref('');
+const divergenceDialog = ref(false);
+const pendingItem = ref(null);
+const logoutDialog = ref(false);
+
+const resumo = computed(() => ({
+  total: itens.value.length,
+  conferidos: itens.value.filter(item => item.conferido).length,
+  pendentes: itens.value.filter(item => !item.conferido).length,
+}));
+
+const toNumber = value => {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = Number(String(value).replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : null;
 };
-const reportDialog = ref(false);
-const reportMessage = ref('');
 
-const setFocus = (field) => {
-  nextTick(() => {
-    if (field && field.value) {
-      field.value.focus();
-    }
-  });
+const diferenca = item => {
+  const quantidade = toNumber(item.qtdDigitada);
+  return quantidade === null ? null : quantidade - Number(item.quantidade);
 };
 
-// Reiniciar o formulário
-function resetForm() {
-  form.itemnr = '';
-  form.descricao = '';
-  form.locacao = '';
-  form.quantidade = null;
-  form.locacaoconfirmada = '';
-  itemFound.value = false;
-  locacaoOK.value = false;
+const formatarQuantidade = value => {
+  if (value === null || value === undefined) return '-';
+  return Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+};
 
-  dialogMessage = '';
-  dialog.value = false;
+const formatarDiferenca = value => {
+  if (value === null) return '-';
+  const texto = formatarQuantidade(value);
+  return value > 0 ? `+${texto}` : texto;
+};
 
-  reportMessage.value = '';
-  reportDialog.value = false;
+const podeEditar = item => !item.conferido
+  || String(item.usuarioConferencia || '').toLowerCase() === String(user.account || '').toLowerCase();
 
-  focusItem();
-}
+const focusVolume = () => nextTick(() => volumeInput.value?.focus());
+const focusQuantidade = item => nextTick(() => document.getElementById(`qtd-conferida-${item.id}`)?.focus());
 
-const onDialogClose = (value) => {
-  if (!value) {
-    if (form.quantidade) {
-      form.quantidade = null;
-      focusQuantidade();
+const mostrarMensagem = mensagem => {
+  messageText.value = mensagem;
+  messageDialog.value = true;
+};
+
+const mensagemErro = (error, fallback) => error?.response?.data?.mensagem
+  || error?.response?.data?.detail
+  || error?.message
+  || fallback;
+
+const limpar = () => {
+  form.volume = '';
+  volumeCarregado.value = '';
+  itens.value = [];
+  pendingItem.value = null;
+  divergenceDialog.value = false;
+  focusVolume();
+};
+
+const carregarVolume = async () => {
+  const volume = form.volume.trim();
+  if (!volume || loading.value) return;
+
+  loading.value = true;
+  itens.value = [];
+  try {
+    const response = await apiService.obterConferenciaVolume(volume);
+    volumeCarregado.value = response.data.volume;
+    itens.value = response.data.itens.map(item => ({
+      ...item,
+      qtdDigitada: item.qtdConferida ?? null,
+      marcarConferido: Boolean(item.conferido),
+    }));
+
+    const primeiroPendente = itens.value.find(item => !item.conferido);
+    if (primeiroPendente) focusQuantidade(primeiroPendente);
+  } catch (error) {
+    volumeCarregado.value = '';
+    mostrarMensagem(mensagemErro(error, 'Erro ao localizar o volume.'));
+  } finally {
+    loading.value = false;
+  }
+};
+
+const solicitarConfirmacao = item => {
+  const quantidade = toNumber(item.qtdDigitada);
+  if (quantidade === null) {
+    mostrarMensagem('Informe a quantidade conferida.');
+    focusQuantidade(item);
+    return;
+  }
+  if (quantidade < 0) {
+    mostrarMensagem('A quantidade conferida não pode ser negativa.');
+    focusQuantidade(item);
+    return;
+  }
+  if (!item.marcarConferido) {
+    mostrarMensagem('Marque o campo Conferido antes de finalizar.');
+    return;
+  }
+
+  if (diferenca(item) !== 0) {
+    pendingItem.value = item;
+    divergenceDialog.value = true;
+    return;
+  }
+
+  salvar(item, false);
+};
+
+const salvar = async (item, confirmarDivergencia) => {
+  if (!item || processingId.value !== null) return;
+
+  processingId.value = item.id;
+  try {
+    const response = await apiService.confirmarConferenciaItem(volumeCarregado.value, item.id, {
+      qtdConferida: toNumber(item.qtdDigitada),
+      conferido: true,
+      confirmarDivergencia,
+      modificadoEmEsperado: item.modificadoEm,
+    });
+
+    const atualizado = response.data;
+    Object.assign(item, atualizado, {
+      notaFiscal: atualizado.notaFiscal || item.notaFiscal,
+      qtdDigitada: atualizado.qtdConferida,
+      marcarConferido: atualizado.conferido,
+    });
+    divergenceDialog.value = false;
+    pendingItem.value = null;
+
+    const proximo = itens.value.find(candidato => !candidato.conferido);
+    if (proximo) {
+      focusQuantidade(proximo);
     } else {
-      if (form.locacaoconfirmada) {
-        form.locacaoconfirmada = '';
-        focusLocacaoConfirmada();
-      } else {
-        if (form.itemnr) {
-          form.itemnr = '';
-          focusItem();
-        }
-      }
+      mostrarMensagem('Conferência do volume finalizada.');
     }
+  } catch (error) {
+    divergenceDialog.value = false;
+    pendingItem.value = null;
+    mostrarMensagem(mensagemErro(error, 'Não foi possível finalizar a conferência.'));
+    if (error?.response?.status === 409) {
+      await carregarVolume();
+    } else {
+      focusQuantidade(item);
+    }
+  } finally {
+    processingId.value = null;
   }
 };
 
-watch(dialog, (newVal) => {
-  if (!newVal) {
-    onDialogClose(newVal);
-  }
-});
+const cancelarDivergencia = () => {
+  const item = pendingItem.value;
+  divergenceDialog.value = false;
+  pendingItem.value = null;
+  if (item) focusQuantidade(item);
+};
 
-function confirmLogout() {
-  logout();
-}
-
-onMounted(() => {
-  focusItem();
-});
-
+onMounted(focusVolume);
 </script>
 
 <template>
-  <v-container>
+  <v-container class="conference-screen">
+    <div class="text-center screen-title mb-2">Recebimento / Conferência de Volume</div>
 
-    <div>
-      <v-row dense>
-        <v-col cols="12" md="6" lg="4">
-          <div class="text-center">Recebimento / Conferir</div>
-        </v-col>
-      </v-row>
-    </div>
+    <v-row dense>
+      <v-col cols="12">
+        <v-text-field
+          ref="volumeInput"
+          v-model="form.volume"
+          label="Volume"
+          density="comfortable"
+          hide-details
+          :disabled="loading"
+          @keyup.enter="carregarVolume"
+        />
+      </v-col>
+    </v-row>
+
+    <v-row dense class="mt-2">
+      <v-col cols="8">
+        <v-btn color="primary" block :loading="loading" @click="carregarVolume">
+          <v-icon>mdi-magnify</v-icon>&nbsp;Localizar
+        </v-btn>
+      </v-col>
+      <v-col cols="4">
+        <v-btn variant="outlined" block @click="limpar">Limpar</v-btn>
+      </v-col>
+    </v-row>
+
+    <v-card v-if="volumeCarregado" variant="tonal" class="my-3">
+      <v-card-text class="py-2">
+        <div><strong>Volume:</strong> {{ volumeCarregado }}</div>
+        <div class="d-flex justify-space-between mt-1">
+          <span>Total: {{ resumo.total }}</span>
+          <span>Conferidos: {{ resumo.conferidos }}</span>
+          <span>Pendentes: {{ resumo.pendentes }}</span>
+        </div>
+      </v-card-text>
+    </v-card>
+
+    <v-card v-for="item in itens" :key="item.id" class="mb-3" :color="item.conferido ? 'green-lighten-5' : undefined">
+      <v-card-title class="text-subtitle-1 py-2">
+        Item {{ item.item }}
+      </v-card-title>
+      <v-card-subtitle>NF {{ item.notaFiscal }}<span v-if="item.pedido"> · Pedido {{ item.pedido }}</span></v-card-subtitle>
+      <v-card-text class="pb-2">
+        <v-alert
+          v-if="item.itemCritico"
+          type="warning"
+          variant="tonal"
+          density="compact"
+          class="mb-3 critical-item-alert"
+          icon="mdi-alert"
+        >
+          <strong>ITEM CRÍTICO:</strong>
+          {{ item.observacaoItemCritico || 'Item crítico sem observação cadastrada.' }}
+        </v-alert>
+
+        <v-row dense>
+          <v-col cols="4">
+            <div class="quantity-label">Qtde NF</div>
+            <div class="quantity-value">{{ formatarQuantidade(item.quantidade) }}</div>
+          </v-col>
+          <v-col cols="4">
+            <div class="quantity-label">Diferença</div>
+            <div class="quantity-value" :class="{ 'text-error': diferenca(item) !== 0 && diferenca(item) !== null }">
+              {{ formatarDiferenca(diferenca(item)) }}
+            </div>
+          </v-col>
+          <v-col cols="4">
+            <div class="quantity-label">Qtde Armazenada</div>
+            <div class="quantity-value">{{ formatarQuantidade(item.qtdArmazenada) }}</div>
+          </v-col>
+        </v-row>
+
+        <v-text-field
+          :id="`qtd-conferida-${item.id}`"
+          v-model="item.qtdDigitada"
+          label="Qtde Conferida"
+          type="number"
+          min="0"
+          step="0.001"
+          density="comfortable"
+          class="mt-3"
+          :disabled="!podeEditar(item) || processingId === item.id"
+        />
+
+        <v-checkbox
+          v-model="item.marcarConferido"
+          label="Conferido"
+          density="compact"
+          hide-details
+          :disabled="!podeEditar(item) || processingId === item.id"
+        />
+
+        <div class="text-caption mt-1">
+          Situação: <strong>{{ item.situacao }}</strong>
+          <span v-if="item.usuarioConferencia"> · {{ item.usuarioConferencia }}</span>
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn
+          color="green-darken-1"
+          variant="elevated"
+          block
+          :loading="processingId === item.id"
+          :disabled="!podeEditar(item) || processingId !== null"
+          @click="solicitarConfirmacao(item)"
+        >
+          <v-icon>mdi-check</v-icon>&nbsp;Confirmar
+        </v-btn>
+      </v-card-actions>
+    </v-card>
 
     <v-bottom-navigation grow>
-      <v-btn label="Voltar" class="active-btn" :to="{ name: 'Recebimento' }">
-        <v-icon>mdi-arrow-left</v-icon> <span>Voltar</span>
-      </v-btn>
-      <v-btn label="Menu" class="active-btn" :to="{ name: 'Home' }">
-        <v-icon>mdi-home</v-icon> <span>Home</span>
-      </v-btn>
-      <!-- <v-btn label="Reiniciar" class="active-btn" @click="resetForm">
-        <v-icon>mdi-restart</v-icon> <span>Reiniciar</span>
-      </v-btn> -->
-      <v-btn label="Sair" class="active-btn" @click="confirmationdialog = true">
-        <v-icon>mdi-logout</v-icon> <span>Sair</span>
-      </v-btn>
+      <v-btn :to="{ name: 'Recebimento' }"><v-icon>mdi-arrow-left</v-icon><span>Voltar</span></v-btn>
+      <v-btn :to="{ name: 'Home' }"><v-icon>mdi-home</v-icon><span>Home</span></v-btn>
+      <v-btn @click="limpar"><v-icon>mdi-restart</v-icon><span>Reiniciar</span></v-btn>
+      <v-btn @click="logoutDialog = true"><v-icon>mdi-logout</v-icon><span>Sair</span></v-btn>
     </v-bottom-navigation>
 
-    <!-- Form para reportar aocorrência -->
-    <v-dialog v-model="reportDialog" max-width="600px">
-      <v-card>
-        <v-card-title class="headline text-center">Reportar Ocorrência</v-card-title>
+    <v-dialog v-model="divergenceDialog" max-width="440" persistent>
+      <v-card v-if="pendingItem">
+        <v-card-title class="text-subtitle-1">
+          Confirma a quantidade conferida a {{ diferenca(pendingItem) < 0 ? 'menor' : 'maior' }}?
+        </v-card-title>
         <v-card-text>
-          <v-select label="Tipo"
-            :items="['Ocorrência 1', 'Ocorrência 2', 'Ocorrência 3', 'Ocorrência 4', 'Ocorrência 5', 'Outros']"></v-select>
-          <v-textarea label="Observações" v-model="reportMessage" outlined rows="5"></v-textarea>
+          <div>Quantidade da NF: {{ formatarQuantidade(pendingItem.quantidade) }}</div>
+          <div>Quantidade conferida: {{ formatarQuantidade(toNumber(pendingItem.qtdDigitada)) }}</div>
+          <div>Diferença: {{ formatarDiferenca(diferenca(pendingItem)) }}</div>
+          <div class="mt-3">Deseja finalizar a conferência?</div>
         </v-card-text>
+        <v-card-actions class="flex-column">
+          <v-btn color="green-darken-1" variant="elevated" block @click="salvar(pendingItem, true)">Sim, finalizar</v-btn>
+          <v-btn color="red-accent-4" variant="elevated" block class="mt-2" @click="cancelarDivergencia">Não, corrigir</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="messageDialog" max-width="420" persistent>
+      <v-card>
+        <v-card-text class="py-5 text-center">{{ messageText }}</v-card-text>
+        <v-card-actions><v-btn color="primary" variant="elevated" block @click="messageDialog = false">Fechar</v-btn></v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="logoutDialog" max-width="420" persistent>
+      <v-card>
+        <v-card-text class="py-5 text-center">Tem certeza de que deseja sair?</v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="secondary" text @click="submitReport">
-            <v-icon left>mdi-check</v-icon> Enviar
-          </v-btn>
-          <v-btn color="error" text @click="closeReport">
-            <v-icon left>mdi-close</v-icon> Cancelar
-          </v-btn>
+          <v-btn color="green-darken-1" variant="elevated" @click="logout">Sim</v-btn>
+          <v-btn color="red-accent-4" variant="elevated" @click="logoutDialog = false">Não</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <!-- Mensagens (popup) -->
-    <v-dialog v-model="dialog" max-width="500" persistent>
-      <v-card>
-        <v-card-text>
-          {{ dialogMessage }}
-        </v-card-text>
-        <v-card-actions class="mx-auto">
-          <v-row justify="center">
-            <v-btn class="bg-red-accent-4 small-font" variant="elevated" block @click="dialog = false"><v-icon
-                left>mdi-close</v-icon> Fechar </v-btn>
-          </v-row>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Dialog de confirmação -->
-    <v-dialog v-model="confirmationdialog" max-width="500" persistent>
-      <v-card>
-        <v-card-text> Tem certeza de que deseja sair? </v-card-text>
-        <v-card-actions class="mx-auto">
-          <v-row justify="center" class="mb-5">
-            <v-col>
-              <v-btn color="green-darken-1" variant="elevated" block @click="confirmLogout">
-                <v-icon left>mdi-check</v-icon> Sim </v-btn>
-            </v-col>
-            <v-col>
-              <v-btn class="bg-red-accent-4" variant="elevated" block @click="confirmationdialog = false">
-                <v-icon left>mdi-close</v-icon> Não </v-btn>
-            </v-col>
-          </v-row>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
   </v-container>
 </template>
 
 <style scoped>
-.no-select {
-  user-select: none !important;
-  pointer-events: none !important;
-}
-
-div.v-input__details {
-  display: hidden;
-}
-
-.small-font {
-  font-size: 75% !important;
-}
-
-.mdi-spin:before {
-  animation: mdi-spin 1s infinite linear !important;
-}
-
-:deep(.v-skeleton-loader__bone.v-skeleton-loader__text) {
-  border-radius: 0px;
-  margin-left: 0px;
-  margin-right: 0px;
-  margin-bottom: 0px;
-  height: 48px;
-}
+.conference-screen { max-width: 480px; padding-bottom: 72px; }
+.screen-title { font-size: 1rem; font-weight: 700; }
+.quantity-label { color: rgba(0, 0, 0, 0.6); font-size: 0.7rem; }
+.quantity-value { font-size: 1rem; font-weight: 700; }
 </style>

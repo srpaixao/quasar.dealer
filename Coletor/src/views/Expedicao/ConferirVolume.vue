@@ -217,8 +217,7 @@ async function abrirPendentesModal() {
 
   try {
     const { data } = await apiService.obterPendentesExpedicao(
-      selectedTransportadoraId.value,
-      user.filialId
+      selectedTransportadoraId.value
     );
     const lista = Array.isArray(data)
       ? data
@@ -249,8 +248,7 @@ async function abrirLidosModal() {
 
   try {
     const { data } = await apiService.obterLidosExpedicao(
-      selectedTransportadoraId.value,
-      user.filialId
+      selectedTransportadoraId.value
     );
     const lista = Array.isArray(data)
       ? data
@@ -318,7 +316,7 @@ async function GetVolumesPorTransportadora(transportadoraId) {
   if (!transportadoraId) return;
 
   try {
-    const { data } = await apiService.getResumoExpedicao(transportadoraId, user.filialId);
+    const { data } = await apiService.getResumoExpedicao(transportadoraId);
     volumesResumo.total = Number(data?.total ?? 0);
     volumesResumo.pendentes = Number(data?.pendentes ?? 0);
     volumesResumo.lidos = Number(
@@ -472,7 +470,7 @@ async function processVolume() {
       (x) => String(x.id) === String(selectedTransportadoraId.value)
     );
 
-    const { data } = await apiService.getHistoricoVolumes(notaFiscal, user.filialId);
+    const { data } = await apiService.getHistoricoVolumes(notaFiscal);
     const volumes = Array.isArray(data?.volumes) ? data.volumes : [];
     const volumesRegistrados = volumes.map((v) => String(v));
 
@@ -595,7 +593,7 @@ watch(responsavel, () => {
 // Lifecycle
 onMounted(async () => {
   try {
-    const response = await apiService.obterTransportadorasExpedicao(user.filialId);
+    const response = await apiService.obterTransportadorasExpedicao();
     transportadoras.value = response.data || [];
   } catch {
     setDialog('Falha ao carregar transportadoras.');

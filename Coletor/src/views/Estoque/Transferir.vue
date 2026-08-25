@@ -1,446 +1,341 @@
-﻿<script setup>
+<script setup>
 import { reactive, ref, nextTick, onMounted, watch } from 'vue';
 import { logout } from '@/router';
-import { useRouter } from 'vue-router';
 import apiService from '../../http/request.js';
-
 import { useAuthStore } from '@/stores/authStore.js';
 import { useClienteApiStore } from '@/stores/clienteApiStore.js';
 
 const authStore = useAuthStore();
 const clienteApiStore = useClienteApiStore();
 const user = authStore.getUser;
-const router = useRouter();
 
 const form = reactive({
-  itemnr: '',
-  descricao: '',
-  locacaoOrigem: '',
-  locacaoDestino: '',
-  qtdOrigem: 0,
+  locacaoEspera: '',
   locacaoDestinoConf: '',
   qtdDestino: null,
 });
 
-const dialog = ref(false);
-const dialogMessage = ref('');
-const resetDialogOnClose = ref(false);
-const confirmationdialog = ref(false);
+const itens = ref([]);
+const movimentacaoSelecionada = ref(null);
+const esperaValidada = ref(false);
+const movimentacaoCorreta = ref(false);
+const destinoValidado = ref(false);
 const loading = ref(false);
 const processing = ref(false);
+const dialog = ref(false);
+const dialogMessage = ref('');
+const confirmationdialog = ref(false);
 
-const itemFound = ref(false);
-const destinoValidado = ref(false);
-const movimentacaoId = ref(null);
-
-const itemInput = ref(null);
+const esperaInput = ref(null);
 const destinoInput = ref(null);
 const quantidadeInput = ref(null);
 
-const setFocus = (elRef) => {
-  nextTick(() => {
-    elRef?.value?.focus?.();
-  });
-};
-
-const focusItem = () => setFocus(itemInput);
+const setFocus = (input) => nextTick(() => input.value?.focus?.());
+const focusEspera = () => setFocus(esperaInput);
 const focusDestino = () => setFocus(destinoInput);
 const focusQuantidade = () => setFocus(quantidadeInput);
 
-const showMessage = (message, options = {}) => {
-  const resetOnClose = typeof options === 'boolean' ? options : !!options.resetOnClose;
-  resetDialogOnClose.value = resetOnClose;
+const normalizarCodigo = (valor) => (valor || '')
+  .toString()
+  .replaceAll('.', '')
+  .replaceAll(' ', '')
+  .trim()
+  .toUpperCase();
+
+const serverMessage = (error, fallback) =>
+  error.response?.data?.mensagem ||
+  error.response?.data?.detail ||
+  error.response?.data?.title ||
+  fallback;
+
+const showMessage = (message) => {
   dialogMessage.value = message;
   dialog.value = true;
 };
 
-const clearItemData = () => {
-  form.descricao = '';
-  form.locacaoOrigem = '';
-  form.locacaoDestino = '';
-  form.qtdOrigem = 0;
-  itemFound.value = false;
-  movimentacaoId.value = null;
-};
-
-const resetForm = () => {
-  form.itemnr = '';
-  clearItemData();
+const limparSelecao = () => {
+  movimentacaoSelecionada.value = null;
   form.locacaoDestinoConf = '';
   form.qtdDestino = null;
   destinoValidado.value = false;
-  loading.value = false;
-  processing.value = false;
-  movimentacaoId.value = null;
-  focusItem();
 };
 
-const normalizarCodigo = (valor) => (valor || '').toString().replaceAll('.', '').replaceAll(' ', '').trim().toUpperCase();
-
-const consultarMovimentacao = async () => {
-  const item = form.itemnr?.trim();
-  if (!item) {
-    showMessage('Informe o número do item.');
+const carregarLocacaoEspera = async () => {
+  const codigo = form.locacaoEspera?.trim();
+  if (!codigo) {
+    showMessage('Informe a Locação de Espera.');
     return;
   }
 
   loading.value = true;
-  clearItemData();
-  destinoValidado.value = false;
-  form.locacaoDestinoConf = '';
-  form.qtdDestino = null;
+  limparSelecao();
 
   try {
-    const resp = await apiService.consultarMovimentacao(item, user.filialId);
-    const data = resp.data;
-    console.log(data)
-    form.descricao = data.descricao?.trim() || '-';
-    form.locacaoOrigem = data.locacaoOrigem?.trim() || '';
-    form.locacaoDestino = data.locacaoDestino?.trim() || '';
-    form.qtdOrigem = data.qtdOrigem ?? 0;
-    movimentacaoId.value = data.id ?? null;
-    itemFound.value = true;
-    nextTick(focusDestino);
-  } catch (err) {
-    const status = err.response?.status;
-
-    const serverMsg =
-      err.response?.data?.mensagem ||
-      err.response?.data?.message ||
-      err.response?.data?.Title ||
-      err.response?.data?.title ||
-      err.response?.data?.Detail ||
-      err.response?.data?.detail ||
-      null;
-
-    if (status === 404) {
-      showMessage(serverMsg || 'Item não encontrado.', { resetOnClose: true });
-    } else if (status) {
-      showMessage(serverMsg || `Erro ${status}. Tente novamente.`, { resetOnClose: true });
-    } else {
-      showMessage('Erro de comunicação. Verifique sua conexão.', { resetOnClose: true });
-    }
-
+    const response = await apiService.consultarMovimentacoesLocacaoEspera(codigo);
+    form.locacaoEspera = response.data.locacaoEspera?.trim() || codigo;
+    movimentacaoCorreta.value = response.data.movimentacaoCorreta === true;
+    itens.value = (response.data.itens || []).sort((a, b) => {
+      const destinoA = a.locacaoDestino?.trim() || '\uffff';
+      const destinoB = b.locacaoDestino?.trim() || '\uffff';
+      return destinoA.localeCompare(destinoB, 'pt-BR', { numeric: true }) ||
+        (a.itemNr || '').localeCompare(b.itemNr || '', 'pt-BR', { numeric: true });
+    });
+    esperaValidada.value = true;
+  } catch (error) {
+    itens.value = [];
+    movimentacaoCorreta.value = false;
+    esperaValidada.value = false;
+    showMessage(serverMessage(error, 'Não foi possível consultar a Locação de Espera.'));
   } finally {
     loading.value = false;
   }
 };
 
+const trocarLocacaoEspera = () => {
+  limparSelecao();
+  itens.value = [];
+  movimentacaoCorreta.value = false;
+  form.locacaoEspera = '';
+  esperaValidada.value = false;
+  focusEspera();
+};
+
+const selecionarMovimentacao = (item) => {
+  if (!item.locacaoDestino?.trim()) {
+    limparSelecao();
+    showMessage('Locação final não definida para este item.');
+    return;
+  }
+
+  movimentacaoSelecionada.value = item;
+  form.locacaoDestinoConf = '';
+  form.qtdDestino = null;
+  destinoValidado.value = false;
+
+  focusDestino();
+};
+
 const validarDestino = () => {
+  if (!movimentacaoSelecionada.value) return;
+
   const destinoLido = normalizarCodigo(form.locacaoDestinoConf);
-  const destinoEsperado = normalizarCodigo(form.locacaoDestino);
+  const destinoEsperado = normalizarCodigo(movimentacaoSelecionada.value.locacaoDestino);
 
   if (!destinoLido) return;
 
-  if (destinoEsperado && destinoLido !== destinoEsperado) {
-    showMessage('Locação incorreta. Verifique e tente novamente.');
+  if (destinoLido !== destinoEsperado) {
+    showMessage('Locação final incorreta. Verifique e tente novamente.');
     form.locacaoDestinoConf = '';
     destinoValidado.value = false;
-    nextTick(focusDestino);
+    focusDestino();
     return;
   }
 
-  // Destino ok
   destinoValidado.value = true;
-  nextTick(focusQuantidade);
+  focusQuantidade();
 };
 
 const confirmarMovimentacao = async () => {
-  if (!itemFound.value || !destinoValidado.value) return;
-  if (!movimentacaoId.value) {
-    showMessage('Identificador da movimentação indisponível. Consulte o item novamente.');
+  const movimento = movimentacaoSelecionada.value;
+  if (!movimento || !destinoValidado.value) return;
+
+  const quantidade = Number(form.qtdDestino || 0);
+  const quantidadeDisponivel = Number(movimento.quantidade || 0);
+
+  if (!Number.isInteger(quantidade) || quantidade <= 0) {
+    showMessage('Informe uma quantidade válida.');
+    focusQuantidade();
     return;
   }
-  const qtde = Number(form.qtdDestino || 0);
-  if (!qtde || qtde <= 0) {
-    showMessage('Informe uma quantidade válida.');
-    nextTick(focusQuantidade);
+
+  if (quantidade > quantidadeDisponivel) {
+    showMessage('A quantidade não pode ser maior que o saldo na Locação de Espera.');
+    focusQuantidade();
+    return;
+  }
+
+  if (movimentacaoCorreta.value && quantidade !== quantidadeDisponivel) {
+    showMessage('A quantidade transferida deve ser igual à quantidade coletada.');
+    focusQuantidade();
     return;
   }
 
   processing.value = true;
 
-  const payload = {
-    id: movimentacaoId.value,
-    itemNr: form.itemnr.trim(),
-    destinoMov: form.locacaoDestinoConf?.trim() || form.locacaoDestino?.trim() || '',
-    qtdeMov: qtde,
+  const auditoria = {
+    id: movimento.id,
+    itemNr: movimento.itemNr,
+    locacaoEspera: form.locacaoEspera,
+    destinoMov: form.locacaoDestinoConf.trim(),
+    qtdeMov: quantidade,
     usuarioMov: user?.account ?? null,
     dataHoraMov: new Date().toISOString(),
   };
-  console.log(payload)
 
   try {
-    // Enviar dados para o DMS
-    // const dmsPayload = {
-    //   id_coletor: "QUASAR",
-    //   // data_coleta: formatDateToIsoOffset(payload.dataHoraMov),
-    //   data_coleta: "2025-12-03T18:20:00-03:00",
-    //   operador: "BRANCO",
-    //   cnpj: "72855505000300",
-    //   codigo_produto: payload.itemNr,
-    //   prateleira: payload.destinoMov
-    // };
-    // console.log('Chamar DMS SERCON => Payload:', dmsPayload)
-    // const dmsResponse = await apiService.enviarDMS(dmsPayload);
-    // console.log('DMS SERCON Response =>', dmsResponse)
+    const baseDms = clienteApiStore.getBaseApi;
+    await apiService.finalizarMovimentacao({
+      id: movimento.id,
+      locacaoDestino: form.locacaoDestinoConf.trim(),
+      qtdDestino: quantidade,
+      finalizadoPor: user?.account ?? null,
+      urlDMS: baseDms ? `${baseDms}/registrar-movimento` : '',
+      payload: JSON.stringify(auditoria),
+    });
 
-    // if (dmsResponse?.status !== 200) {
-    //   const status = dmsResponse?.status ?? 'desconhecido';
-    //   const serverMsg =
-    //     dmsResponse?.data?.mensagem ||
-    //     dmsResponse?.data?.message ||
-    //     dmsResponse?.data?.Title ||
-    //     dmsResponse?.data?.title ||
-    //     dmsResponse?.data?.Detail ||
-    //     dmsResponse?.data?.detail ||
-    //     null;
-
-    //   showMessage(serverMsg || `Falha ao enviar dados para o DMS (status ${status}).`);
-    //   return;
-    // }
-
-    console.log("Finalizar movimentação!",payload)
-
-    // Finalizar movimentação
-    const quasarPayload = {
-      id: payload.id,
-      LocacaoDestino: payload.destinoMov,
-      QtdDestino: payload.qtdeMov,
-      FinalizadoPor: payload.usuarioMov,
-      UrlDMS: clienteApiStore.getBaseApi + '/registrar-movimento' || '',
-      Payload: JSON.stringify(payload),
-      //Response: JSON.stringify(dmsResponse?.data ?? dmsResponse),
-      FilialId: user?.filialId
-    };
-    console.log('Finalizar Payload', quasarPayload)
-    await apiService.finalizarMovimentacao(quasarPayload);
-    console.log('OK!')
-    resetForm();
-
+    limparSelecao();
+    await carregarLocacaoEspera();
   } catch (error) {
-    const msg = error.response?.data?.mensagem || 'Erro ao registrar a movimentação. Tente novamente.';
-    showMessage(msg);
+    showMessage(serverMessage(error, 'Erro ao registrar a transferência. Tente novamente.'));
   } finally {
-    //const msg = error.response?.data?.mensagem || 'Transferência efetuada!';
     processing.value = false;
   }
-  //showMessage(msg);
 };
 
-const cancelar = () => {
-  router.push({ name: 'Estoque' });
-};
+const confirmarSaida = () => logout();
 
-const confirmLogout = () => logout();
-
-watch(dialog, (isOpen, wasOpen) => {
-  if (!isOpen && wasOpen) {
-    if (resetDialogOnClose.value) {
-      resetDialogOnClose.value = false;
-      resetForm();
-      return;
-    }
-
-    // Foco adequado apÃ³s fechar mensagem
-    if (!itemFound.value) focusItem();
-    else if (!destinoValidado.value) focusDestino();
-    else focusQuantidade();
+watch(dialog, (isOpen) => {
+  if (!isOpen) {
+    if (!esperaValidada.value) focusEspera();
+    else if (movimentacaoSelecionada.value && !destinoValidado.value) focusDestino();
+    else if (destinoValidado.value) focusQuantidade();
   }
 });
 
-onMounted(() => {
-  focusItem();
-});
-
-// Placeholders para o modal de ocorrÃªncia (mantido do layout)
-const reportDialog = ref(false);
-const reportMessage = ref('');
-const submitReport = () => { reportDialog.value = false; reportMessage.value = ''; };
-const closeReport = () => { reportDialog.value = false; };
-
-function formatDateToIsoOffset(dateString) {
-  const date = new Date(dateString.replace(' ', 'T')); // cria Date válido
-  const offsetMinutes = -3 * 60; // -03:00 em minutos
-  const offsetHours = String(Math.floor(offsetMinutes / 60)).padStart(2, '0');
-  const offsetSign = offsetMinutes < 0 ? '-' : '+';
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:00`;
-}
-
-
+onMounted(focusEspera);
 </script>
 
 <template>
   <v-container>
     <v-row dense>
-      <v-col cols="12" md="6" lg="4">
-        <div class="text-center">Estoque / Transferir</div>
+      <v-col cols="12" md="8" lg="6">
+        <div class="text-center text-h6 mb-2">Estoque / Transferir</div>
       </v-col>
     </v-row>
 
     <v-row dense>
       <v-col cols="12" md="6" lg="4">
-        <v-text-field ref="itemInput" label="Item" v-model="form.itemnr" density="comfortable" outlined
-          hide-details="auto" :disabled="processing" :loading="loading" @keyup.enter.prevent="consultarMovimentacao"
-          @change="consultarMovimentacao" />
+        <v-text-field ref="esperaInput" label="Locação de Espera" v-model="form.locacaoEspera"
+          density="comfortable" outlined hide-details="auto" :readonly="esperaValidada"
+          :disabled="processing" :loading="loading"
+          @input="form.locacaoEspera = form.locacaoEspera.toUpperCase()"
+          @keyup.enter.prevent="carregarLocacaoEspera" @change="carregarLocacaoEspera" />
       </v-col>
-    </v-row>
-
-    <v-row dense v-if="itemFound" class="mt-2">
-      <v-col cols="12" md="6" lg="4">
-        <v-text-field label="DescriÃ§Ã£o" v-model="form.descricao" density="comfortable" outlined readonly
-          hide-details="auto" />
-      </v-col>
-      <!-- <v-col cols="12" md="6" lg="4">
-        <v-text-field label="Locação Origem" v-model="form.locacaoOrigem" density="comfortable" outlined readonly
-          hide-details="auto" />
-      </v-col>
-      <v-col cols="12" md="6" lg="4">
-        <v-text-field label="Qtd Origem" v-model="form.qtdOrigem" density="comfortable" outlined readonly
-          hide-details="auto" />
-      </v-col> -->
-      <v-col cols="12" md="6" lg="4">
-        <v-text-field label="Locação Destino" v-model="form.locacaoDestino" density="comfortable" outlined readonly
-          hide-details="auto" />
-      </v-col>
-    </v-row>
-
-    <v-row dense v-if="itemFound" class="mt-2">
-      <v-col cols="12" md="6" lg="4">
-        <v-text-field ref="destinoInput" label="Confirmar Locação" v-model="form.locacaoDestinoConf"
-          density="comfortable" outlined hide-details="auto" :disabled="processing || destinoValidado"
-          @keyup.enter.prevent="validarDestino" @change="validarDestino" />
-      </v-col>
-    </v-row>
-
-    <v-row dense class="mt-2" v-if="destinoValidado">
-      <v-col cols="12" md="3" lg="2">
-        <v-text-field ref="quantidadeInput" type="number" min="1" step="1" label="Quantidade" v-model="form.qtdDestino"
-          density="comfortable" outlined hide-details="auto" :disabled="processing"
-          @keyup.enter.prevent="confirmarMovimentacao" />
-      </v-col>
-    </v-row>
-
-    <v-row dense class="mt-4" v-if="destinoValidado">
-      <v-col cols="12" sm="6" md="3" lg="2">
-        <v-btn color="green-darken-1" class="w-100" :loading="processing" :disabled="processing || !form.qtdDestino"
-          @click="confirmarMovimentacao">
-          Confirmar
+      <v-col v-if="esperaValidada" cols="12" md="3" lg="2" class="d-flex align-center">
+        <v-btn variant="outlined" color="primary" block :disabled="processing" @click="trocarLocacaoEspera">
+          Trocar locação
         </v-btn>
       </v-col>
-      <!-- <v-col cols="12" sm="6" md="3" lg="2">
-        <v-btn color="red-accent-4" class="w-100" :disabled="processing" @click="cancelar">
-          Cancelar
-        </v-btn>
-      </v-col> -->
     </v-row>
 
+    <v-card v-if="movimentacaoSelecionada" variant="tonal" color="primary" class="mb-4 transfer-card">
+      <v-card-title class="text-subtitle-1 font-weight-bold">
+        Transferir {{ movimentacaoSelecionada.itemNr }}
+      </v-card-title>
+      <v-card-text>
+        <v-row dense>
+          <v-col cols="12" md="4">
+            <v-text-field label="Locação Final" :model-value="movimentacaoSelecionada.locacaoDestino"
+              density="comfortable" outlined readonly hide-details="auto" />
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-text-field ref="destinoInput" label="Confirmar Locação Final" v-model="form.locacaoDestinoConf"
+              density="comfortable" outlined hide-details="auto" :disabled="processing || destinoValidado"
+              @input="form.locacaoDestinoConf = form.locacaoDestinoConf.toUpperCase()"
+              @keyup.enter.prevent="validarDestino" @change="validarDestino" />
+          </v-col>
+          <v-col cols="12" md="2" v-if="destinoValidado">
+            <v-text-field ref="quantidadeInput" type="number" min="1" :max="movimentacaoSelecionada.quantidade"
+              step="1" label="Quantidade" v-model="form.qtdDestino" density="comfortable" outlined
+              hide-details="auto" :disabled="processing" @keyup.enter.prevent="confirmarMovimentacao" />
+          </v-col>
+          <v-col cols="12" md="2" v-if="destinoValidado" class="d-flex align-center">
+            <v-btn color="green-darken-1" block :loading="processing" :disabled="processing || !form.qtdDestino"
+              @click="confirmarMovimentacao">
+              Confirmar
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+
+    <v-row dense v-if="esperaValidada" class="mt-2">
+      <v-col cols="12" md="10" lg="8">
+        <v-alert v-if="itens.length === 0" type="success" variant="tonal" density="compact">
+          Não há itens pendentes nesta Locação de Espera.
+        </v-alert>
+
+        <v-card v-for="item in itens" :key="item.id" variant="outlined" class="mb-2 pending-card"
+          :color="movimentacaoSelecionada?.id === item.id ? 'blue-lighten-5' : undefined">
+          <v-card-text class="py-3">
+            <v-row dense align="center">
+              <v-col cols="12" sm="3">
+                <div class="text-caption text-medium-emphasis">Item</div>
+                <div class="font-weight-bold">{{ item.itemNr }}</div>
+              </v-col>
+              <v-col cols="12" sm="4">
+                <div class="text-caption text-medium-emphasis">Descrição</div>
+                <div>{{ item.descricao }}</div>
+              </v-col>
+              <v-col cols="4" sm="2">
+                <div class="text-caption text-medium-emphasis">Qtde</div>
+                <div class="font-weight-bold">{{ item.quantidade }}</div>
+              </v-col>
+              <v-col cols="4" sm="2">
+                <div class="text-caption text-medium-emphasis">Locação</div>
+                <div class="font-weight-bold">{{ item.locacaoDestino || 'Não definida' }}</div>
+              </v-col>
+              <v-col cols="4" sm="1" class="text-right">
+                <v-btn icon="mdi-arrow-right" color="primary" size="small"
+                  :disabled="processing || !item.locacaoDestino" @click="selecionarMovimentacao(item)" />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <v-bottom-navigation grow class="mt-6">
       <v-btn label="Voltar" class="active-btn" :to="{ name: 'Estoque' }">
-        <v-icon>mdi-arrow-left</v-icon> <span>Voltar</span>
+        <v-icon>mdi-arrow-left</v-icon><span>Voltar</span>
       </v-btn>
       <v-btn label="Menu" class="active-btn" :to="{ name: 'Home' }">
-        <v-icon>mdi-home</v-icon> <span>Home</span>
+        <v-icon>mdi-home</v-icon><span>Home</span>
       </v-btn>
       <v-btn label="Sair" class="active-btn" @click="confirmationdialog = true">
-        <v-icon>mdi-logout</v-icon> <span>Sair</span>
+        <v-icon>mdi-logout</v-icon><span>Sair</span>
       </v-btn>
     </v-bottom-navigation>
 
-    <!-- Mensagens (popup) -->
     <v-dialog v-model="dialog" max-width="400" persistent>
       <v-card>
-        <v-card-text class="py-5 text-center">
-          {{ dialogMessage }}
-        </v-card-text>
+        <v-card-text class="py-5 text-center">{{ dialogMessage }}</v-card-text>
         <v-card-actions class="justify-center pb-4">
           <v-btn color="primary" variant="elevated" @click="dialog = false">
-            <v-icon left>mdi-check</v-icon>
-            Fechar
+            <v-icon left>mdi-check</v-icon>Fechar
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- Dialog de confirmaÃ§Ã£o -->
     <v-dialog v-model="confirmationdialog" max-width="400" persistent>
       <v-card>
-        <v-card-text class="py-5 text-center"> Tem certeza de que deseja sair? </v-card-text>
+        <v-card-text class="py-5 text-center">Tem certeza de que deseja sair?</v-card-text>
         <v-card-actions class="justify-center pb-4">
-          <v-btn color="green-darken-1" variant="elevated" @click="confirmLogout">
-            <v-icon left>mdi-check</v-icon> Sim
+          <v-btn color="green-darken-1" variant="elevated" @click="confirmarSaida">
+            <v-icon left>mdi-check</v-icon>Sim
           </v-btn>
           <v-btn color="red-accent-4" variant="elevated" @click="confirmationdialog = false">
-            <v-icon left>mdi-close</v-icon> NÃ£o
+            <v-icon left>mdi-close</v-icon>Não
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <!-- Form para reportar aocorrÃªncia -->
-    <v-dialog v-model="reportDialog" max-width="600px">
-      <v-card>
-        <v-card-title class="headline text-center">Reportar OcorrÃªncia</v-card-title>
-        <v-card-text>
-          <v-select label="Tipo"
-            :items="['OcorrÃªncia 1', 'OcorrÃªncia 2', 'OcorrÃªncia 3', 'OcorrÃªncia 4', 'OcorrÃªncia 5', 'Outros']"></v-select>
-          <v-textarea label="ObservaÃ§Ãµes" v-model="reportMessage" outlined rows="5"></v-textarea>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="secondary" text @click="submitReport">
-            <v-icon left>mdi-check</v-icon> Enviar
-          </v-btn>
-          <v-btn color="error" text @click="closeReport">
-            <v-icon left>mdi-close</v-icon> Cancelar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
   </v-container>
 </template>
 
 <style scoped>
-.no-select {
-  user-select: none !important;
-  pointer-events: none !important;
-}
-
-div.v-input__details {
-  display: hidden;
-}
-
-.small-font {
-  font-size: 75% !important;
-}
-
-.mdi-spin:before {
-  animation: mdi-spin 1s infinite linear !important;
-}
-
-:deep(.v-skeleton-loader__bone.v-skeleton-loader__text) {
-  border-radius: 0px;
-  margin-left: 0px;
-  margin-right: 0px;
-  margin-bottom: 0px;
-  height: 48px;
-}
-
-.active-btn {
-  text-transform: none;
-}
-
-.w-100 {
-  width: 100%;
-}
+.active-btn { text-transform: none; }
+.pending-card { border-radius: 12px; }
+.transfer-card { max-width: 1100px; }
 </style>

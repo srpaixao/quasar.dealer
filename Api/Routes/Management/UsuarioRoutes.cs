@@ -1,8 +1,7 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuasarApi.Database.Models;
 using QuasarApi.DataBase;
+using QuasarApi.Database.Models;
 
 namespace QuasarApi.Routes.Management
 {
@@ -10,43 +9,65 @@ namespace QuasarApi.Routes.Management
     {
         public static WebApplication MapUsuarioRoutes(this WebApplication app, WebApplicationBuilder builder)
         {
-            // Obter lista de usuarios
-            app.MapGet("/usuarios", async ([FromQuery] int? filialId, AppDbContext db) =>
+            app.MapGet("/usuarios", async (AppDbContext db) =>
             {
                 return await db.Usuario
-                    .Where(u => u.FilialId == filialId)
                     .Select(u => new { u.Id, u.Login, u.Nome, u.Email, u.SenhaExpirada, u.AcessoBloqueado, u.EmpresaId, u.FilialId })
                     .ToListAsync();
             }).RequireAuthorization();
 
-            // Obter usuario
-            app.MapGet("/usuarios/{id}", async (int id, [FromQuery] int? filialId, AppDbContext db) =>
+            app.MapGet("/usuarios/{id}", async (int id, AppDbContext db) =>
             {
                 var usuario = await db.Usuario
-                                        .Where(u => u.Id == id && u.FilialId == filialId)
-                                        .Select(u => new { u.Id, u.Login, u.Nome, u.Email, u.SenhaExpirada, u.AcessoBloqueado, u.EmpresaId, u.FilialId })
-                                        .FirstOrDefaultAsync(); 
-                
+                    .Where(u => u.Id == id)
+                    .Select(u => new { u.Id, u.Login, u.Nome, u.Email, u.SenhaExpirada, u.AcessoBloqueado, u.EmpresaId, u.FilialId })
+                    .FirstOrDefaultAsync();
+
                 return usuario != null ? Results.Ok(usuario) : Results.NotFound();
             }).RequireAuthorization();
 
-            // Incluir usuário
             app.MapPost("/usuarios", async (Usuario usuario, AppDbContext db) =>
             {
+                string login = NormalizeLogin(usuario.Login);
+                if (string.IsNullOrWhiteSpace(login))
+                {
+                    return Results.BadRequest(new { mensagem = "Login obrigatorio." });
+                }
+
+                bool loginExiste = await db.Usuario.AnyAsync(u => u.Login.ToUpper() == login);
+                if (loginExiste)
+                {
+                    return Results.Conflict(new { mensagem = "Ja existe um usuario cadastrado com este login." });
+                }
+
+                usuario.Login = login;
                 db.Usuario.Add(usuario);
                 await db.SaveChangesAsync();
 
                 return Results.Created($"/usuarios/{usuario.Id}", usuario);
             }).RequireAuthorization();
 
-            // Modificar usuario (todas as colunas)
-            app.MapPut("/usuarios/{id}", async (int id, [FromQuery] int? filialId, Usuario inputusuario, AppDbContext db) =>
+            app.MapPut("/usuarios/{id}", async (int id, Usuario inputusuario, AppDbContext db) =>
             {
-                var usuario = await db.Usuario.FirstOrDefaultAsync(u => u.Id == id && u.FilialId == filialId);
+                var usuario = await db.Usuario.FindAsync(id);
+                if (usuario is null)
+                {
+                    return Results.NotFound();
+                }
 
-                if (usuario is null) return Results.NotFound();
+                string login = NormalizeLogin(inputusuario.Login);
+                if (string.IsNullOrWhiteSpace(login))
+                {
+                    return Results.BadRequest(new { mensagem = "Login obrigatorio." });
+                }
 
-                usuario.Login = inputusuario.Login;
+                bool loginExiste = await db.Usuario.AnyAsync(u => u.Id != id && u.Login.ToUpper() == login);
+                if (loginExiste)
+                {
+                    return Results.Conflict(new { mensagem = "Ja existe um usuario cadastrado com este login." });
+                }
+
+                usuario.Login = login;
                 usuario.Senha = inputusuario.Senha;
                 usuario.Nome = inputusuario.Nome;
                 usuario.Email = inputusuario.Email;
@@ -60,11 +81,9 @@ namespace QuasarApi.Routes.Management
                 return Results.NoContent();
             }).RequireAuthorization();
 
-            // Modificar usuario (colunas específicas)
-            app.MapPatch("/usuarios/{id}", async (int id, [FromQuery] int? filialId, JsonElement patchData, AppDbContext db) =>
+            app.MapPatch("/usuarios/{id}", async (int id, JsonElement patchData, AppDbContext db) =>
             {
-                var usuario = await db.Usuario.FirstOrDefaultAsync(u => u.Id == id && u.FilialId == filialId);
-
+                var usuario = await db.Usuario.FindAsync(id);
                 if (usuario is null)
                 {
                     return Results.NotFound();
@@ -72,7 +91,7 @@ namespace QuasarApi.Routes.Management
 
                 foreach (var property in patchData.EnumerateObject())
                 {
-                    switch (property.Name.ToLower())
+                    switch (property.Name.ToLowerInvariant())
                     {
                         case "nome":
                             var nome = property.Value.GetString();
@@ -97,11 +116,9 @@ namespace QuasarApi.Routes.Management
                 return Results.NoContent();
             }).RequireAuthorization();
 
-            // Excluir usuario
-            app.MapDelete("/usuarios/{id}", async (int id, [FromQuery] int? filialId, AppDbContext db) =>
+            app.MapDelete("/usuarios/{id}", async (int id, AppDbContext db) =>
             {
-                var usuario = await db.Usuario.FirstOrDefaultAsync(u => u.Id == id && u.FilialId == filialId);
-                if (usuario is not null)
+                if (await db.Usuario.FindAsync(id) is Usuario usuario)
                 {
                     db.Usuario.Remove(usuario);
                     await db.SaveChangesAsync();
@@ -112,6 +129,11 @@ namespace QuasarApi.Routes.Management
             }).RequireAuthorization();
 
             return app;
+        }
+
+        private static string NormalizeLogin(string? login)
+        {
+            return (login ?? string.Empty).Trim().ToUpperInvariant();
         }
     }
 }

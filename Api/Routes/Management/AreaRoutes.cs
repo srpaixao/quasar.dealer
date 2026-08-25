@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using QuasarApi.Services.Interfaces;
+﻿using QuasarApi.Services.Interfaces;
 using static QuasarApi.DTO.Management.AreaDTO;
 
 namespace QuasarApi.Routes.Management
@@ -11,15 +10,15 @@ namespace QuasarApi.Routes.Management
             const string groupPrefix = "/areas";
             var group = app.MapGroup(groupPrefix);
 
-            group.MapGet("/", async ([FromQuery] int? filialId, IAreaService service) =>
+            group.MapGet("/", async (IAreaService service) =>
             {
-                var areas = await service.ObterTodosAsync(filialId);
+                var areas = await service.ObterTodosAsync();
                 return Results.Ok(areas);
             });
 
-            group.MapGet("/{id:int}", async (int id, [FromQuery] int? filialId, IAreaService service) =>
+            group.MapGet("/{id:int}", async (int id, IAreaService service) =>
             {
-                var usuario = await service.ObterPorIdAsync(id, filialId);
+                var usuario = await service.ObterPorIdAsync(id);
                 return usuario is not null ? Results.Ok(usuario) : Results.NotFound();
             });
 
@@ -29,15 +28,15 @@ namespace QuasarApi.Routes.Management
                 return Results.Created($"/areas/{novo.Id}", novo);
             });
 
-            group.MapPut("/", async ([FromQuery] int? filialId, AreaUpdateDto dto, IAreaService service) =>
+            group.MapPut("/", async (AreaUpdateDto dto, IAreaService service) =>
             {
-                await service.AtualizarAsync(dto, filialId);
+                await service.AtualizarAsync(dto);
                 return Results.NoContent();
             });
 
-            group.MapDelete("/{id:int}", async (int id, [FromQuery] int? filialId, IAreaService service) =>
+            group.MapDelete("/{id:int}", async (int id, IAreaService service) =>
             {
-                await service.ExcluirAsync(id, filialId);
+                await service.ExcluirAsync(id);
                 return Results.NoContent();
             });
 

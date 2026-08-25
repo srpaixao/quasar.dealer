@@ -25,11 +25,6 @@ import App from './App.vue'
 const vuetify = createVuetify({
     components,
     directives,
-    defaults: {
-      VBottomNavigation: {
-        app: true,
-      }
-    }
   })
 
 const app = createApp(App);

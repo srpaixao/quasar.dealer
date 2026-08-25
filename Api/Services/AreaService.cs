@@ -16,27 +16,26 @@ namespace QuasarApi.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<AreaReadDto>> ObterTodosAsync(int? filialId)
+        public async Task<IEnumerable<AreaReadDto>> ObterTodosAsync()
         {
             return await _context.Area
-                .Where(x => x.FilialId == filialId && x.Tipo == "R")
                 .Select(x => new AreaReadDto
                 {
                     Id = x.Id,
                     Nome = x.Nome,
-                    Descricao = x.Descricao ?? string.Empty
+                    Descricao = string.IsNullOrWhiteSpace(x.Descricao) ? x.Nome : x.Descricao
                 }).ToListAsync();
         }
 
-        public async Task<AreaReadDto?> ObterPorIdAsync(int id, int? filialId)
+        public async Task<AreaReadDto?> ObterPorIdAsync(int id)
         {
             return await _context.Area
-                .Where(x => x.Id == id && x.FilialId == filialId && x.Tipo == "R")
+                .Where(x => x.Id == id)
                 .Select(x => new AreaReadDto
                 {
                     Id = x.Id,
                     Nome = x.Nome,
-                    Descricao = x.Descricao ?? string.Empty
+                    Descricao = string.IsNullOrWhiteSpace(x.Descricao) ? x.Nome : x.Descricao
                 }).FirstOrDefaultAsync();
         }
 
@@ -60,9 +59,9 @@ namespace QuasarApi.Services
             };
         }
 
-        public async Task AtualizarAsync(AreaUpdateDto dto, int? filialId)
+        public async Task AtualizarAsync(AreaUpdateDto dto)
         {
-            var area = await _context.Area.FirstOrDefaultAsync(x => x.Id == dto.Id && x.FilialId == filialId);
+            var area = await _context.Area.FindAsync(dto.Id);
             if (area is null)
             {
                 throw new KeyNotFoundException("Área não encontrada");
@@ -73,9 +72,9 @@ namespace QuasarApi.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task ExcluirAsync(int id, int? filialId)
+        public async Task ExcluirAsync(int id)
         {
-            var area = await _context.Area.FirstOrDefaultAsync(x => x.Id == id && x.FilialId == filialId);
+            var area = await _context.Area.FindAsync(id);
             if (area is null)
             {
                 throw new KeyNotFoundException("Usuário não encontrado");

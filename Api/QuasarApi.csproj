@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +12,11 @@
     <Content Remove="Routes\Operations\NewFolder\**" />
     <EmbeddedResource Remove="Routes\Operations\NewFolder\**" />
     <None Remove="Routes\Operations\NewFolder\**" />
+    <Content Remove="artifacts\**;build-verify\**;publish\**" />
+    <EmbeddedResource Remove="artifacts\**;build-verify\**;publish\**" />
+    <None Remove="artifacts\**;build-verify\**;publish\**" />
+    <Content Update="package.json;package-lock.json" CopyToPublishDirectory="Never" />
+    <None Update="package.json;package-lock.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
   <ItemGroup>

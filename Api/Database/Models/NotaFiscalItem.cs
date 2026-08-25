@@ -13,7 +13,19 @@ public partial class NotaFiscalItem
 
     public decimal Quantidade { get; set; }
 
+    public decimal? QtdConferida { get; set; }
+
     public decimal? QtdArmazenada { get; set; }
+
+    public bool Conferido { get; set; }
+
+    public string? UsuarioConferencia { get; set; }
+
+    public DateTime? DtHrConferencia { get; set; }
+
+    public string? UsuarioArmazenagem { get; set; }
+
+    public DateTime? DtHrArmazenagem { get; set; }
 
     public string? Volume { get; set; }
 

@@ -4,11 +4,11 @@ namespace QuasarApi.Services.Interfaces
 {
     public interface IAreaService
     {
-        Task<IEnumerable<AreaReadDto>> ObterTodosAsync(int? filialId);
-        Task<AreaReadDto?> ObterPorIdAsync(int id, int? filialId);
+        Task<IEnumerable<AreaReadDto>> ObterTodosAsync();
+        Task<AreaReadDto?> ObterPorIdAsync(int id);
         Task<AreaReadDto> CriarAsync(AreaCreateDto dto);
-        Task AtualizarAsync(AreaUpdateDto dto, int? filialId);
-        Task ExcluirAsync(int id, int? filialId);
+        Task AtualizarAsync(AreaUpdateDto dto);
+        Task ExcluirAsync(int id);
 
     }
 }

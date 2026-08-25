@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +8,8 @@ using QuasarApi.Helpers;
 
 namespace QuasarApi.Routes.Operations
 {
+    using System.Security.Claims;
+
     public static class ArmazenagemRoutes
     {
         public static WebApplication MapArmazenagemRoutes(this WebApplication app, WebApplicationBuilder builder)
@@ -17,7 +18,7 @@ namespace QuasarApi.Routes.Operations
             var group = app.MapGroup(groupPrefix);
 
             // Obter material
-            group.MapGet("/validarmaterial/{codigo}", async (string codigo, [FromQuery] int? filialId, AppDbContext db) =>
+            group.MapGet("/validarmaterial/{codigo}", async (string codigo, AppDbContext db) =>
             {
                 try
                 {
@@ -25,9 +26,7 @@ namespace QuasarApi.Routes.Operations
                                           join e in db.Estoque on m.Codigo equals e.ItemNr
                                           into resultado
                                           from e in resultado.DefaultIfEmpty()
-                                          where m.Codigo == codigo &&
-                                               e.FilialId == filialId //&&
-                                                //e != null
+                                          where m.Codigo == codigo
                                           select new ValidarMaterial
                                           {
                                               CodigoMaterial = m.Codigo,
@@ -70,7 +69,7 @@ namespace QuasarApi.Routes.Operations
             }).RequireAuthorization();
 
             // Obter quantidade de peças para armazenar
-            group.MapGet("/validarquantidade/{codigo}", async (string codigo, [FromQuery] int? filialId, AppDbContext db) =>
+            group.MapGet("/validarquantidade/{codigo}", async (string codigo, AppDbContext db) =>
             {
                 decimal qtdeDisponivelArmazenar = 0;
 
@@ -79,8 +78,7 @@ namespace QuasarApi.Routes.Operations
                 {
                     decimal qtde_notafiscal = await (from nf in db.NotaFiscal
                                                      join nfi in db.NotaFiscalItem on nf.Id equals nfi.NotaFiscalId
-                                                     where nfi.StatusId > 3 && nfi.Item.ToLower() == codigo.ToLower() &&
-                                                           nf.FilialId == filialId
+                                                     where nfi.StatusId == 4 && nfi.Item.ToLower() == codigo.ToLower()
                                                      select nfi.Quantidade - (nfi.QtdArmazenada ?? 0.0M)).SumAsync();
 
                     qtdeDisponivelArmazenar = +qtde_notafiscal;
@@ -101,9 +99,7 @@ namespace QuasarApi.Routes.Operations
                 try
                 {
                     decimal retorno = await (from r in db.RetornoInternoItem
-                                             where r.ItemNr != null &&
-                                                   r.ItemNr.ToLower() == codigo.ToLower() &&
-                                                   r.FilialId == filialId && r.StatusRetornoId == 3
+                                             where r.ItemNr != null && r.ItemNr.ToLower() == codigo.ToLower()
                                              select (r.Quantidade ?? 0.0M) - (r.QtdArmazenada ?? 0.0M)).SumAsync();
 
                     qtdeDisponivelArmazenar += retorno;
@@ -133,6 +129,15 @@ namespace QuasarApi.Routes.Operations
             // Atualizar quantidades armazenadas
             group.MapPost("/atualizarItemNotaFiscal", async (HttpContext httpContext, AppDbContext db, ArmazenarItem postedItem) =>
             {
+                var usuario = await ResolveCurrentUserAsync(httpContext, db);
+                if (usuario == null)
+                    return Results.Unauthorized();
+
+                if (!usuario.FilialId.HasValue)
+                    return Results.BadRequest(new { mensagem = "O usuario nao possui filial configurada." });
+
+                if (postedItem.Quantidade <= 0)
+                    return Results.BadRequest(new { mensagem = "A quantidade armazenada deve ser maior que zero." });
 
                 using (var transaction = await db.Database.BeginTransactionAsync())
                 {
@@ -141,9 +146,9 @@ namespace QuasarApi.Routes.Operations
                         var itens_nf = await (from nf in db.NotaFiscal
                                               join nfi in db.NotaFiscalItem on nf.Id equals nfi.NotaFiscalId
                                               where nfi.Item.ToLower() == postedItem.ItemNr.ToLower() &&
+                                                    nfi.FilialId == usuario.FilialId.Value &&
                                                     nfi.StatusId == 4 &&
-                                                    nfi.Quantidade > 0.0M &&
-                                                    nf.FilialId == postedItem.FilialId
+                                                    nfi.Quantidade > 0.0M
                                               select nfi).ToListAsync();
 
                         foreach (var itemnf in itens_nf)
@@ -153,11 +158,11 @@ namespace QuasarApi.Routes.Operations
                                 break;
                             }
 
-                            if (itemnf.Quantidade >= postedItem.Quantidade)
+                            if (itemnf.Quantidade > postedItem.Quantidade)
                             {
                                 itemnf.QtdArmazenada = itemnf.QtdArmazenada ?? 0.0M;
                                 itemnf.QtdArmazenada = itemnf.QtdArmazenada + postedItem.Quantidade;
-                                if (itemnf.Quantidade == itemnf.QtdArmazenada)
+                                if (itemnf.QtdArmazenada > itemnf.Quantidade)
                                 {
                                     postedItem.Quantidade = (decimal)itemnf.QtdArmazenada - itemnf.Quantidade;
                                     itemnf.QtdArmazenada = itemnf.Quantidade;
@@ -165,7 +170,6 @@ namespace QuasarApi.Routes.Operations
                                 }
                                 else
                                 {
-                                    itemnf.QtdArmazenada = postedItem.Quantidade;
                                     postedItem.Quantidade = postedItem.Quantidade - itemnf.Quantidade;
                                 }
                             }
@@ -176,9 +180,13 @@ namespace QuasarApi.Routes.Operations
                                 postedItem.Quantidade = postedItem.Quantidade - itemnf.Quantidade;
                             }
 
-                            itemnf.ModificadoPor = postedItem.Usuario;
-                            itemnf.ModificadoEm = CurrentDateTime.GetCurrentDateTime();
+                            DateTime agora = CurrentDateTime.GetCurrentDateTime();
+                            itemnf.UsuarioArmazenagem = usuario.Login;
+                            itemnf.DtHrArmazenagem = agora;
+                            itemnf.ModificadoPor = usuario.Login;
+                            itemnf.ModificadoEm = agora;
                             await db.SaveChangesAsync();
+
 
                             bool itensFinalizados = db.NotaFiscalItem
                                                       .Where(item => item.NotaFiscalId == itemnf.NotaFiscalId)
@@ -186,8 +194,7 @@ namespace QuasarApi.Routes.Operations
 
                             if (itensFinalizados)
                             {
-                                NotaFiscal? notafiscal = await db.NotaFiscal
-                                    .FirstOrDefaultAsync(nf => nf.Id == itemnf.NotaFiscalId && nf.FilialId == postedItem.FilialId);
+                                NotaFiscal? notafiscal = db.NotaFiscal.Find(itemnf.NotaFiscalId);
                                 if (notafiscal != null)
                                 {
                                     notafiscal.StatusId = 7;
@@ -202,9 +209,8 @@ namespace QuasarApi.Routes.Operations
                                                    orderby r.Id
                                                    where r.ItemNr != null &&
                                                          r.ItemNr.ToLower() == postedItem.ItemNr.ToLower() &&
-                                                         r.StatusRetornoId == 3 &&
-                                                         r.Quantidade > 0.0M &&
-                                                         r.FilialId == postedItem.FilialId
+                                                         r.StatusRetornoId == 4 &&
+                                                         r.Quantidade > 0.0M
                                                    select r).ToListAsync();
 
                         foreach (var itemret in itens_retorno)
@@ -248,11 +254,10 @@ namespace QuasarApi.Routes.Operations
 
                             if (itensFinalizados)
                             {
-                                RetornoInterno? retorno = await db.RetornoInterno
-                                    .FirstOrDefaultAsync(r => r.Id == itemret.RetornoInternoId && r.FilialId == postedItem.FilialId);
+                                RetornoInterno? retorno = db.RetornoInterno.Find(itemret.RetornoInternoId);
                                 if (retorno != null)
                                 {
-                                    retorno.FinalizadoEm = CurrentDateTime.GetCurrentDateTime();
+                                    retorno.FinalizadoEm = CurrentDateTime.GetCurrentDateTime(); 
                                     db.Entry(retorno).State = EntityState.Modified;
                                     db.SaveChanges();
                                 }
@@ -321,6 +326,18 @@ namespace QuasarApi.Routes.Operations
             }).RequireAuthorization();
 
             return app;
+        }
+
+        private static async Task<Usuario?> ResolveCurrentUserAsync(HttpContext httpContext, AppDbContext db)
+        {
+            string? userIdValue = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdValue, out int userId))
+                return await db.Usuario.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
+
+            string? login = httpContext.User.Identity?.Name;
+            return string.IsNullOrWhiteSpace(login)
+                ? null
+                : await db.Usuario.AsNoTracking().FirstOrDefaultAsync(x => x.Login == login);
         }
     }
 }

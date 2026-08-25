@@ -15,6 +15,4 @@ public partial class Area
     public string? ModificadoPor { get; set; }
     public DateTime? ModificadoEm { get; set; }
     public int? FilialId { get; set; }
-
-    public string Tipo { get; set; }
 }

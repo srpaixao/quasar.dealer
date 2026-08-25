@@ -9,11 +9,11 @@ namespace QuasarApi.Extensions
         {
             app.MapAuthRoutes(builder);
             app.MapUsuarioRoutes(builder);
-            app.MapEmpresaRoutes(builder);
             app.MapMaterialRoutes(builder);
             app.MapNotaFiscalRoutes(builder);
             app.MapArmazenagemRoutes(builder);
             app.MapEstoqueRoutes(builder);
+            app.MapSeparacaoRoutes(builder);
             app.MapRecebimentoRoutes(builder);
             app.MapAreaRoutes(builder);
             app.MapTransportadoraRoutes(builder);

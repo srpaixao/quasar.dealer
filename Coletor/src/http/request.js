@@ -5,11 +5,10 @@ import { useClienteApiStore } from '@/stores/clienteApiStore.js';
 export default {
 
   // Auth
-  login(usuario, senha, filialId) {
+  login(usuario, senha) {
     return api.post('/auth/login', {
       usuario,
-      senha,
-      filialId
+      senha
     });
   },
   getCookie() {
@@ -19,24 +18,18 @@ export default {
     return api.post('/auth/remove-cookie');
   },
 
-  // Empresas
-  obterEmpresas() {
-    return api.get('/empresas');
-  },
-
   //Armazenagem
-  validarMaterial(itemnr, filialId) {
-    return api.get(`/armazenagem/validarmaterial/${itemnr}`, { params: { filialId } });
+  validarMaterial(itemnr) {
+    return api.get(`/armazenagem/validarmaterial/${itemnr}`);
   },
-  validarQuantidade(itemnr, filialId) {
-    return api.get(`/armazenagem/validarquantidade/${itemnr}`, { params: { filialId } });
+  validarQuantidade(itemnr) {
+    return api.get(`/armazenagem/validarquantidade/${itemnr}`);
   },
-  armazenarMaterial(itemnr, quantidade, usuario, filialId) {
+  armazenarMaterial(itemnr, quantidade, usuario) {
     return api.post('/armazenagem/atualizarItemNotaFiscal', {
       itemnr,
       quantidade,
-      usuario,
-      filialId
+      usuario
     });
   },
   gravarHistorico(historico) {
@@ -48,11 +41,17 @@ export default {
   },
 
   // Estoque
-  consultarItem(itemnr, filialId) {
-    return api.get(`/estoque/consultaritem/${itemnr}`, { params: { filialId } });
+  consultarItem(itemnr) {
+    return api.get(`/estoque/consultaritem/${itemnr}`);
   },
-  consultarLocacao(itemnr, filialId) {
-    return api.get(`/estoque/consultarlocacao/${itemnr}`, { params: { filialId } });
+  consultarLocacao(itemnr) {
+    return api.get(`/estoque/consultarlocacao/${itemnr}`);
+  },
+  validarLocacao(codigo) {
+    return api.get(`/estoque/validarlocacao/${encodeURIComponent(codigo)}`);
+  },
+  consultarMovimentacoesLocacaoEspera(codigo) {
+    return api.get(`/estoque/locacao-espera/${encodeURIComponent(codigo)}/movimentacoes`);
   },
   gravarMovimentacao(movimentacao) {
     return api.post('/estoque/movimentacao', movimentacao, {
@@ -73,8 +72,8 @@ export default {
       }
     });
   },
-  consultarMovimentacao(itemnr, filialId) {
-    return api.get(`/estoque/consultarmovimentacao/${itemnr}`, { params: { filialId } });
+  consultarMovimentacao(itemnr) {
+    return api.get(`/estoque/consultarmovimentacao/${itemnr}`);
   },
   gravarColeta(coleta) {
     console.log('gravarColeta', coleta)
@@ -120,23 +119,58 @@ export default {
     });
   },
 
+  // Separação
+  obterZonasSeparacao() {
+    return api.get('/separacao/zonas');
+  },
+  assumirTarefaSeparacao(zonaId) {
+    return api.post('/separacao/assumir-tarefa', { zonaId });
+  },
+  obterLinhaAtualSeparacao(tarefaNr) {
+    return api.get(`/separacao/tarefas/${encodeURIComponent(tarefaNr)}/linha-atual`);
+  },
+  liberarTarefaSeparacao(tarefaNr) {
+    return api.post(`/separacao/tarefas/${encodeURIComponent(tarefaNr)}/abandonar`, {}, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  },
+  confirmarLinhaSeparacao(tarefaNr, payload) {
+    return api.post(`/separacao/tarefas/${encodeURIComponent(tarefaNr)}/confirmar-linha`, payload, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  },
+  passbyLinhaSeparacao(tarefaNr) {
+    return api.post(`/separacao/tarefas/${encodeURIComponent(tarefaNr)}/passby-linha`, {}, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  },
+  obterStatusTarefaSeparacao(tarefaNr) {
+    return api.get(`/separacao/tarefas/${encodeURIComponent(tarefaNr)}/status`);
+  },
+
   // Expedição
 
-  obterTransportadorasExpedicao(filialId) {
-    return api.get(`/expedicao/transportadoras`, { params: { filialId } });
+  obterTransportadorasExpedicao() {
+    return api.get(`/expedicao/transportadoras`);
   },
 
-  getResumoExpedicao(transportadoraId, filialId) {
+  getResumoExpedicao(transportadoraId) {
     console.log('trasnportadoraId', transportadoraId);
-    return api.get(`/expedicao/volumes/resumo/${transportadoraId}`, { params: { filialId } });
+    return api.get(`/expedicao/volumes/resumo/${transportadoraId}`);
   },
 
-  obterPendentesExpedicao(transportadoraId, filialId) {
-    return api.get(`/expedicao/volumes/pendentes/${transportadoraId}`, { params: { filialId } });
+  obterPendentesExpedicao(transportadoraId) {
+    return api.get(`/expedicao/volumes/pendentes/${transportadoraId}`);
   },
 
-  obterLidosExpedicao(transportadoraId, filialId) {
-    return api.get(`/expedicao/volumes/lidos/${transportadoraId}`, { params: { filialId } });
+  obterLidosExpedicao(transportadoraId) {
+    return api.get(`/expedicao/volumes/lidos/${transportadoraId}`);
   },
 
   obterDocumentoExpedicao(notaFiscal, transportadoraId) {
@@ -152,6 +186,27 @@ export default {
       headers: { 'Content-Type': 'application/json' }
     });
   },
+  obterRomaneiosConferenciaSeparacao() {
+    return api.get('/expedicao/conferencia-separacao/romaneios');
+  },
+  iniciarConferenciaSeparacao(romaneioId) {
+    return api.post('/expedicao/conferencia-separacao/iniciar', { romaneioId }, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  },
+  obterItensConferenciaSeparacao(romaneioId) {
+    return api.get(`/expedicao/conferencia-separacao/romaneios/${romaneioId}/itens`);
+  },
+  confirmarItemConferenciaSeparacao(romaneioId, payload) {
+    return api.post(`/expedicao/conferencia-separacao/romaneios/${romaneioId}/confirmar`, payload, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  },
+  liberarConferenciaSeparacao(romaneioId) {
+    return api.post(`/expedicao/conferencia-separacao/romaneios/${romaneioId}/abandonar`, {}, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  },
 
 
 
@@ -163,20 +218,32 @@ export default {
 
 
   // Recebimento
-  obterAreas(filialId) {
-    return api.get(`/areas`, { params: { filialId } });
+  obterAreas() {
+    return api.get(`/areas`);
   },
 
-  contarVolume(areaId, filialId) {
+  contarVolume(areaId) {
     const statusId = 0;
-    return api.get(`/recebimento/volumeresumo/${statusId}/${areaId}`, { params: { filialId } });
+    return api.get(`/recebimento/volumeresumo/${statusId}/${areaId}`);
   },
-  processarVolume(volume, area, filialId, usuario) {
+  obterVolumesPendentesRecebimento(areaId) {
+    const statusPendenteId = 1;
+    return api.get(`/recebimento/volumeresumo/${statusPendenteId}/${areaId}`);
+  },
+  processarVolume(volume, area) {
     return api.post('/recebimento/volumeupdate', {
       volume,
-      area,
-      filialId,
-      usuario
+      area
     });
+  },
+  obterConferenciaVolume(volume) {
+    return api.get(`/recebimento/conferencia-volume/${encodeURIComponent(volume)}`);
+  },
+  confirmarConferenciaItem(volume, itemId, payload) {
+    return api.post(
+      `/recebimento/conferencia-volume/${encodeURIComponent(volume)}/itens/${itemId}/confirmar`,
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
   },
 };

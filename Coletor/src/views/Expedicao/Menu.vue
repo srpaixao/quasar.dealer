@@ -24,6 +24,12 @@ function confirmLogout() {
     </v-row>
     <v-row justify="center">
       <v-col cols="12" md="4" sm="6">
+        <v-btn block :to="{ name: 'ConferirSeparacao' }" size="x-large" color="primary" variant="outlined">Conferir
+          Separação</v-btn>
+      </v-col>
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="12" md="4" sm="6">
         <v-btn rounded="0" size="x-large" prepend-icon="" block class="inactive-btn">Despachar</v-btn>
       </v-col>
     </v-row>

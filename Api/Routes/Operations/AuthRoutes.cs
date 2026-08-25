@@ -1,9 +1,8 @@
-using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-
 using QuasarApi.DataBase;
 using QuasarApi.DTO.Operations.Auth;
 using QuasarApi.Helpers;
@@ -19,56 +18,63 @@ namespace QuasarApi.Routes.Operations
 
             group.MapPost("/login", async (HttpContext httpContext, AppDbContext db, Login userCredentials) =>
             {
-                // Validar usuário e senha
-                var user = await db.Usuario.FirstOrDefaultAsync(u =>
-                    EF.Functions.Like(u.Login, userCredentials.Usuario) &&
-                    u.FilialId == userCredentials.FilialId);
-                if (user == null)
+                string loginInformado = (userCredentials.Usuario ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(loginInformado))
                 {
-                    return Results.NotFound(new { mensagem = "Usuário não cadastrado" });
+                    return Results.BadRequest(new { mensagem = "Usuario nao informado" });
                 }
+
+                var users = await db.Usuario
+                    .Where(u => u.Login != null && u.Login.ToUpper() == loginInformado.ToUpper())
+                    .OrderBy(u => u.Id)
+                    .ToListAsync();
+
+                if (!users.Any())
+                {
+                    return Results.NotFound(new { mensagem = "Usuario nao cadastrado" });
+                }
+
+                if (users.Count > 1)
+                {
+                    return Results.Json(
+                        new { mensagem = "Existe mais de um usuario cadastrado com este login. Corrija o cadastro antes de acessar o coletor." },
+                        statusCode: StatusCodes.Status409Conflict
+                    );
+                }
+
+                var user = users[0];
 
                 if (!CryptoHelper.ValidatePassword(userCredentials.Senha, user.Senha))
                 {
                     return Results.Json(
                         new { mensagem = "Senha incorreta" },
                         statusCode: StatusCodes.Status401Unauthorized
-                     );
+                    );
                 }
-
-                //if (CryptoHelper.CryptoToString(user.Senha) != userCredentials.Senha)
-                //{
-                //    return Results.Json(
-                //        new { mensagem = "Senha incorreta" },
-                //        statusCode: StatusCodes.Status401Unauthorized
-                //     );
-                //}
 
                 if (user.SenhaExpirada)
                 {
                     return Results.Json(
                         new { mensagem = "Senha expirada" },
                         statusCode: StatusCodes.Status401Unauthorized
-                     );
+                    );
                 }
 
                 if (user.AcessoBloqueado)
                 {
                     return Results.Json(
-                         new { mensagem = "Acesso Bloqueado" },
-                         statusCode: StatusCodes.Status401Unauthorized
-                      );
+                        new { mensagem = "Acesso bloqueado" },
+                        statusCode: StatusCodes.Status401Unauthorized
+                    );
                 }
 
-                // Gerar token JWT
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
-
-                var credentials = new SigningCredentials(new SymmetricSecurityKey(
-                                        Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!)),
-                                        SecurityAlgorithms.HmacSha256Signature);
+                var credentials = new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!)),
+                    SecurityAlgorithms.HmacSha256Signature);
 
                 var ci = new ClaimsIdentity();
+                ci.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
                 ci.AddClaim(new Claim(ClaimTypes.Name, user.Login));
 
                 var tokenDescriptor = new SecurityTokenDescriptor
@@ -81,56 +87,18 @@ namespace QuasarApi.Routes.Operations
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(token);
 
-                // Enviar o token como um cookie HTTP-only
-                //httpContext.Response.Cookies.Append("quasarJWT", tokenString, new CookieOptions
-                //{
-                //    HttpOnly = true,
-                //    Secure = false, // Use true em produção (HTTPS)
-                //    SameSite = SameSiteMode.Lax, // Use SameSiteMode.Strict em produção
-                //    Path = "/", // Define o caminho para cobrir todas as requisições para o mesmo domínio
-                //    Expires = DateTime.UtcNow.AddHours(1)
-                //});
-
-                //return Results.Ok(new { Message = "Login successful" });
                 return Results.Ok(new
                 {
                     useraccount = user.Login,
                     username = user.Nome,
                     email = user.Email,
-                    filialId = userCredentials.FilialId,
+                    filialId = user.FilialId,
                     token = tokenString,
                     message = "Login successful"
                 });
             });
 
-            //app.MapGet($"{route}/check-cookie", (HttpContext httpContext) =>
-            //{
-            //    if (httpContext.Request.Cookies.ContainsKey("quasarJWT"))
-            //    {
-            //        return Results.Ok(new { exists = true });
-            //    }
-            //    return Results.Ok(new { exists = false });
-            //});
-
-            //app.MapPost($"{route}/remove-cookie", (HttpContext httpContext) =>
-            //{
-            //    if (httpContext.Request.Cookies.ContainsKey("quasarJWT"))
-            //    {
-            //        httpContext.Response.Cookies.Append("quasarJWT", "", new CookieOptions
-            //        {
-            //            Expires = DateTime.UtcNow.AddDays(-1), // Definir expiração no passado
-            //            HttpOnly = true,
-            //            Secure = false, // Use true em produção (HTTPS)
-            //            SameSite = SameSiteMode.Lax,
-            //            Path = "/"
-            //        });
-            //        return Results.Ok(new { removed = true });
-            //    }
-            //    return Results.BadRequest(new { removed = false, message = "Cookie not found" });
-            //});
-
             return app;
         }
-
     }
 }

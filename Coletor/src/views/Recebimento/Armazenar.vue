@@ -59,7 +59,7 @@ const validarMaterial = async () => {
   loading.value = true;
 
   try {
-    const response = await apiService.validarMaterial(form.itemnr.trim(), user.filialId);
+    const response = await apiService.validarMaterial(form.itemnr);
     if (response.data.locacao === '') {
       loading.value = false;
       dialogMessage = "Não existe locação cadastrada para este item";
@@ -110,10 +110,10 @@ const validarLocacao = async () => {
 
     // Gravar histórico
     const historico = {
-      ItemNr: form.itemnr.trim(),
+      ItemNr: form.itemnr,
       descricao: form.descricao,
       Locacao: material.value.locacao,
-      LocacaoConfirmada: form.locacaoconfirmada.trim(),
+      LocacaoConfirmada: form.locacaoconfirmada,
       Quantidade: form.quantidade ?? 0,
       Erro: true,
       Mensagem: "Locação incorreta",
@@ -142,7 +142,7 @@ const armazenarMaterial = async () => {
 
   // Validar a quantidade informada
   try {
-    const response = await apiService.validarQuantidade(form.itemnr.trim(), user.filialId);
+    const response = await apiService.validarQuantidade(form.itemnr);
     if (parseInt(form.quantidade, 10) > parseInt(response.data.quantidade, 10)) {
       const excesso = parseInt(form.quantidade, 10) - parseInt(response.data.quantidade, 10);
       dialogMessage = `${excesso} peça(s) do item ${form.itemnr} deve(m) retornar ao recebimento!`;
@@ -151,10 +151,10 @@ const armazenarMaterial = async () => {
       // Gravar historico caso a quantidade esteja incorreta
       try {
         const historico = {
-          ItemNr: form.itemnr.trim(),
+          ItemNr: form.itemnr,
           descricao: form.descricao,
           Locacao: material.value.locacao,
-          LocacaoConfirmada: form.locacaoconfirmada.trim(),
+          LocacaoConfirmada: form.locacaoconfirmada,
           Quantidade: form.quantidade ?? 0,
           Erro: true,
           Mensagem: `Excesso na armazenagem (${excesso} peças)`,
@@ -178,15 +178,15 @@ const armazenarMaterial = async () => {
 
   // Armazenar material
   try {
-    await apiService.armazenarMaterial(form.itemnr.trim(), parseInt(form.quantidade, 10), user.account, user.filialId);
+    await apiService.armazenarMaterial(form.itemnr, parseInt(form.quantidade, 10), user.account);
 
     try {
       // Gravar histórico
       const historico = {
-        ItemNr: form.itemnr.trim(),
+        ItemNr: form.itemnr,
         descricao: form.descricao,
         Locacao: material.value.locacao,
-        LocacaoConfirmada: form.locacaoconfirmada.trim(),
+        LocacaoConfirmada: form.locacaoconfirmada,
         Quantidade: form.quantidade ?? 0,
         Erro: false,
         Mensagem: "Item armazenado",

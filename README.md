@@ -2,6 +2,21 @@
 
 Sistema web de gestão de peças, estoque e operação de concessionárias.
 
+## Versões da Entrega de 25/08/2026
+
+- Web MVC: `1.0.8.0`
+- Coletor: `1.0.7`
+- API: ASP.NET Core `net9.0`
+
+Principais mudanças:
+
+- lista de números de volumes pendentes na descarga de recebimento
+- teclado virtual do volume habilitado somente por ação do operador
+- leitura de barcode processada por terminador `Enter` ou `Tab`
+- conferência quantitativa de recebimento
+- coleta e transferência orientadas por Locação de Espera
+- conferência de separação em expedição
+
 ## Tecnologias
 
 - .NET Framework 4.8
@@ -25,6 +40,14 @@ O `Web.config` real não é versionado porque pode conter credenciais e configur
 - `Simplify.Quasar/`: aplicação web ASP.NET MVC.
 - `Api/`: API utilizada pelo coletor.
 - `Coletor/`: aplicação web móvel para coleta e operação no depósito.
+- `docs/`: manuais, processos, arquitetura, notas de versão e scripts de evolução.
+
+## Documentação
+
+- [Índice da documentação](docs/README.md)
+- [Atualizações operacionais de 25/08/2026](docs/ATUALIZACOES_20260825.md)
+- [Manual de utilização](docs/MANUAL_UTILIZACAO.md)
+- [Procedimentos de trabalho](docs/PROCEDIMENTOS_TRABALHO_E_PROCESSOS.md)
 
 ### Configuração da API
 

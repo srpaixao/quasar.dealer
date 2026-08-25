@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -11,18 +10,31 @@ export default defineConfig({
     },
   },
   build: {
+    chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('vuetify')) {
-              return 'vendor_vuetify'
-            }
-            if (id.includes('vue-router') || id.includes('pinia') || id.includes('axios') || id.includes('vue')) {
-              return 'vendor_vue'
-            }
-            return 'vendor'
+          if (!id.includes('node_modules')) {
+            return undefined
           }
+
+          if (id.includes('vuetify')) {
+            return 'vuetify'
+          }
+
+          if (id.includes('vue-router')) {
+            return 'vue-router'
+          }
+
+          if (id.includes('pinia')) {
+            return 'pinia'
+          }
+
+          if (id.includes('axios')) {
+            return 'axios'
+          }
+
+          return 'vendor'
         },
       },
     },

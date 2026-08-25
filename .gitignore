@@ -208,6 +208,11 @@ publish/
 /Coletor/dist/
 /Coletor/node_modules/
 
+# Local documentation exports and commercial proposal assets
+/docs/MANUAL_EXECUTIVO_WMS_QUASAR_AUTOMEC.html
+/docs/MANUAL_EXECUTIVO_WMS_QUASAR_AUTOMEC.pdf
+/docs/Proposta/
+
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
 # checkin your Azure Web App publish settings, but sensitive information contained
 # in these scripts will be unencrypted

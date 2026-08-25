@@ -22,3 +22,5 @@ Depois da geração:
 
 Somente os documentos operacionais definidos em `build.mjs` são publicados.
 Arquitetura, integrações, SQL e guias de desenvolvimento ficam fora do portal.
+
+Última revisão dos Markdown operacionais: `25/08/2026`.

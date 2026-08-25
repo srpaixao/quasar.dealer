@@ -25,6 +25,4 @@ public partial class RetornoInternoItem
 
     public DateTime? ModificadoEm { get; set; }
 
-     public int? FilialId { get; set; }
-
 }
