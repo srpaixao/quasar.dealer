@@ -1,5 +1,10 @@
 # Atualizações Operacionais de 31/08/2026
 
+## Versão
+
+- Web MVC: `1.0.9.0`.
+- Situação: preparada e versionada no GitHub, ainda sem implantação em produção.
+
 ## Novo módulo de Anomalias GM
 
 Foi preparado o módulo web `Anomalias`, com funcionamento por filial e identidade visual padrão do Quasar Dealer.

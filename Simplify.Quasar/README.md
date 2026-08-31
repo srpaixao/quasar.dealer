@@ -38,6 +38,8 @@ Os modulos atuais mapeados em `Simplify.Quasar/Areas` sao:
 
 ## Destaques Funcionais
 
+Versão Web MVC desta atualização: `1.0.9.0`.
+
 ### Anomalias GM
 
 O módulo `AnomaliaApp` permite:

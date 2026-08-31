@@ -4,6 +4,9 @@ Sistema web de gestão de peças, estoque e operação de concessionárias.
 
 ## Atualizações preparadas em 31/08/2026
 
+- Web MVC: `1.0.9.0`.
+- Situação: disponível no GitHub e ainda não implantada em produção.
+
 O repositório inclui o novo módulo de Anomalias GM, ainda sem implantação em produção:
 
 - cadastro por item, NF e volume;
