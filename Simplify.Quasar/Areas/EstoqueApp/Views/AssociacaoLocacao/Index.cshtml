@@ -12,6 +12,35 @@
         vertical-align: middle !important;
     }
 
+    #associacao-table-container,
+    #associacao-table-container .dataTables_wrapper,
+    #tbAssociacaoLocacao {
+        width: 100% !important;
+    }
+
+    #tbAssociacaoLocacao th:nth-child(1),
+    #tbAssociacaoLocacao td:nth-child(1) {
+        width: 20%;
+        white-space: nowrap;
+    }
+
+    #tbAssociacaoLocacao th:nth-child(2),
+    #tbAssociacaoLocacao td:nth-child(2) {
+        width: 45%;
+    }
+
+    #tbAssociacaoLocacao th:nth-child(3),
+    #tbAssociacaoLocacao td:nth-child(3) {
+        width: 20%;
+        white-space: nowrap;
+    }
+
+    #tbAssociacaoLocacao th:nth-child(4),
+    #tbAssociacaoLocacao td:nth-child(4) {
+        width: 15%;
+        white-space: nowrap;
+    }
+
     .associacao-table th {
         text-align: center;
     }
@@ -74,7 +103,7 @@
             </div>
 
             <div id="associacao-table-container" class="table-responsive" style="display: none;">
-                <table class="table table-condensed table-bordered table-hover associacao-table" id="tbAssociacaoLocacao">
+                <table class="table table-condensed table-bordered table-hover associacao-table" id="tbAssociacaoLocacao" style="width:100%">
                     <thead>
                         <tr>
                             <th>Locação</th>
@@ -133,6 +162,7 @@
                 processing: true,
                 serverSide: true,
                 deferRender: true,
+                autoWidth: false,
                 pageLength: 25,
                 order: [[0, 'asc']],
                 ajax: {
@@ -192,7 +222,9 @@
                 $('#associacao-table-container').toggle(possuiZona);
 
                 if (possuiZona) {
-                    table.ajax.reload();
+                    table.ajax.reload(function () {
+                        table.columns.adjust();
+                    });
                 } else {
                     table.clear().draw();
                 }

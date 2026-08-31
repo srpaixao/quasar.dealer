@@ -1,0 +1,654 @@
+<h1 id="manual-por-tela-estoque">Manual por Tela - Estoque</h1>
+<h2 id="objetivo">Objetivo</h2>
+<p>Documentar as telas operacionais do módulo <code>Estoque</code> no coletor.</p>
+<h2 id="telas-cobertas">Telas Cobertas</h2>
+<ul>
+<li>menu de <code>Estoque</code></li>
+<li><code>Consultar Locação</code></li>
+<li><code>Consultar Item</code></li>
+<li><code>Coletar</code></li>
+<li><code>Transferir</code></li>
+<li><code>Contar</code> em estado atual observado</li>
+</ul>
+<hr>
+<h2 id="tela-01-menu-estoque">Tela 01. Menu Estoque</h2>
+<h3 id="captura-sugerida">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-estoque/01-menu-estoque.png" loading="lazy" alt="Menu Estoque"></p>
+<h3 id="objetivo-2">Objetivo</h3>
+<p>Servir como menu de entrada para os fluxos de estoque.</p>
+<h3 id="itens-da-tela">Itens da Tela</h3>
+<table>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Tipo</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Consultar Locação</code></td>
+<td>Botão</td>
+<td>Abre a consulta da locação</td>
+</tr>
+<tr>
+<td><code>Consultar Item</code></td>
+<td>Botão</td>
+<td>Abre a consulta do item</td>
+</tr>
+<tr>
+<td><code>Coletar</code></td>
+<td>Botão</td>
+<td>Abre o fluxo de coleta</td>
+</tr>
+<tr>
+<td><code>Transferir</code></td>
+<td>Botão</td>
+<td>Abre o fluxo de transferência</td>
+</tr>
+<tr>
+<td><code>Contagem</code></td>
+<td>Botão</td>
+<td>Função prevista no menu</td>
+</tr>
+<tr>
+<td><code>Home</code></td>
+<td>Botão inferior</td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Botão inferior</td>
+<td>Encerra a sessao</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-02-consultar-locacao">Tela 02. Consultar Locação</h2>
+<h3 id="captura-sugerida-2">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-estoque/02-consultar-locacao.png" loading="lazy" alt="Consultar Locação"></p>
+<h3 id="objetivo-3">Objetivo</h3>
+<p>Consultar dados da locação, seu contexto logístico e os itens alocados nela.</p>
+<h3 id="acesso">Acesso</h3>
+<ol>
+<li>Abrir <code>Estoque</code>.</li>
+<li>Selecionar <code>Consultar Locação</code>.</li>
+</ol>
+<h3 id="campos">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Locação</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Locação a consultar</td>
+<td>Informar a locação e sair do campo</td>
+</tr>
+<tr>
+<td><code>Descrição</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Descrição da locação</td>
+<td>Conferir retorno</td>
+</tr>
+<tr>
+<td><code>Tipo</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Tipo da locação</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Curva</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Curva associada</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Estratégia</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Estrategia da locação</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Área</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Área da locação</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Equipamento</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Equipamento relacionado</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Observações</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Observações da locação</td>
+<td>Consultar informação</td>
+</tr>
+</tbody></table>
+<h3 id="indicadores-e-sinais">Indicadores e Sinais</h3>
+<table>
+<thead>
+<tr>
+<th>Indicador</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Locação bloqueada</code></td>
+<td>A locação está marcada como bloqueada</td>
+</tr>
+</tbody></table>
+<h3 id="itens-da-locacao">Itens da Locação</h3>
+<p>Ao clicar em <code>Exibir Itens</code>, a tela mostra navegação item a item com:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Item Nr</code></td>
+<td>Código do item</td>
+</tr>
+<tr>
+<td><code>Descrição</code></td>
+<td>Descrição do item</td>
+</tr>
+<tr>
+<td><code>Saldo</code></td>
+<td>Saldo atual</td>
+</tr>
+<tr>
+<td><code>Indisponível</code></td>
+<td>Quantidade indisponivel</td>
+</tr>
+<tr>
+<td><code>Pedido Pendente</code></td>
+<td>Quantidade pendente de pedido</td>
+</tr>
+<tr>
+<td><code>Curva</code></td>
+<td>Curva do item</td>
+</tr>
+<tr>
+<td><code>UN</code></td>
+<td>Unidade</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Exibir Itens (N)</code></td>
+<td>Abre a navegação dos itens da locação</td>
+</tr>
+<tr>
+<td><code>Anterior</code></td>
+<td>Vai para o item anterior</td>
+</tr>
+<tr>
+<td><code>Próximo</code></td>
+<td>Vai para o item seguinte</td>
+</tr>
+<tr>
+<td><code>Exibir dados da locação</code></td>
+<td>Retorna da visao do item para os dados da locação</td>
+</tr>
+<tr>
+<td><code>Reiniciar</code></td>
+<td>Limpa a consulta</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Retorna ao menu de estoque</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao</td>
+</tr>
+</tbody></table>
+<h3 id="validacoes">Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Locação não informada</td>
+<td>Consulta não é executada</td>
+</tr>
+<tr>
+<td>Falha ao consultar locação</td>
+<td>Popup de erro</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-03-consultar-item">Tela 03. Consultar Item</h2>
+<h3 id="captura-sugerida-3">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-estoque/03-consultar-item.png" loading="lazy" alt="Consultar Item"></p>
+<h3 id="objetivo-4">Objetivo</h3>
+<p>Consultar rapidamente a posição e os saldos de um item.</p>
+<h3 id="acesso-2">Acesso</h3>
+<ol>
+<li>Abrir <code>Estoque</code>.</li>
+<li>Selecionar <code>Consultar Item</code>.</li>
+</ol>
+<h3 id="campos-2">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Item Nr</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Código do item</td>
+<td>Informar o item e sair do campo</td>
+</tr>
+<tr>
+<td><code>Descrição</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Descrição do item</td>
+<td>Conferir retorno</td>
+</tr>
+<tr>
+<td><code>Locação</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Locação principal</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Saldo</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Saldo atual</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Indisponível</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Quantidade indisponivel</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Pedido Pendente</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Quantidade pendente</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>Curva</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Curva do item</td>
+<td>Consultar informação</td>
+</tr>
+<tr>
+<td><code>UN</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Unidade de medida</td>
+<td>Consultar informação</td>
+</tr>
+</tbody></table>
+<h3 id="indicadores">Indicadores</h3>
+<table>
+<thead>
+<tr>
+<th>Indicador</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Item crítico</code></td>
+<td>Item marcado como crítico</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes-2">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Reiniciar</code></td>
+<td>Limpa a consulta</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Retorna ao menu de estoque</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao</td>
+</tr>
+</tbody></table>
+<h3 id="validacoes-2">Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Item não encontrado</td>
+<td>Popup de erro</td>
+</tr>
+<tr>
+<td>Falha de consulta</td>
+<td>Popup de erro</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-04-coletar">Tela 04. Coletar</h2>
+<h3 id="captura-sugerida-4">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-estoque/04-coletar.png" loading="lazy" alt="Coletar"></p>
+<h3 id="objetivo-5">Objetivo</h3>
+<p>Registrar a coleta de um item da locação de origem para uma Locação de Espera validada.</p>
+<h3 id="acesso-3">Acesso</h3>
+<ol>
+<li>Abrir <code>Estoque</code>.</li>
+<li>Selecionar <code>Coletar</code>.</li>
+</ol>
+<h3 id="campos-3">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Locação de Espera</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Local intermediário que receberá os itens coletados</td>
+<td>Ler e validar antes de consultar itens</td>
+</tr>
+<tr>
+<td><code>Item</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Item a ser coletado</td>
+<td>Informar o item e consultar</td>
+</tr>
+<tr>
+<td><code>Descrição</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Descrição do item</td>
+<td>Conferir retorno</td>
+</tr>
+<tr>
+<td><code>Locação</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Origem da coleta</td>
+<td>Conferir retorno</td>
+</tr>
+<tr>
+<td><code>Saldo</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Quantidade atual</td>
+<td>Conferir retorno</td>
+</tr>
+<tr>
+<td><code>Quantidade</code></td>
+<td>Número</td>
+<td>Sim</td>
+<td>Quantidade retirada da origem</td>
+<td>Informar inteiro positivo dentro do saldo disponível</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes-3">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Confirmar</code></td>
+<td>Registra a coleta</td>
+</tr>
+<tr>
+<td><code>Trocar locação</code></td>
+<td>Encerra o contexto atual e permite informar outra Locação de Espera</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Retorna ao menu de estoque</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao</td>
+</tr>
+</tbody></table>
+<h3 id="validacoes-3">Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Locação de Espera inválida</td>
+<td>Popup de erro e bloqueio da consulta de itens</td>
+</tr>
+<tr>
+<td>Item não informado</td>
+<td>Popup solicitando o item</td>
+</tr>
+<tr>
+<td>Item não cadastrado</td>
+<td>Popup informando item não cadastrado</td>
+</tr>
+<tr>
+<td>Quantidade maior que o saldo</td>
+<td>Operação bloqueada</td>
+</tr>
+<tr>
+<td>Falha ao consultar ou gravar coleta</td>
+<td>Popup de erro</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-05-transferir">Tela 05. Transferir</h2>
+<h3 id="captura-sugerida-5">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-estoque/05-transferir.png" loading="lazy" alt="Transferir"></p>
+<h3 id="objetivo-6">Objetivo</h3>
+<p>Consultar as movimentações pendentes de uma Locação de Espera e transferi-las para as localizações finais previstas.</p>
+<h3 id="acesso-4">Acesso</h3>
+<ol>
+<li>Abrir <code>Estoque</code>.</li>
+<li>Selecionar <code>Transferir</code>.</li>
+</ol>
+<h3 id="campos-4">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Locação de Espera</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Local intermediário que contém as coletas pendentes</td>
+<td>Ler para carregar os itens</td>
+</tr>
+<tr>
+<td><code>Locação Final</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Destino esperado da movimentação selecionada</td>
+<td>Conferir retorno</td>
+</tr>
+<tr>
+<td><code>Confirmar Locação Final</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Confirmação física do destino</td>
+<td>Ler a localização final</td>
+</tr>
+<tr>
+<td><code>Quantidade</code></td>
+<td>Número</td>
+<td>Sim</td>
+<td>Quantidade a transferir</td>
+<td>Informar valor válido e confirmar</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes-4">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Seta do item</td>
+<td>Seleciona a movimentação pendente</td>
+</tr>
+<tr>
+<td><code>Confirmar</code></td>
+<td>Finaliza a movimentação</td>
+</tr>
+<tr>
+<td><code>Trocar locação</code></td>
+<td>Limpa a lista e permite consultar outra Locação de Espera</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Retorna ao menu de estoque</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar">Como Operar</h3>
+<ol>
+<li>Informar a <code>Locação de Espera</code>.</li>
+<li>Selecionar uma das movimentações pendentes listadas.</li>
+<li>Conferir a <code>Locação Final</code>.</li>
+<li>Ler <code>Confirmar Locação Final</code>.</li>
+<li>Informar a <code>Quantidade</code>.</li>
+<li>Clicar em <code>Confirmar</code> e aguardar a atualização da lista.</li>
+</ol>
+<h3 id="validacoes-4">Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Locação de Espera inválida</td>
+<td>Popup de erro</td>
+</tr>
+<tr>
+<td>Nenhuma movimentação pendente</td>
+<td>Mensagem informativa de lista concluída</td>
+</tr>
+<tr>
+<td>Movimentação sem destino final</td>
+<td>Seleção bloqueada</td>
+</tr>
+<tr>
+<td>Locação Final divergente</td>
+<td>Popup informando localização incorreta</td>
+</tr>
+<tr>
+<td>Quantidade nula ou invalida</td>
+<td>Popup solicitando quantidade válida</td>
+</tr>
+<tr>
+<td>Quantidade maior que a disponível</td>
+<td>Operação bloqueada</td>
+</tr>
+<tr>
+<td>Movimentação íntegra com quantidade parcial</td>
+<td>Operação bloqueada; deve transferir a quantidade coletada</td>
+</tr>
+<tr>
+<td>Erro ao finalizar movimentação</td>
+<td>Popup de erro</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-06-contar">Tela 06. Contar</h2>
+<h3 id="captura-sugerida-6">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-estoque/06-contar.png" loading="lazy" alt="Contar"></p>
+<h3 id="objetivo-7">Objetivo</h3>
+<p>A tela <code>Estoque / Contar</code> existe no projeto, mas no estado atualmente observado aparece mais como estrutura de layout e diálogos do que como fluxo operacional completo documentado.</p>
+<h3 id="recomendacao">Recomendação</h3>
+<p>Antes de transformar essa tela em material oficial de treinamento, validar:</p>
+<ul>
+<li>se o fluxo está homologado</li>
+<li>quais campos e regras ainda serão expostos</li>
+</ul>

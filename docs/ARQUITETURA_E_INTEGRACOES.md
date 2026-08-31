@@ -104,6 +104,28 @@ O uso de `inputmode="none"` evita a abertura automática do teclado virtual em c
 3. A transferência consulta todas as movimentações pendentes da Locação de Espera.
 4. O operador confirma o destino físico e a API finaliza a movimentação.
 
+### Anomalias GM
+
+O módulo `AnomaliaApp` opera no Web MVC e utiliza SQL transacional para proteger o saldo reclamável.
+
+1. A consulta parte do número do item e retorna as ocorrências de NF/volume da filial.
+2. O prazo é calculado com `DataEmissao` e `PrazoDias` do tipo de anomalia.
+3. No cadastro, o saldo é novamente validado dentro da transação para impedir consumo concorrente acima do faturado.
+4. Cada item mantém seu próprio tipo A, B, C ou G, mesmo dentro do mesmo processo.
+5. O serviço de formulário preenche modelos `.xls` oficiais armazenados em `App_Data/Templates`.
+6. Preço unitário e imposto vêm das posições DNI importadas pelo fluxo `Trânsito GM`.
+
+Principais tabelas:
+
+- `AnomaliaGmProcesso`;
+- `AnomaliaGmItem`;
+- `AnomaliaGmTipo`;
+- `AnomaliaGmStatus`;
+- `AnomaliaGmHistorico`;
+- `AnomaliaGmArquivo` e `AnomaliaGmArquivoItem`.
+
+Os registros são isolados por `FilialId`. O reenvio referencia a reclamação original e não consome saldo novamente.
+
 ## Fluxos de Integracao Relevantes
 
 ### Conferencia de Romaneios de Expedicao
@@ -205,3 +227,4 @@ Menus controlados por rotas fixas e autenticacao via session storage.
 - validar a impressao automatica com as configuracoes da filial antes do Publish em producao
 - consultar [Atualizacoes Operacionais de 20/07/2026](ATUALIZACOES_20260720.md)
 - consultar [Atualizações Operacionais de 25/08/2026](ATUALIZACOES_20260825.md)
+- consultar [Atualizações Operacionais de 31/08/2026](ATUALIZACOES_20260831.md)

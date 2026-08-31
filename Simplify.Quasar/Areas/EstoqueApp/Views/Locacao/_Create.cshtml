@@ -45,7 +45,8 @@
                 <div class="col-xs-12 col-lg-3">
                     <div class="form-group">
                         <label class="form-label">Área</label>
-                        @Html.TextBoxFor(m => m.AreaId, new { @class = "form-control text-center", @autocomplete = "off" })
+                        @Html.DropDownListFor(m => m.AreaId, Model.AreaDDL, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.AreaId, null, new { @class = "text-red" })
                     </div>
                 </div>
                 <div class="col-xs-12 col-lg-3">
@@ -57,7 +58,8 @@
                 <div class="col-xs-12 col-lg-3">
                     <div class="form-group">
                         <label class="form-label">Curva</label>
-                        @Html.TextBoxFor(m => m.Curva, new { @class = "form-control text-center", @autocomplete = "off", @maxlength = "100" })
+                        @Html.DropDownListFor(m => m.Curva, Model.CurvaDDL, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Curva, null, new { @class = "text-red" })
                     </div>
                 </div>
                 <div class="col-xs-12 col-lg-3">

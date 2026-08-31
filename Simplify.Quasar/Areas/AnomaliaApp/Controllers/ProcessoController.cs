@@ -1,108 +1,247 @@
-﻿using System.Collections.Generic;
+using System;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Web.Mvc;
-using System.Data;
-
-using Simplify.Quasar.Models;
+using Newtonsoft.Json;
+using Simplify.Quasar.Areas.AnomaliaApp.Services;
 using Simplify.Quasar.Areas.AnomaliaApp.ViewModels;
 using Simplify.Quasar.Custom;
+using Simplify.Quasar.Models;
 
 namespace Simplify.Quasar.Areas.AnomaliaApp.Controllers
 {
     [ValidateSession]
     public class ProcessoController : Controller
     {
-        Quasar_Entities db = new Quasar_Entities();
+        private readonly Quasar_Entities db = new Quasar_Entities();
 
-        int filialId = Util.GetCurrentFilial();
-
-        // GET: Admin/Home
-        public ActionResult Index()
+        public ActionResult Index(string numeroControle = "", string tipo = "", int? statusId = null)
         {
-            var vm = (from a in db.Anomalia
-                      join s in db.StatusAnomalia on a.StatusId equals s.Id
-                      select new AnomaliaViewModel
-                      {
-                          Id = a.Id,
-                          StatusId = a.StatusId,
-                          StatusDescricao = s.Descricao,
-                          Controle = a.Controle,
-                          FornecedorId = a.FornecedorId,
-                          FornecedorNome = (from f in db.Fornecedor
-                                            where f.Id == a.FornecedorId
-                                            select f.Nome).FirstOrDefault(),
-                          Observacoes = a.Observacoes,
-                          CriadoPor = a.CriadoPor,
-                          CriadoEm = a.CriadoEm,
-                          ModificadoPor = a.ModificadoPor,
-                          ModificadoEm = a.ModificadoEm
-                      }).ToList();
-
-            ViewBag.Permissoes = Util.GetPermissoes(ControllerContext.RouteData.Values["controller"].ToString(), ControllerContext.RouteData.DataTokens["area"] as string);
-
+            var vm = new AnomaliaConsultaPageViewModel
+            {
+                NumeroControle = numeroControle,
+                Tipo = tipo,
+                StatusId = statusId,
+                Processos = CriarConsultaService().ConsultarProcessos(numeroControle, tipo, statusId)
+            };
+            ViewBag.Permissoes = Util.GetPermissoes("Processo", "AnomaliaApp");
             return View(vm);
         }
 
         public ActionResult Create()
         {
-            AnomaliaViewModel vm = new AnomaliaViewModel();
-
-            vm._itensAnomalia = new List<AnomaliaItemViewModel>();
-            for (int i = 0; i < 5; i++)
-            {
-                AnomaliaItemViewModel item = new AnomaliaItemViewModel();
-                item.Sequencial = i;
-                vm._itensAnomalia.Add(item);
-            }
-
-            vm._itensDanificado = new List<AnomaliaItemViewModel>();
-            for (int i = 0; i < 10; i++)
-            {
-                AnomaliaItemViewModel item = new AnomaliaItemViewModel();
-                item.Sequencial = i;
-                vm._itensDanificado.Add(item);
-            }
-
-            return View(vm);
+            ViewBag.Permissoes = Util.GetPermissoes("Processo", "AnomaliaApp");
+            return View();
         }
 
-        public ActionResult GetNotaFiscal(string nota, string volume, string item)
+        [HttpGet]
+        public ActionResult PesquisarOcorrenciasItem(string termo)
         {
-            var itens = (from nf in db.NotaFiscal
-                         join i in db.NotaFiscalItem on nf.Id equals i.NotaFiscalId
-                         where (nota == string.Empty || nf.Numero == nota) &&
-                         (volume == string.Empty || i.Volume == volume) &&
-                         (item == string.Empty || i.Item == item) 
-                         orderby nf.Numero, i.Volume, i.Item
-                         select new 
-                           {
-                             NotaFiscalId = i.Id,
-                             NotaFiscal = nf.Numero,
-                             DataEmissao = nf.DataEmissao,
-                             Origem = (from o in db.OrigemNotaFiscal 
-                                       where o.Codigo == nf.Emissor
-                                       select o.Descricao).FirstOrDefault() ?? string.Empty,
-                             NumeroItem = i.Item,
-                             DescricaoItem = (from m in db.Material
-                                              where m.Codigo == i.Item
-                                              select m.Descricao).FirstOrDefault() ?? string.Empty,
-                             NumeroVolume = i.Volume,
-                             Qtd = i.Quantidade,
-                             NumeroPedido = i.Pedido
-                           }).ToList();
+            try
+            {
+                var itens = CriarConsultaService().PesquisarOcorrenciasItem(termo);
+                return Json(new { success = true, data = itens }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
-            JsonResult result = Json(new { data = itens, success = true}, JsonRequestBehavior.AllowGet);
-            result.MaxJsonLength = int.MaxValue;
-            return result;
+        [HttpGet]
+        public ActionResult ObterContextoItem(int notaFiscalItemId, string tipoCodigo)
+        {
+            try
+            {
+                var item = CriarConsultaService().ObterContextoItem(notaFiscalItemId, tipoCodigo);
+                return Json(new { success = true, data = item }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult PesquisarItens(string tipoCodigo, string pesquisarPor, string termo)
+        {
+            try
+            {
+                var itens = CriarConsultaService().PesquisarItens(tipoCodigo, pesquisarPor, termo);
+                return Json(new { success = true, data = itens }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Finalizar(string payload)
+        {
+            try
+            {
+                var request = JsonConvert.DeserializeObject<AnomaliaProcessoCadastroRequest>(payload ?? string.Empty);
+                var result = new AnomaliaService(
+                    db, Util.GetCurrentFilial(), Util.GetCurrentUser(), Util.GetCurrentDateTime())
+                    .Criar(request);
+                return Json(new
+                {
+                    success = true,
+                    message = "Anomalia " + result.NumeroControle + " cadastrada com sucesso.",
+                    id = result.AnomaliaId,
+                    controle = result.NumeroControle
+                });
+            }
+            catch (JsonException)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = "Os dados enviados são inválidos." });
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        public ActionResult Detalhe(int id)
+        {
+            var consulta = CriarConsultaService();
+            var processo = consulta.ConsultarProcessos(string.Empty, string.Empty, null)
+                .FirstOrDefault(x => x.Id == id);
+            if (processo == null) return HttpNotFound();
+
+            return View(new AnomaliaDetalhePageViewModel
+            {
+                Processo = processo,
+                Itens = consulta.ObterItens(id)
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ExportarFormulario(int id)
+        {
+            try
+            {
+                var arquivos = new AnomaliaFormularioGmService(
+                    db,
+                    Util.GetCurrentFilial(),
+                    Util.GetCurrentUser(),
+                    Util.GetCurrentDateTime(),
+                    Server.MapPath("~/App_Data/Templates/Formulario Anomalias GM.xls"))
+                    .Gerar(id);
+
+                return CriarDownload(arquivos);
+            }
+            catch (Exception ex)
+            {
+                TempData["AnomaliaExportacaoErro"] = ex.Message;
+                return RedirectToAction("Detalhe", new { id });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ExportarDanificados(int id)
+        {
+            try
+            {
+                var arquivos = new AnomaliaFormularioGmService(
+                    db,
+                    Util.GetCurrentFilial(),
+                    Util.GetCurrentUser(),
+                    Util.GetCurrentDateTime(),
+                    Server.MapPath("~/App_Data/Templates/Formulario Danificados GM.xls"))
+                    .GerarDanificados(id);
+
+                return CriarDownload(arquivos);
+            }
+            catch (Exception ex)
+            {
+                TempData["AnomaliaExportacaoErro"] = ex.Message;
+                return RedirectToAction("Detalhe", new { id });
+            }
+        }
+
+        private ActionResult CriarDownload(System.Collections.Generic.IList<AnomaliaFormularioArquivo> arquivos)
+        {
+            if (arquivos.Count == 1)
+                return File(arquivos[0].Conteudo, "application/vnd.ms-excel", arquivos[0].NomeArquivo);
+
+            using (var memoria = new MemoryStream())
+            {
+                using (var zip = new ZipArchive(memoria, ZipArchiveMode.Create, true))
+                {
+                    foreach (AnomaliaFormularioArquivo arquivo in arquivos)
+                    {
+                        ZipArchiveEntry entrada = zip.CreateEntry(arquivo.NomeArquivo, CompressionLevel.Optimal);
+                        using (Stream destino = entrada.Open())
+                            destino.Write(arquivo.Conteudo, 0, arquivo.Conteudo.Length);
+                    }
+                }
+
+                string primeiroNome = Path.GetFileNameWithoutExtension(arquivos[0].NomeArquivo);
+                int separadorLote = primeiroNome.LastIndexOf('-');
+                string nomeZip = (separadorLote > 0 ? primeiroNome.Substring(0, separadorLote) : primeiroNome) + ".zip";
+                return File(memoria.ToArray(), "application/zip", nomeZip);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AlterarStatusItem(int anomaliaId, int itemId, int novoStatusId, string observacao)
+        {
+            try
+            {
+                new AnomaliaStatusService(
+                    db, Util.GetCurrentFilial(), Util.GetCurrentUser(), Util.GetCurrentDateTime())
+                    .AlterarStatusItem(anomaliaId, itemId, novoStatusId, observacao);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GerarReenvio(AnomaliaReenvioRequest request)
+        {
+            try
+            {
+                var arquivos = new AnomaliaReenvioService(
+                    db,
+                    Util.GetCurrentFilial(),
+                    Util.GetCurrentUser(),
+                    Util.GetCurrentDateTime(),
+                    new AnomaliaExcelService())
+                    .Gerar(request);
+                return Json(new { success = true, quantidadeArquivos = arquivos.Count });
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        private AnomaliaConsultaService CriarConsultaService()
+        {
+            return new AnomaliaConsultaService(db, Util.GetCurrentFilial(), Util.GetCurrentDateTime());
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-
+            if (disposing) db.Dispose();
             base.Dispose(disposing);
         }
     }

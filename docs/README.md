@@ -15,9 +15,13 @@ Centralizar a documentação funcional, operacional e técnica do WMS Quasar no 
 - [Manual por Tela - Estoque](MANUAL_TELAS_ESTOQUE.md)
 - [Manual por Tela - Separação](MANUAL_TELAS_SEPARACAO.md)
 - [Manual por Tela - Expedição](MANUAL_TELAS_EXPEDICAO.md)
+- [Manual por Tela - Devolução](MANUAL_TELAS_DEVOLUCAO.md)
+- [Manual por Tela - Anomalias](MANUAL_TELAS_ANOMALIAS.md)
+- [Manual por Tela - Cadastros e Administração](MANUAL_TELAS_CADASTROS.md)
 - [Procedimentos de Trabalho e Processos](PROCEDIMENTOS_TRABALHO_E_PROCESSOS.md)
 - [Atualizações Operacionais de 20/07/2026](ATUALIZACOES_20260720.md)
 - [Atualizações Operacionais de 25/08/2026](ATUALIZACOES_20260825.md)
+- [Atualizações Operacionais de 31/08/2026](ATUALIZACOES_20260831.md)
 
 ### Técnica
 
@@ -31,6 +35,9 @@ Centralizar a documentação funcional, operacional e técnica do WMS Quasar no 
 - `sql/20260702_AlocacaoPedidosZona.sql`
 - `sql/20260718_Recebimento_NotaFiscal_Unicidade.sql`
 - `sql/20260718_Conferencia_Volume_Quantidades.sql`
+- `../Simplify.Quasar/Database/Migrations/20260831_AnomaliasGM_Fase1.sql`
+- `../Simplify.Quasar/Database/Migrations/20260831_AnomaliasGM_FormularioValores.sql`
+- `../Simplify.Quasar/Database/Migrations/20260831_AnomaliasGM_Danificados.sql`
 
 Não existe script adicional para os parâmetros de impressão quando `ImprimirDireto`, `ImpressoraPadrao`, `PrinterServerIP` e `PrinterServerPort` já estiverem cadastrados.
 

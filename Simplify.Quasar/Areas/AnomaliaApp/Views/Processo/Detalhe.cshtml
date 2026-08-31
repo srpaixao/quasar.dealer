@@ -1,0 +1,133 @@
+@model Simplify.Quasar.Areas.AnomaliaApp.ViewModels.AnomaliaDetalhePageViewModel
+@using Simplify.Quasar.Areas.AnomaliaApp.Services
+@using System.Linq
+@{
+    ViewBag.Title = "Detalhe da Anomalia";
+    ViewBag.Description = Model.Processo.NumeroControle;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="content-header"><h1>@ViewBag.Title <small>@ViewBag.Description</small></h1></section>
+<section class="content">
+    @Html.AntiForgeryToken()
+    <div class="box box-default">
+        <div class="box-header with-border"><h3 class="box-title"><i class="fa fa-file-text-o text-blue"></i> Processo</h3></div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-3"><strong>Abertura</strong><br />@Model.Processo.DataAbertura.ToString("dd/MM/yyyy HH:mm")</div>
+                <div class="col-md-2"><strong>Status</strong><br /><span class="label @(Model.Processo.EmProcesso > 0 ? "label-warning" : "label-success")">@Model.Processo.StatusDescricao</span></div>
+                <div class="col-md-2"><strong>Itens</strong><br />@Model.Processo.QuantidadeItens</div>
+                <div class="col-md-2"><strong>Em processo</strong><br />@Model.Processo.EmProcesso</div>
+                <div class="col-md-3"><strong>Criado por</strong><br />@Model.Processo.CriadoPor</div>
+            </div>
+        </div>
+    </div>
+    <div class="box box-default">
+        <div class="box-header with-border"><h3 class="box-title"><i class="fa fa-list text-blue"></i> Itens</h3></div>
+        <div class="box-body">
+            <div class="table-responsive"><table class="table table-condensed table-bordered table-hover"><thead><tr><th>Tipo</th><th>NF</th><th>Data NF</th><th>Volume</th><th>Item</th><th>Descrição</th><th>Qtd. NF</th><th>Qtd. reclamada</th><th>Dados da anomalia</th><th>Status</th><th>Limite</th><th>Ações</th></tr></thead><tbody>
+            @foreach (var i in Model.Itens) {
+                <tr>
+                    <td><span class="label label-primary">@i.TipoCodigo</span></td><td>@i.NotaFiscalNr</td><td>@i.DataEmissao.ToString("dd/MM/yyyy")</td><td>@i.VolumeNr</td><td><b>@i.ItemNr</b></td><td>@i.Descricao</td><td>@i.QuantidadeNF</td><td>@i.QuantidadeReclamada</td>
+                    <td>
+                        @if (i.TipoCodigo == "G")
+                        {
+                            <div><strong>Dano:</strong> @i.Observacao</div>
+                            <div><strong>Instalada:</strong> @(i.InstaladoVeiculo == true ? "Sim" : i.InstaladoVeiculo == false ? "Não" : "-")</div>
+                            <div><strong>Embalagem:</strong> @i.CondicaoEmbalagem</div>
+                        }
+                        else
+                        {
+                            @i.Observacao
+                        }
+                    </td>
+                    <td>@i.StatusDescricao</td><td>@i.DataLimite.ToString("dd/MM/yyyy")</td>
+                    <td>@if (i.StatusId == AnomaliaGmStatusIds.EmProcesso) { <button class="btn btn-xs btn-success status" data-item="@i.Id" data-status="2"><i class="fa fa-check"></i> Aceitar</button> <button class="btn btn-xs btn-danger status" data-item="@i.Id" data-status="3"><i class="fa fa-times"></i> Rejeitar</button> }</td>
+                </tr>
+            }
+            </tbody></table></div>
+        </div>
+        <div class="box-footer">
+            @if (Model.Itens.Any(x => x.TipoCodigo == "A" || x.TipoCodigo == "B" || x.TipoCodigo == "C"))
+            {
+                using (Html.BeginForm("ExportarFormulario", "Processo", new { id = Model.Processo.Id }, FormMethod.Post, new { style = "display:inline" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success"><i class="fa fa-file-excel-o"></i> Exportar Formulário GM</button>
+                }
+            }
+            @if (Model.Itens.Any(x => x.TipoCodigo == "G"))
+            {
+                using (Html.BeginForm("ExportarDanificados", "Processo", new { id = Model.Processo.Id }, FormMethod.Post, new { style = "display:inline" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success"><i class="fa fa-file-excel-o"></i> Exportar Danificados</button>
+                }
+            }
+            <a href="@Url.Action("Index")" class="btn btn-default"><i class="fa fa-arrow-left"></i> Voltar</a>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+<script>
+(function () {
+    var token = $('input[name="__RequestVerificationToken"]').val();
+    function msg(texto, icone) {
+        return swal({
+            title: 'Anomalias',
+            text: texto,
+            icon: icone || 'error',
+            button: {
+                text: 'OK',
+                className: 'swal-btn-info'
+            }
+        });
+    }
+    @if (TempData["AnomaliaExportacaoErro"] != null)
+    {
+        <text>msg(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["AnomaliaExportacaoErro"])), 'error');</text>
+    }
+    function falha(xhr) { msg(xhr.responseJSON && xhr.responseJSON.message || 'Não foi possível concluir a operação.'); }
+    $('.status').on('click', function () {
+        var b = $(this), rejeitar = b.data('status') === 3;
+        var campoMotivo;
+
+        if (rejeitar) {
+            campoMotivo = document.createElement('input');
+            campoMotivo.type = 'text';
+            campoMotivo.className = 'form-control';
+            campoMotivo.placeholder = 'Informe o motivo da rejeição';
+            campoMotivo.setAttribute('maxlength', '1000');
+        }
+
+        swal({
+            title: 'Anomalias',
+            text: rejeitar ? 'Informe o motivo para rejeitar este item.' : 'Confirma o aceite deste item?',
+            icon: 'warning',
+            content: rejeitar ? campoMotivo : undefined,
+            buttons: {
+                cancel: {
+                    text: 'Cancelar',
+                    className: 'swal-btn-danger',
+                    closeModal: true,
+                    visible: true
+                },
+                confirm: {
+                    text: 'Confirmar',
+                    className: 'swal-btn-success',
+                    closeModal: true,
+                    visible: true
+                }
+            }
+        })
+            .then(function (valor) {
+                if (valor === null) return;
+                if (rejeitar && !$.trim(valor)) { msg('Informe o motivo da rejeição.', 'warning'); return; }
+                $.post('@Url.Action("AlterarStatusItem")', { __RequestVerificationToken:token, anomaliaId:@Model.Processo.Id, itemId:b.data('item'), novoStatusId:b.data('status'), observacao:rejeitar ? valor : '' })
+                    .done(function () { location.reload(); }).fail(falha);
+            });
+    });
+}());
+</script>
+}

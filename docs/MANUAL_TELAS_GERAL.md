@@ -10,6 +10,9 @@ Consolidar a lista de manuais por tela disponíveis para consulta operacional e 
 - [Manual por Tela - Estoque](MANUAL_TELAS_ESTOQUE.md)
 - [Manual por Tela - Separação](MANUAL_TELAS_SEPARACAO.md)
 - [Manual por Tela - Expedição](MANUAL_TELAS_EXPEDICAO.md)
+- [Manual por Tela - Devolução](MANUAL_TELAS_DEVOLUCAO.md)
+- [Manual por Tela - Anomalias](MANUAL_TELAS_ANOMALIAS.md)
+- [Manual por Tela - Cadastros e Administração](MANUAL_TELAS_CADASTROS.md)
 
 ## Cobertura Atual
 
@@ -19,6 +22,9 @@ Consolidar a lista de manuais por tela disponíveis para consulta operacional e 
 - `Estoque`
 - `Separação`
 - `Expedição`
+- `Devolução`
+- `Anomalias`
+- `Cadastros e Administração`
 
 ### Tipos de tela cobertos
 
@@ -56,3 +62,14 @@ A cobertura passa a registrar também:
 - coleta e transferência por Locação de Espera
 
 Documento consolidado: [ATUALIZAÇÕES_20260825.md](ATUALIZACOES_20260825.md).
+
+## Atualização de 31/08/2026
+
+A cobertura passa a registrar também:
+
+- cadastro, consulta, tratamento e formulários do processo de Anomalias GM;
+- cadastro, consulta e tratamento de processos de Devolução;
+- inventário dos cadastros e controles administrativos;
+- identificação explícita de módulos sem fluxo operacional ativo nesta versão.
+
+Documento consolidado: [ATUALIZAÇÕES_20260831.md](ATUALIZACOES_20260831.md).

@@ -19,6 +19,9 @@ Complementos visuais recomendados:
 - [Manual por Tela - Estoque](MANUAL_TELAS_ESTOQUE.md)
 - [Manual por Tela - Separação](MANUAL_TELAS_SEPARACAO.md)
 - [Manual por Tela - Expedição](MANUAL_TELAS_EXPEDICAO.md)
+- [Manual por Tela - Devolução](MANUAL_TELAS_DEVOLUCAO.md)
+- [Manual por Tela - Anomalias](MANUAL_TELAS_ANOMALIAS.md)
+- [Manual por Tela - Cadastros e Administração](MANUAL_TELAS_CADASTROS.md)
 
 ## Canais de Uso
 
@@ -91,7 +94,48 @@ Principais objetivos:
 - conferir volumes
 - conferir romaneios de separação
 
+### Anomalias
+
+Principais objetivos:
+
+- cadastrar reclamações GM por item, NF e volume
+- controlar prazo e saldo disponível por tipo de anomalia
+- acompanhar itens em processo, aceitos e rejeitados
+- exportar os formulários oficiais GM
+
+### Devolução
+
+Principais objetivos:
+
+- cadastrar processos e itens de devolução
+- consultar e atualizar o andamento
+- tratar ocorrências por item
+- imprimir o documento do processo
+
+### Cadastros e Administração
+
+Principais objetivos:
+
+- manter filiais, parâmetros, áreas, equipamentos, materiais e impressoras
+- administrar usuários, perfis, funções e acessos
+- manter cadastros auxiliares dos módulos operacionais
+
 ## Manual Rápido por Processo
+
+### Anomalias
+
+Fluxo mais comum:
+
+1. abra `Anomalias > Cadastrar Anomalia`;
+2. pesquise pelo número do item;
+3. escolha a NF/volume dentro do prazo e com saldo;
+4. selecione o tipo de anomalia e informe uma quantidade inteira;
+5. preencha os dados específicos do item e clique em `Adicionar`;
+6. repita para os demais itens e finalize o cadastro;
+7. acompanhe o processo em `Consultar Anomalias`;
+8. na tela de detalhes, trate os itens e exporte o formulário correspondente.
+
+Consulte as regras completas em [Manual por Tela - Anomalias](MANUAL_TELAS_ANOMALIAS.md).
 
 ### Recebimento
 

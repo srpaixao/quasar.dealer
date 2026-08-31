@@ -154,7 +154,45 @@ Objetivo: apoiar a etapa operacional de despacho na expedição.
 
 Objetivo: importar o PDF, gerar uma etiqueta por volume novo, imprimir conforme `ImprimirDireto` e manter somente o último lote na grade.
 
-## Observações
+## Anomalias
+
+### Cadastrar Anomalia
+
+Pesquisa o número do item, lista as NFs e volumes elegíveis, calcula prazo e saldo e permite adicionar cada reclamação ao processo.
+
+### Consultar Anomalias
+
+Filtra processos por controle, tipo e status e permite abrir o detalhamento.
+
+### Detalhes do Processo
+
+Permite aceitar ou rejeitar itens e exportar o formulário oficial GM ou o formulário de Danificados.
+
+Consulte [Manual por Tela - Anomalias](MANUAL_TELAS_ANOMALIAS.md).
+
+## Devolução
+
+### Cadastrar Devolução
+
+Registra dados do processo, localiza a NF de venda e inclui os itens devolvidos.
+
+### Consultar Processos
+
+Lista processos, abre os detalhes, permite atualização, impressão e exclusão confirmada.
+
+### Ocorrências
+
+Permite tratar status, quantidade e observação de cada item da ocorrência.
+
+Consulte [Manual por Tela - Devolução](MANUAL_TELAS_DEVOLUCAO.md).
+
+## Cadastros e Administração
+
+Relaciona filiais, parâmetros, áreas, equipamentos, materiais, impressoras, usuários, perfis, funções e cadastros auxiliares.
+
+Consulte [Manual por Tela - Cadastros e Administração](MANUAL_TELAS_CADASTROS.md).
+
+## Observações Gerais
 
 - as capturas refletem o ambiente local de documentação e servem como referência visual de uso
 - os manuais detalhados continuam sendo a fonte principal para regras, validações e passos operacionais

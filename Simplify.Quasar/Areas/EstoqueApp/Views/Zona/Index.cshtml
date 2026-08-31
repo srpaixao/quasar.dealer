@@ -61,7 +61,7 @@
                                         <b>@item.Nome</b>
                                     </a>
                                 </td>
-                                <td>@item.AreaNome</td>
+                                <td>@item.Descricao</td>
                                 <td>@(item.QtdeLinha.HasValue ? item.QtdeLinha.Value.ToString() : "-")</td>
                                 <td>@(item.ValorPedido.HasValue ? item.ValorPedido.Value.ToString("N2") : "-")</td>
                                 <td>@(item.QtdeCliente.HasValue ? item.QtdeCliente.Value.ToString() : "-")</td>
@@ -159,21 +159,50 @@
             });
 
             function bindForm(dialog) {
-                $('form', dialog).submit(function () {
+                var $form = $('form.js-zona-form', dialog).first();
+                $form.off('submit.zona').on('submit.zona', function (event) {
+                    event.preventDefault();
+
+                    var form = this;
+                    var $button = $(form).find('.js-zona-submit');
+                    if ($button.prop('disabled')) {
+                        return false;
+                    }
+
+                    $button.prop('disabled', true);
                     $.ajax({
-                        url: this.action,
-                        type: this.method,
-                        data: $(this).serialize(),
-                        success: function (result) {
+                        url: form.action,
+                        type: form.method || 'POST',
+                        data: $(form).serialize()
+                    }).done(function (result) {
                             if (result.success) {
                                 $('#myModal').modal('hide');
                                 location.reload();
+                            } else if (result && result.message) {
+                                swal({
+                                    title: 'Cadastro de Zonas',
+                                    text: result.message,
+                                    icon: 'error',
+                                    button: { text: 'OK', className: 'swal-btn-info' }
+                                });
                             } else {
                                 $('#myModalContent').html(result);
                                 initZonaFlags($('#myModalContent'));
                                 bindForm($('#myModalContent'));
                             }
+                    }).fail(function (xhr) {
+                        var mensagem = 'Não foi possível salvar a zona.';
+                        if (xhr.status) {
+                            mensagem += ' Erro HTTP ' + xhr.status + '.';
                         }
+                        swal({
+                            title: 'Cadastro de Zonas',
+                            text: mensagem,
+                            icon: 'error',
+                            button: { text: 'OK', className: 'swal-btn-info' }
+                        });
+                    }).always(function () {
+                        $button.prop('disabled', false);
                     });
                     return false;
                 });

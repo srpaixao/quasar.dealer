@@ -1,0 +1,51 @@
+<h1 id="manual-por-tela-devolucao">Manual por Tela - Devolução</h1>
+<h2 id="objetivo">Objetivo</h2>
+<p>Orientar o cadastro, a consulta e o tratamento de processos de devolução no Quasar Dealer.</p>
+<h2 id="tela-01-cadastrar-devolucao">Tela 01. Cadastrar Devolução</h2>
+<ol>
+<li>Selecione o tipo de movimento, a necessidade de retirada, o status e o motivo.</li>
+<li>Informe a NF de venda e clique em <code>Buscar</code> para carregar cliente, data da venda e vendedor.</li>
+<li>Informe a NF de devolução, sinistro, placa e transportadora quando aplicável.</li>
+<li>Preencha as observações gerais.</li>
+<li>Localize o material, informe quantidade inteira, valor unitário e observação do item.</li>
+<li>Clique em <code>Adicionar</code> e confira o item na grade.</li>
+<li>Repita a inclusão para os demais itens.</li>
+<li>Clique em <code>Salvar Devolução</code>.</li>
+</ol>
+<p>O sistema gera um número de controle para o processo. Após salvar, a opção de impressão fica disponível.</p>
+<h2 id="tela-02-consultar-processos">Tela 02. Consultar Processos</h2>
+<p>A consulta lista o número de controle, cliente, transportadora, status e data/hora do cadastro.</p>
+<p>Clique no número de controle para abrir os detalhes. Na tela de detalhes é possível atualizar status, movimento, retirada, transportadora, motivo, NF de devolução e observações, conforme o perfil de acesso.</p>
+<p>Também estão disponíveis as ações:</p>
+<ul>
+<li><code>Imprimir</code>: abre o documento do processo;</li>
+<li><code>Salvar</code>: grava as alterações;</li>
+<li><code>Excluir</code>: solicita confirmação antes de excluir o processo.</li>
+</ul>
+<h2 id="tela-03-ocorrencias">Tela 03. Ocorrências</h2>
+<p>A lista de ocorrências apresenta controle, nota fiscal, emissor, quantidade de linhas, quantidade de peças e última atualização.</p>
+<p>Ao abrir uma ocorrência:</p>
+<ol>
+<li>confira os dados da devolução;</li>
+<li>selecione o novo status de cada item;</li>
+<li>informe a quantidade tratada;</li>
+<li>registre a observação do tratamento;</li>
+<li>salve as alterações.</li>
+</ol>
+<h2 id="validacoes-principais">Validações principais</h2>
+<ul>
+<li>a filial ativa define os dados disponíveis;</li>
+<li>a NF de venda precisa ser localizada antes do cadastro;</li>
+<li>quantidade deve ser inteira e maior que zero;</li>
+<li>campos obrigatórios são validados antes de salvar;</li>
+<li>a exclusão exige confirmação explícita;</li>
+<li>alterações de ocorrência devem manter quantidade tratada dentro da quantidade registrada.</li>
+</ul>
+<h2 id="boas-praticas">Boas práticas</h2>
+<ul>
+<li>confira cliente, NF e filial antes de adicionar itens;</li>
+<li>não misture itens de processos diferentes;</li>
+<li>registre observações objetivas;</li>
+<li>atualize o status sempre que houver avanço operacional;</li>
+<li>imprima o processo somente após revisar os dados salvos.</li>
+</ul>

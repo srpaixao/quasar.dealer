@@ -15,7 +15,10 @@ const pages = [
   { slug: 'recebimento', source: 'MANUAL_TELAS_RECEBIMENTO.md' },
   { slug: 'estoque', source: 'MANUAL_TELAS_ESTOQUE.md' },
   { slug: 'separacao', source: 'MANUAL_TELAS_SEPARACAO.md' },
-  { slug: 'expedicao', source: 'MANUAL_TELAS_EXPEDICAO.md' }
+  { slug: 'expedicao', source: 'MANUAL_TELAS_EXPEDICAO.md' },
+  { slug: 'devolucao', source: 'MANUAL_TELAS_DEVOLUCAO.md' },
+  { slug: 'anomalias', source: 'MANUAL_TELAS_ANOMALIAS.md' },
+  { slug: 'cadastros', source: 'MANUAL_TELAS_CADASTROS.md' }
 ];
 
 const pageBySource = new Map(pages.map(page => [page.source.toLowerCase(), page.slug]));

@@ -2,6 +2,19 @@
 
 Sistema web de gestão de peças, estoque e operação de concessionárias.
 
+## Atualizações preparadas em 31/08/2026
+
+O repositório inclui o novo módulo de Anomalias GM, ainda sem implantação em produção:
+
+- cadastro por item, NF e volume;
+- tipos A, B, C e G definidos por item;
+- controle transacional de prazo e saldo;
+- consulta, aceite e rejeição dos itens;
+- card de pendências no dashboard;
+- formulários oficiais de Anomalias e Danificados;
+- scripts SQL, menu e documentação de implantação;
+- Manual do Quasar atualizado com processos operacionais e cadastros.
+
 ## Versões da Entrega de 25/08/2026
 
 - Web MVC: `1.0.8.0`

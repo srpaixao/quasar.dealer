@@ -1,5 +1,6 @@
 ﻿using System.Web.Mvc;
 using System.Linq;
+using System.Data.SqlClient;
 using Simplify.Quasar.Models;
 using Simplify.Quasar.Custom;
 
@@ -35,6 +36,30 @@ namespace Simplify.Quasar.Controllers
             ViewBag.DevolucoesPendentes = statusPendenteDevolucaoId == 0
                 ? 0
                 : db.Devolucao.Count(x => x.FilialId == filialid && x.StatusId == statusPendenteDevolucaoId);
+            ViewBag.ItensAnomaliasPendentes = db.Database.SqlQuery<int>(@"
+IF OBJECT_ID('dbo.AnomaliaGmItem', 'U') IS NULL
+   OR OBJECT_ID('dbo.AnomaliaGmProcesso', 'U') IS NULL
+   OR OBJECT_ID('dbo.AnomaliaGmStatus', 'U') IS NULL
+BEGIN
+    SELECT 0;
+END
+ELSE
+BEGIN
+    EXEC sys.sp_executesql N'
+        SELECT COUNT(*)
+        FROM dbo.AnomaliaGmItem item
+        INNER JOIN dbo.AnomaliaGmProcesso processo ON processo.Id = item.AnomaliaId
+        INNER JOIN dbo.AnomaliaGmStatus status ON status.Id = item.StatusId
+        WHERE item.FilialId = @filialId
+          AND processo.FilialId = @filialId
+          AND item.Cancelado = 0
+          AND processo.Cancelado = 0
+          AND processo.Ativo = 1
+          AND status.Codigo = ''EM_PROCESSO'';',
+        N'@filialId int',
+        @filialId;
+END",
+                new SqlParameter("@filialId", filialid)).Single();
             return View(); 
         }
 

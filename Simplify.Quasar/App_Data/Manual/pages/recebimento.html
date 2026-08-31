@@ -1,0 +1,435 @@
+<h1 id="manual-por-tela-recebimento">Manual por Tela - Recebimento</h1>
+<h2 id="objetivo">Objetivo</h2>
+<p>Documentar as telas operacionais do módulo <code>Recebimento</code> no coletor, com orientação prática de uso, campos, botões e validações.</p>
+<h2 id="telas-cobertas">Telas Cobertas</h2>
+<ul>
+<li>menu de <code>Recebimento</code></li>
+<li><code>Descarregar</code></li>
+<li><code>Armazenar</code></li>
+<li><code>Conferir</code></li>
+</ul>
+<hr>
+<h2 id="tela-01-menu-recebimento">Tela 01. Menu Recebimento</h2>
+<h3 id="captura-sugerida">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-recebimento/01-menu-recebimento.png" loading="lazy" alt="Menu Recebimento"></p>
+<h3 id="objetivo-2">Objetivo</h3>
+<p>Servir como menu de entrada para os fluxos de recebimento no coletor.</p>
+<h3 id="acesso">Acesso</h3>
+<ol>
+<li>Entrar no coletor.</li>
+<li>Selecionar <code>Recebimento</code> no menu principal.</li>
+</ol>
+<h3 id="itens-da-tela">Itens da Tela</h3>
+<table>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Tipo</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Descarregar</code></td>
+<td>Botão</td>
+<td>Abre o fluxo de descarregamento</td>
+</tr>
+<tr>
+<td><code>Armazenar</code></td>
+<td>Botão</td>
+<td>Abre o fluxo de armazenagem</td>
+</tr>
+<tr>
+<td><code>Home</code></td>
+<td>Botão inferior</td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Botão inferior</td>
+<td>Encerra a sessao</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-02-descarregar">Tela 02. Descarregar</h2>
+<h3 id="captura-sugerida-2">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-recebimento/02-descarregar.png" loading="lazy" alt="Descarregar"></p>
+<h3 id="objetivo-3">Objetivo</h3>
+<p>Registrar a leitura de volumes no recebimento por área e acompanhar contadores operacionais.</p>
+<h3 id="acesso-2">Acesso</h3>
+<ol>
+<li>Abrir <code>Recebimento</code>.</li>
+<li>Selecionar <code>Descarregar</code>.</li>
+</ol>
+<h3 id="campos">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Área</code></td>
+<td>Lista</td>
+<td>Sim</td>
+<td>Área operacional do descarregamento</td>
+<td>Selecionar a área antes da leitura dos volumes</td>
+</tr>
+<tr>
+<td><code>Volume NR</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Código do volume a ser processado</td>
+<td>Ler o barcode ou habilitar o teclado pelo ícone para digitar</td>
+</tr>
+</tbody></table>
+<h3 id="indicadores">Indicadores</h3>
+<table>
+<thead>
+<tr>
+<th>Indicador</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Pendentes</code></td>
+<td>Volumes ainda não conferidos; toque no card para listar somente os números pendentes</td>
+</tr>
+<tr>
+<td><code>Conferidos</code></td>
+<td>Volumes já processados corretamente</td>
+</tr>
+<tr>
+<td><code>Total</code></td>
+<td>Total da área selecionada</td>
+</tr>
+<tr>
+<td><code>Incorretos</code></td>
+<td>Volumes invalidados ou processados com divergência</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ícone <code>Teclado</code></td>
+<td>Habilita ou desabilita o teclado virtual para digitação manual</td>
+</tr>
+<tr>
+<td>Card <code>Pendentes</code></td>
+<td>Consulta novamente a área e abre a lista dos números de volumes pendentes</td>
+</tr>
+<tr>
+<td><code>Atualizar</code> na lista</td>
+<td>Recarrega os pendentes da área selecionada</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Retorna ao menu de recebimento</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao</td>
+</tr>
+<tr>
+<td><code>Fechar</code> no popup</td>
+<td>Fecha a mensagem apresentada</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar">Como Operar</h3>
+<ol>
+<li>Selecionar a <code>Área</code>.</li>
+<li>Aguardar habilitacao do campo <code>Volume NR</code>.</li>
+<li>Ler o volume; o leitor deve enviar <code>Enter</code> ou <code>Tab</code> ao final do código.</li>
+<li>Para digitação manual, tocar no ícone de teclado e confirmar pelo teclado virtual.</li>
+<li>Tocar em <code>Pendentes</code> quando precisar identificar os volumes ainda não lidos.</li>
+<li>Repetir o processo conforme necessidade e acompanhar os contadores.</li>
+</ol>
+<h3 id="validacoes-e-comportamentos">Validações e Comportamentos</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Área não selecionada</td>
+<td>Campo de volume permanece desabilitado</td>
+</tr>
+<tr>
+<td>Foco no campo de volume</td>
+<td>O teclado virtual permanece oculto, mas o leitor físico continua habilitado</td>
+</tr>
+<tr>
+<td>Leitor sem terminador</td>
+<td>O código é preenchido, mas não é processado até o envio de <code>Enter</code> ou <code>Tab</code></td>
+</tr>
+<tr>
+<td>Card <code>Pendentes</code> acionado</td>
+<td>Abre uma lista rolável contendo somente <code>VolumeNr</code> com status pendente</td>
+</tr>
+<tr>
+<td>Falha ao carregar áreas</td>
+<td>Popup de erro</td>
+</tr>
+<tr>
+<td>Falha no processamento do volume</td>
+<td>Popup de erro</td>
+</tr>
+<tr>
+<td>Leitura finaliza um contexto</td>
+<td>O sistema pode exibir mensagem informativa</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-03-armazenar">Tela 03. Armazenar</h2>
+<h3 id="captura-sugerida-3">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-recebimento/03-armazenar.png" loading="lazy" alt="Armazenar"></p>
+<h3 id="objetivo-4">Objetivo</h3>
+<p>Validar material, conferir a locação e registrar a armazenagem efetiva do item.</p>
+<h3 id="acesso-3">Acesso</h3>
+<ol>
+<li>Abrir <code>Recebimento</code>.</li>
+<li>Selecionar <code>Armazenar</code>.</li>
+</ol>
+<h3 id="campos-2">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Item</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Código do item a armazenar</td>
+<td>Informar o item e sair do campo para validar</td>
+</tr>
+<tr>
+<td><code>Descrição</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Descrição retornada pelo sistema</td>
+<td>Conferir se corresponde ao item</td>
+</tr>
+<tr>
+<td><code>Locação</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Locação esperada para armazenagem</td>
+<td>Usar como referência da conferência</td>
+</tr>
+<tr>
+<td><code>Confirmar Locação</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Confirmação da locação física</td>
+<td>Informar exatamente a locação esperada</td>
+</tr>
+<tr>
+<td><code>Quantidade</code></td>
+<td>Número</td>
+<td>Sim</td>
+<td>Quantidade a armazenar</td>
+<td>Informar quantidade válida e confirmar</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes-2">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Confirmar</code></td>
+<td>Executa a armazenagem do item</td>
+</tr>
+<tr>
+<td><code>Reiniciar</code></td>
+<td>Limpa o formulário</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Retorna ao menu de recebimento</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao</td>
+</tr>
+<tr>
+<td><code>Fechar</code> no popup</td>
+<td>Fecha a mensagem de validação</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar-2">Como Operar</h3>
+<ol>
+<li>Informar o <code>Item</code>.</li>
+<li>Conferir <code>Descrição</code> e <code>Locação</code>.</li>
+<li>Preencher <code>Confirmar Locação</code>.</li>
+<li>Informar a <code>Quantidade</code>.</li>
+<li>Clicar em <code>Confirmar</code>.</li>
+</ol>
+<h3 id="regras-e-validacoes">Regras e Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Item sem locação cadastrada</td>
+<td>Popup informando a ausencia de locação</td>
+</tr>
+<tr>
+<td>Falha ao buscar item</td>
+<td>Popup de erro</td>
+</tr>
+<tr>
+<td>Locação divergente</td>
+<td>Popup informando locação incorreta e gravação de histórico</td>
+</tr>
+<tr>
+<td>Quantidade não numerica, nula ou menor que 1</td>
+<td>Bloqueio da confirmação</td>
+</tr>
+<tr>
+<td>Quantidade maior que a disponível</td>
+<td>Popup informando excesso e gravação de histórico</td>
+</tr>
+<tr>
+<td>Armazenagem concluída</td>
+<td>Item e histórico são gravados e o formulário é reiniciado</td>
+</tr>
+</tbody></table>
+<h3 id="observacoes-operacionais">Observações Operacionais</h3>
+<ul>
+<li>a tela grava histórico tanto para sucesso quanto para erro</li>
+<li>o usuário logado é usado como responsável pela operação</li>
+</ul>
+<hr>
+<h2 id="tela-04-conferir">Tela 04. Conferir</h2>
+<h3 id="captura-sugerida-4">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-recebimento/04-conferir-recebimento.png" loading="lazy" alt="Conferir Recebimento"></p>
+<h3 id="objetivo-5">Objetivo</h3>
+<p>Conferir quantitativamente os itens de um volume, registrar o operador e tratar divergências entre a quantidade faturada e a quantidade recebida.</p>
+<h3 id="campos-e-informacoes">Campos e Informações</h3>
+<table>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Finalidade</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Volume</code></td>
+<td>Localiza o volume na filial do usuário</td>
+</tr>
+<tr>
+<td><code>Qtde NF</code></td>
+<td>Quantidade faturada do item</td>
+</tr>
+<tr>
+<td><code>Qtde Conferida</code></td>
+<td>Quantidade física informada pelo operador</td>
+</tr>
+<tr>
+<td><code>Diferença</code></td>
+<td>Resultado entre quantidade conferida e faturada</td>
+</tr>
+<tr>
+<td><code>Qtde Armazenada</code></td>
+<td>Quantidade já armazenada</td>
+</tr>
+<tr>
+<td><code>Conferido</code></td>
+<td>Confirma a intenção de finalizar o item</td>
+</tr>
+<tr>
+<td>Alerta <code>ITEM CRÍTICO</code></td>
+<td>Destaca material crítico e sua observação</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar-3">Como Operar</h3>
+<ol>
+<li>Informar ou ler o volume e tocar em <code>Localizar</code>.</li>
+<li>Conferir os dados do primeiro item pendente.</li>
+<li>Informar a <code>Qtde Conferida</code>.</li>
+<li>Marcar <code>Conferido</code>.</li>
+<li>Tocar em <code>Confirmar</code>.</li>
+<li>Em caso de diferença, confirmar explicitamente a conferência a maior ou a menor.</li>
+<li>Repetir até a finalização do volume.</li>
+</ol>
+<h3 id="regras">Regras</h3>
+<ul>
+<li>quantidade negativa não é aceita</li>
+<li>divergência exige confirmação adicional</li>
+<li>item alterado por outro operador é recarregado e não é sobrescrito silenciosamente</li>
+<li>item já conferido por outro usuário não pode ser alterado</li>
+<li>ao concluir todos os itens, o sistema informa a finalização do volume</li>
+</ul>
+<hr>
+<h2 id="tela-web-conferencia-de-volumes">Tela Web. Conferência de Volumes</h2>
+<h3 id="objetivo-6">Objetivo</h3>
+<p>Pesquisar um volume e confirmar a quantidade recebida de cada item.</p>
+<h3 id="comportamento">Comportamento</h3>
+<ul>
+<li>O botão <code>Confirmar</code> substitui o flag visual de conferência.</li>
+<li>A tela não exibe quantidade armazenada.</li>
+<li>Depois que todos os itens forem confirmados, a grade e o volume pesquisado são limpos.</li>
+<li>O foco retorna ao campo <code>Volume Nr</code> para uma nova consulta.</li>
+<li>Quantidade, usuário e data/hora da conferência ficam registrados.</li>
+</ul>
+<h2 id="tela-web-consulta-por-volume-nr">Tela Web. Consulta por Volume Nr</h2>
+<h3 id="colunas">Colunas</h3>
+<p><code>Nota Fiscal</code>, <code>Item Nr</code>, <code>Descricao</code>, <code>Faturado</code>, <code>Conferido</code>, <code>Conferente</code>, <code>Diferenca</code>, <code>Armazenado</code>, <code>Estoquista</code> e <code>Status</code>.</p>
+<ul>
+<li>Conferente e data/hora aparecem juntos.</li>
+<li>Estoquista e data/hora aparecem juntos.</li>
+<li>Diferença diferente de zero aparece em vermelho.</li>
+<li>Pedido, observação e auditoria genérica não aparecem na grade.</li>
+</ul>
+<h2 id="regras-de-nota-fiscal-e-devolucao">Regras de Nota Fiscal e Devolução</h2>
+<ul>
+<li>Fora de devolução, a NF é única por filial, movimento e número.</li>
+<li>Devoluções podem repetir NF e itens.</li>
+<li>A exclusão de devolução exige confirmação padrão e remove processo, itens e complementos.</li>
+</ul>
+<h2 id="tela-web-historico-de-recebimento">Tela Web. Histórico de Recebimento</h2>
+<ul>
+<li>A coluna <code>Data / Hora</code> usa o valor local persistido em <code>HistoricoRecebimento.DataHora</code>.</li>
+<li>A resposta do servidor já envia <code>dd/MM/yyyy HH:mm:ss</code>; o navegador não aplica conversao de fuso.</li>
+<li>A mesma regra de formatação no servidor é usada nas grades de Pendências, Conferência de Volumes, Recebimento ADM e Trânsito.</li>
+<li>A grade solicita somente a página atual ao servidor; pesquisa, total filtrado e ordenação são processados no banco.</li>
+<li>O intervalo consultado é definido por <code>AppConfig.PeriodoRecebimento</code>.</li>
+</ul>
+<h2 id="observacoes-do-modulo">Observações do Módulo</h2>
+<ul>
+<li><code>Recebimento</code> possui fluxos operacionais documentados para <code>Descarregar</code>, <code>Conferir</code> e <code>Armazenar</code></li>
+<li>as telas Web de conferência e consulta por volume seguem as regras quantitativas descritas neste manual</li>
+<li>as melhorias entregues em 25/08/2026 estão consolidadas em <a class="manual-unavailable" title="Conteúdo técnico não publicado no manual operacional">Atualizações Operacionais</a></li>
+</ul>

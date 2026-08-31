@@ -38,6 +38,19 @@ Os modulos atuais mapeados em `Simplify.Quasar/Areas` sao:
 
 ## Destaques Funcionais
 
+### Anomalias GM
+
+O módulo `AnomaliaApp` permite:
+
+- localizar todas as NFs e volumes de um item na filial ativa;
+- cadastrar tipos A, B, C e G por item;
+- controlar prazo e saldo reclamável de forma transacional;
+- acompanhar aceite e rejeição dos itens;
+- exportar os formulários oficiais de Anomalias e Danificados;
+- visualizar no dashboard a quantidade de itens pendentes.
+
+Os modelos `.xls` oficiais ficam em `Simplify.Quasar/App_Data/Templates`. A implantação do módulo exige os scripts `20260831_AnomaliasGM_*` antes da publicação da aplicação.
+
 ### Expedicao
 
 O modulo de expedicao concentra, entre outros, os fluxos de:
@@ -72,13 +85,17 @@ Esses ajustes sao disparados em `Global.asax.cs` e ajudam a manter o `AppMenu` c
 
 ## Documentacao Relacionada
 
-- [Indice de Documentacao](../docs/README.md)
-- [Manual de Utilizacao](../docs/MANUAL_UTILIZACAO.md)
-- [Procedimentos de Trabalho e Processos](../docs/PROCEDIMENTOS_TRABALHO_E_PROCESSOS.md)
-- [Arquitetura e Integracoes](../docs/ARQUITETURA_E_INTEGRACOES.md)
-- [Guia de Desenvolvimento e Execucao](../docs/GUIA_DESENVOLVIMENTO.md)
-- [Atualizacoes Operacionais de 20/07/2026](../docs/ATUALIZACOES_20260720.md)
-- [Atualizações Operacionais de 25/08/2026](../docs/ATUALIZACOES_20260825.md)
+- [Indice de Documentacao](docs/README.md)
+- [Manual de Utilizacao](docs/MANUAL_UTILIZACAO.md)
+- [Procedimentos de Trabalho e Processos](docs/PROCEDIMENTOS_TRABALHO_E_PROCESSOS.md)
+- [Arquitetura e Integracoes](docs/ARQUITETURA_E_INTEGRACOES.md)
+- [Guia de Desenvolvimento e Execucao](docs/GUIA_DESENVOLVIMENTO.md)
+- [Atualizacoes Operacionais de 20/07/2026](docs/ATUALIZACOES_20260720.md)
+- [Atualizações Operacionais de 25/08/2026](docs/ATUALIZACOES_20260825.md)
+- [Manual por Tela - Anomalias](docs/MANUAL_TELAS_ANOMALIAS.md)
+- [Manual por Tela - Devolução](docs/MANUAL_TELAS_DEVOLUCAO.md)
+- [Manual por Tela - Cadastros e Administração](docs/MANUAL_TELAS_CADASTROS.md)
+- [Atualizações Operacionais de 31/08/2026](docs/ATUALIZACOES_20260831.md)
 
 ## Integração Operacional Atual
 
@@ -122,6 +139,7 @@ web/
 |   `-- Global.asax.cs
 |-- docs/
 |   |-- MANUAL_UTILIZACAO.md
+|   |-- MANUAL_TELAS_ANOMALIAS.md
 |   |-- PROCEDIMENTOS_TRABALHO_E_PROCESSOS.md
 |   |-- ARQUITETURA_E_INTEGRACOES.md
 |   |-- GUIA_DESENVOLVIMENTO.md

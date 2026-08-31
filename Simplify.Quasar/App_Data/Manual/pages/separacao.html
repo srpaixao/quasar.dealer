@@ -1,0 +1,187 @@
+<h1 id="manual-por-tela-separacao">Manual por Tela - Separação</h1>
+<h2 id="objetivo">Objetivo</h2>
+<p>Documentar a tela operacional de <code>Separação</code> no coletor, incluindo ownership de tarefa, validação de locação e conclusão de linhas.</p>
+<h2 id="tela-01-separacao">Tela 01. Separação</h2>
+<h3 id="capturas-sugeridas">Capturas Sugeridas</h3>
+<p><img src="__MANUAL_ASSET__manual-separacao/01-separacao-zona.png" loading="lazy" alt="Separação - Zona"></p>
+<p><img src="__MANUAL_ASSET__manual-separacao/02-separacao-linha-atual.png" loading="lazy" alt="Separação - Linha Atual"></p>
+<p><img src="__MANUAL_ASSET__manual-separacao/03-separacao-finalizada.png" loading="lazy" alt="Separação - Finalizada"></p>
+<h3 id="objetivo-2">Objetivo</h3>
+<p>Permitir ao operador assumir uma tarefa por zona e executá-la linha a linha.</p>
+<h3 id="acesso">Acesso</h3>
+<ol>
+<li>Entrar no coletor.</li>
+<li>Selecionar <code>Separação</code>.</li>
+</ol>
+<h3 id="estrutura-da-tela">Estrutura da Tela</h3>
+<p>Blocos principais:</p>
+<ul>
+<li>seleção da zona</li>
+<li>inicio da separação</li>
+<li>linha atual da tarefa</li>
+<li>confirmação de locação</li>
+<li>confirmação de quantidade</li>
+<li>botões de ação</li>
+</ul>
+<h3 id="campos">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Zona</code></td>
+<td>Lista/autocomplete</td>
+<td>Sim</td>
+<td>Zona com tarefas pendentes</td>
+<td>Selecionar a zona antes de iniciar</td>
+</tr>
+<tr>
+<td><code>Item Nr</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Item atual da linha</td>
+<td>Consultar referência</td>
+</tr>
+<tr>
+<td><code>Descrição</code></td>
+<td>Somente leitura</td>
+<td>Não</td>
+<td>Descrição do item atual</td>
+<td>Consultar referência</td>
+</tr>
+<tr>
+<td><code>Confirmar locação</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Confirmação da locação da linha</td>
+<td>Informar a locação lida</td>
+</tr>
+<tr>
+<td><code>Quantidade separada</code></td>
+<td>Número</td>
+<td>Sim</td>
+<td>Quantidade efetivamente separada</td>
+<td>Informar a quantidade a confirmar</td>
+</tr>
+</tbody></table>
+<h3 id="informacoes-de-destaque">Informações de Destaque</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Locação</code> em destaque</td>
+<td>Locação esperada para a linha atual</td>
+</tr>
+<tr>
+<td><code>Qtde</code> em destaque</td>
+<td>Quantidade pendente da linha atual</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Iniciar separação</code></td>
+<td>Assume a próxima tarefa disponível da zona</td>
+</tr>
+<tr>
+<td><code>Confirmar</code></td>
+<td>Confirma a linha atual</td>
+</tr>
+<tr>
+<td><code>Passby</code></td>
+<td>Pula a linha atual e busca a próxima</td>
+</tr>
+<tr>
+<td><code>Buscar nova tarefa</code></td>
+<td>Inicia nova tarefa após conclusão</td>
+</tr>
+<tr>
+<td><code>Trocar zona</code></td>
+<td>Limpa o contexto e permite escolher outra zona</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Libera a tarefa e sai da tela, quando aplicável</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar">Como Operar</h3>
+<ol>
+<li>Selecionar a <code>Zona</code>.</li>
+<li>Clicar em <code>Iniciar separação</code>.</li>
+<li>Conferir a <code>Locação</code>, <code>Qtde</code>, <code>Item Nr</code> e <code>Descrição</code>.</li>
+<li>Informar <code>Confirmar locação</code>.</li>
+<li>Informar <code>Quantidade separada</code>.</li>
+<li>Clicar em <code>Confirmar</code>.</li>
+<li>Repetir para as proximas linhas.</li>
+</ol>
+<h3 id="regras-e-validacoes">Regras e Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nenhuma zona selecionada</td>
+<td>O sistema bloqueia o inicio</td>
+</tr>
+<tr>
+<td>Falha ao carregar zonas</td>
+<td>Popup de erro</td>
+</tr>
+<tr>
+<td>Nenhuma tarefa disponível</td>
+<td>Popup informativo</td>
+</tr>
+<tr>
+<td>Locação diferente da tarefa</td>
+<td>Popup informando divergência</td>
+</tr>
+<tr>
+<td>Quantidade nula, zero ou invalida</td>
+<td>Popup solicitando quantidade válida</td>
+</tr>
+<tr>
+<td>Passby da linha</td>
+<td>O sistema busca a próxima linha</td>
+</tr>
+<tr>
+<td>Tarefa finalizada</td>
+<td>Exibe mensagem de sucesso</td>
+</tr>
+<tr>
+<td>Saida com tarefa em andamento</td>
+<td>O sistema tenta liberar a tarefa</td>
+</tr>
+</tbody></table>
+<h3 id="ownership-e-concorrencia">Ownership e Concorrência</h3>
+<ul>
+<li>a tarefa assumida fica vinculada ao usuário</li>
+<li>ao sair da tela, o sistema tenta liberar a tarefa</li>
+<li>o ownership evita conflito operacional entre usuários</li>
+</ul>

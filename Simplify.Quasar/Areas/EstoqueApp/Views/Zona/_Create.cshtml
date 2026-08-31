@@ -5,7 +5,7 @@
 
 @if (ViewBag.Exception == null)
 {
-    using (Html.BeginForm())
+    using (Html.BeginForm("Create", "Zona", new { area = "EstoqueApp" }, FormMethod.Post, new { @class = "js-zona-form" }))
     {
         @Html.AntiForgeryToken()
         <div class="modal-header bg-blue-gradient">
@@ -25,6 +25,7 @@
                     <div class="form-group">
                         <label>&Aacute;rea</label>
                         @Html.DropDownListFor(m => m.AreaId, Model.AreaDDL, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.AreaId, null, new { @class = "text-red" })
                     </div>
                 </div>
             </div>
@@ -74,7 +75,7 @@
         </div>
 
         <div class="modal-footer">
-            <button type="submit" class="btn btn-success"><i class="fa fa-check fa-fw"></i> Salvar</button>
+            <button type="submit" class="btn btn-success js-zona-submit"><i class="fa fa-check fa-fw"></i> Salvar</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times fa-fw"></i> Fechar</button>
         </div>
     }

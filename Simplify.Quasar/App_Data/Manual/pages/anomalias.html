@@ -1,0 +1,186 @@
+<h1 id="manual-por-tela-anomalias">Manual por Tela - Anomalias</h1>
+<h2 id="objetivo">Objetivo</h2>
+<p>Orientar o cadastro, a consulta e o acompanhamento de reclamações de peças GM no módulo <code>Anomalias</code> do Quasar Dealer.</p>
+<p>O processo é sempre realizado na filial ativa. Cada item de uma mesma nota fiscal pode possuir um tipo de anomalia diferente.</p>
+<h2 id="acesso">Acesso</h2>
+<p>No menu principal, abra <code>Anomalias</code> e escolha uma das opções:</p>
+<ul>
+<li><code>Cadastrar Anomalia</code>: inicia um novo processo;</li>
+<li><code>Consultar Anomalias</code>: pesquisa processos já cadastrados.</li>
+</ul>
+<p>O dashboard também apresenta o card <code>Anomalias</code>, com a quantidade de itens que ainda estão em processo.</p>
+<hr>
+<h2 id="tela-01-cadastrar-anomalia">Tela 01. Cadastrar Anomalia</h2>
+<h3 id="localizar-o-item-faturado">Localizar o item faturado</h3>
+<ol>
+<li>Informe o número do item GM no campo de pesquisa.</li>
+<li>Clique em <code>Pesquisar</code>.</li>
+<li>O sistema exibirá todas as combinações de NF e volume relacionadas ao item na filial atual.</li>
+<li>Analise a quantidade faturada, o saldo disponível e a situação do prazo.</li>
+<li>Clique em <code>Selecionar</code> na NF/volume que deseja reclamar.</li>
+</ol>
+<p>As ocorrências são apresentadas do menor prazo limite para o maior. O sistema mantém visíveis também as NFs sem saldo ou fora do prazo, identificando o motivo pelo qual não podem ser utilizadas.</p>
+<h3 id="informacoes-da-lista-de-ocorrencias">Informações da lista de ocorrências</h3>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>O que representa</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NF</code></td>
+<td>Número da nota fiscal GM</td>
+</tr>
+<tr>
+<td><code>Data emissão</code></td>
+<td>Data utilizada para calcular o prazo da reclamação</td>
+</tr>
+<tr>
+<td><code>Volume</code></td>
+<td>Volume de recebimento relacionado ao item</td>
+</tr>
+<tr>
+<td><code>Quantidade NF</code></td>
+<td>Quantidade faturada do item</td>
+</tr>
+<tr>
+<td><code>Saldo disponível</code></td>
+<td>Quantidade ainda disponível para reclamação</td>
+</tr>
+<tr>
+<td><code>Prazo / situação</code></td>
+<td>Data limite e indicação de NF dentro ou fora do prazo</td>
+</tr>
+</tbody></table>
+<p>O saldo padrão de A, C e G considera a quantidade faturada já consumida por reclamações anteriores. Para o tipo B, o saldo considera o excesso efetivamente recebido.</p>
+<h3 id="informar-os-dados-da-anomalia">Informar os dados da anomalia</h3>
+<p>Após selecionar a NF/volume, o Quasar abre o popup padrão do sistema.</p>
+<ol>
+<li>Selecione o <code>Tipo de Anomalia</code>.</li>
+<li>Confira a quantidade já reclamada, o saldo disponível e a data limite.</li>
+<li>Informe a quantidade reclamada em número inteiro.</li>
+<li>Preencha os campos específicos do tipo selecionado.</li>
+<li>Clique em <code>Adicionar</code>.</li>
+</ol>
+<p>Tipos disponíveis:</p>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Utilização</th>
+<th>Informações adicionais</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>A</code></td>
+<td>Falta</td>
+<td>Quantidade reclamada e observação, quando necessária</td>
+</tr>
+<tr>
+<td><code>B</code></td>
+<td>Excesso</td>
+<td>Quantidade efetivamente recebida e dados do item recebido</td>
+</tr>
+<tr>
+<td><code>C</code></td>
+<td>Item incorreto</td>
+<td>Quantidade recebida, item efetivamente recebido e observação</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>Danificado</td>
+<td>Detalhe do defeito ou dano, instalação no veículo e condições da embalagem</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>O tipo é escolhido por item. Um único processo pode conter itens com tipos diferentes.</p>
+</blockquote>
+<h3 id="prazo-da-reclamacao">Prazo da reclamação</h3>
+<p>A data limite é calculada automaticamente a partir da data de emissão da NF e do <code>PrazoDias</code> configurado para o tipo de anomalia.</p>
+<p>Regra de validação:</p>
+<p><code>data atual - data de emissão da NF &lt;= prazo permitido para o tipo</code></p>
+<p>Se o prazo estiver vencido, o sistema informa a quantidade de dias decorridos e bloqueia a inclusão do item para aquele tipo.</p>
+<h3 id="saldo-da-reclamacao">Saldo da reclamação</h3>
+<p>O sistema controla o saldo de forma transacional. Mesmo que dois usuários estejam trabalhando simultaneamente, a soma das reclamações não pode ultrapassar o saldo disponível.</p>
+<ul>
+<li>a quantidade deve ser inteira e maior que zero;</li>
+<li>a quantidade não pode ultrapassar o saldo apresentado;</li>
+<li>reclamações já cadastradas reduzem o saldo;</li>
+<li>um reenvio representa a mesma reclamação original e não consome saldo novamente.</li>
+</ul>
+<h3 id="finalizar-o-cadastro">Finalizar o cadastro</h3>
+<ol>
+<li>Revise os itens adicionados na seção <code>Itens da Anomalia</code>.</li>
+<li>Remova algum item pelo ícone de lixeira, se necessário.</li>
+<li>Preencha <code>Observações do processo</code>, quando aplicável.</li>
+<li>Clique em <code>Finalizar Cadastro</code>.</li>
+</ol>
+<p>O Quasar cria um número de controle único para a filial. Esse número identifica o processo e nomeia os formulários exportados.</p>
+<hr>
+<h2 id="tela-02-consultar-anomalias">Tela 02. Consultar Anomalias</h2>
+<p>Utilize os filtros para localizar processos por:</p>
+<ul>
+<li><code>Controle Nr</code>;</li>
+<li><code>Tipo</code>;</li>
+<li><code>Status</code>.</li>
+</ul>
+<p>A grade apresenta a data de abertura, tipos envolvidos, total de itens, quantidades em processo, aceitas e rejeitadas, status e usuário responsável pelo cadastro.</p>
+<p>Clique em <code>Detalhes</code> para abrir o processo.</p>
+<hr>
+<h2 id="tela-03-detalhes-do-processo">Tela 03. Detalhes do Processo</h2>
+<p>A tela detalha todos os itens e apresenta NF, volume, quantidade faturada, quantidade reclamada, dados da anomalia, status e data limite.</p>
+<h3 id="tratar-um-item">Tratar um item</h3>
+<p>Enquanto o item estiver <code>Em processo</code>:</p>
+<ul>
+<li>clique em <code>Aceitar</code> para confirmar o atendimento;</li>
+<li>clique em <code>Rejeitar</code> e informe obrigatoriamente o motivo da rejeição.</li>
+</ul>
+<p>Quando não houver mais itens em processo, o processo passa a ser apresentado como finalizado.</p>
+<h3 id="exportar-formularios-gm">Exportar formulários GM</h3>
+<p>Os botões são exibidos conforme os tipos existentes no processo:</p>
+<ul>
+<li><code>Exportar Formulário GM</code>: tipos A, B e C;</li>
+<li><code>Exportar Danificados</code>: tipo G.</li>
+</ul>
+<p>O Quasar preenche os modelos oficiais com os dados da empresa da filial, do processo, da nota fiscal e dos itens. O preço unitário e o imposto são obtidos do arquivo de recebimento <code>Trânsito GM</code>.</p>
+<p>Quando a quantidade de itens exceder a capacidade de um formulário, o sistema gera mais de uma planilha e entrega um arquivo compactado. Cada arquivo utiliza o número do processo como identificação.</p>
+<hr>
+<h2 id="mensagens-e-bloqueios-comuns">Mensagens e bloqueios comuns</h2>
+<table>
+<thead>
+<tr>
+<th>Mensagem ou situação</th>
+<th>Como proceder</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NF fora do prazo</code></td>
+<td>Escolher outra ocorrência dentro do prazo; a NF vencida não pode ser utilizada</td>
+</tr>
+<tr>
+<td><code>Sem saldo para reclamar</code></td>
+<td>Verificar reclamações anteriores ou escolher outra NF/volume elegível</td>
+</tr>
+<tr>
+<td>Saldo B igual a zero</td>
+<td>Conferir a quantidade efetivamente recebida; somente o excesso pode ser reclamado</td>
+</tr>
+<tr>
+<td>Quantidade inválida</td>
+<td>Informar um número inteiro entre 1 e o saldo disponível</td>
+</tr>
+<tr>
+<td>Formulário sem dados empresariais</td>
+<td>Solicitar a conferência do cadastro da empresa e do <code>CodigoGM</code> da filial</td>
+</tr>
+</tbody></table>
+<h2 id="boas-praticas">Boas práticas</h2>
+<ul>
+<li>confirme a filial antes de iniciar o processo;</li>
+<li>pesquise sempre pelo número exato do item;</li>
+<li>confira NF e volume antes de selecionar;</li>
+<li>registre uma descrição objetiva do dano no tipo G;</li>
+<li>finalize o cadastro somente após revisar todos os itens;</li>
+<li>não altere manualmente as células estruturais dos formulários exportados.</li>
+</ul>

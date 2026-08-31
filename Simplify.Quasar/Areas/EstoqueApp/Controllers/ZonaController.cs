@@ -12,6 +12,7 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
     [ValidateSession]
     public class ZonaController : Controller
     {
+        private const int TipoAreaPermitidoId = 1;
         private readonly Quasar_Entities db = new Quasar_Entities();
         private readonly int filialId = Util.GetCurrentFilial();
 
@@ -47,6 +48,11 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             EnsureZonaSchema();
             vm.AreaDDL = BuildAreaDDL();
 
+            if (!AreaValida(vm.AreaId))
+            {
+                ModelState.AddModelError("AreaId", "Selecione a área válida.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return PartialView("_Create", vm);
@@ -66,8 +72,9 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 try
                 {
                     db.Database.ExecuteSqlCommand(
-                        @"INSERT INTO Zona (AreaId, Nome, Descricao, QtdeLinha, ProntoDespacho, ValorPedido, QtdeCliente, Ativo, CriadoPor, CriadoEm, ModificadoPor, ModificadoEm, FilialId)
-                          VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12)",
+                        @"INSERT INTO Zona (Codigo, AreaId, Nome, Descricao, QtdeLinha, ProntoDespacho, ValorPedido, QtdeCliente, Ativo, CriadoPor, CriadoEm, ModificadoPor, ModificadoEm, FilialId)
+                          VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13)",
+                        vm.Nome?.Trim(),
                         (object)vm.AreaId ?? DBNull.Value,
                         vm.Nome?.Trim(),
                         (object)vm.Descricao ?? DBNull.Value,
@@ -88,8 +95,7 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 catch (Exception ex)
                 {
                     tr.Rollback();
-                    ViewBag.Exception = ex.Message;
-                    return PartialView("_Create", vm);
+                    return Json(new { success = false, message = ex.GetBaseException().Message });
                 }
             }
         }
@@ -115,6 +121,11 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             EnsureZonaSchema();
             vm.AreaDDL = BuildAreaDDL();
 
+            if (!AreaValida(vm.AreaId))
+            {
+                ModelState.AddModelError("AreaId", "Selecione a área válida.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return PartialView("_Edit", vm);
@@ -135,17 +146,20 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 {
                     db.Database.ExecuteSqlCommand(
                         @"UPDATE Zona
-                             SET AreaId = @p0,
-                                 Nome = @p1,
-                                 Descricao = @p2,
-                                 QtdeLinha = @p3,
-                                 ProntoDespacho = @p4,
-                                 ValorPedido = @p5,
-                                 QtdeCliente = @p6,
-                                 Ativo = @p7,
-                                 ModificadoPor = @p8,
-                                 ModificadoEm = @p9
-                           WHERE Id = @p10",
+                             SET Codigo = @p0,
+                                 AreaId = @p1,
+                                 Nome = @p2,
+                                 Descricao = @p3,
+                                 QtdeLinha = @p4,
+                                 ProntoDespacho = @p5,
+                                 ValorPedido = @p6,
+                                 QtdeCliente = @p7,
+                                 Ativo = @p8,
+                                 ModificadoPor = @p9,
+                                 ModificadoEm = @p10
+                           WHERE Id = @p11
+                             AND FilialId = @p12",
+                        vm.Nome?.Trim(),
                         (object)vm.AreaId ?? DBNull.Value,
                         vm.Nome?.Trim(),
                         (object)vm.Descricao ?? DBNull.Value,
@@ -156,7 +170,8 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                         vm.Ativo,
                         usuario,
                         agora,
-                        vm.Id);
+                        vm.Id,
+                        filialId);
 
                     tr.Commit();
                     return Json(new { success = true });
@@ -164,8 +179,7 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 catch (Exception ex)
                 {
                     tr.Rollback();
-                    ViewBag.Exception = ex.Message;
-                    return PartialView("_Edit", vm);
+                    return Json(new { success = false, message = ex.GetBaseException().Message });
                 }
             }
         }
@@ -179,7 +193,10 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             {
                 try
                 {
-                    db.Database.ExecuteSqlCommand("DELETE FROM Zona WHERE Id = @p0", id);
+                    db.Database.ExecuteSqlCommand(
+                        "DELETE FROM Zona WHERE Id = @p0 AND FilialId = @p1",
+                        id,
+                        filialId);
                     tr.Commit();
                     return Json(new { success = true, msg = "Operacao realizada com sucesso." });
                 }
@@ -197,7 +214,7 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 @"SELECT z.Id,
                          z.AreaId,
                          a.Nome AS AreaNome,
-                         z.Nome,
+                         COALESCE(NULLIF(LTRIM(RTRIM(z.Nome)), ''), z.Codigo) AS Nome,
                          z.Descricao,
                          z.QtdeLinha,
                          z.ProntoDespacho,
@@ -215,7 +232,7 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                     LEFT JOIN Area a ON a.Id = z.AreaId
                     LEFT JOIN Usuario uc ON uc.Login = z.CriadoPor AND (uc.FilialId = z.FilialId OR z.FilialId IS NULL)
                     LEFT JOIN Usuario um ON um.Login = z.ModificadoPor AND (um.FilialId = z.FilialId OR z.FilialId IS NULL)
-                   WHERE z.FilialId = @p0 OR z.FilialId IS NULL
+                   WHERE z.FilialId = @p0
                    ORDER BY z.Nome",
                 filialId).ToList();
         }
@@ -223,7 +240,9 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
         private IEnumerable<SelectListItem> BuildAreaDDL()
         {
             var areas = db.Area
-                .Where(x => x.FilialId == filialId)
+                .Where(x =>
+                    x.TipoAreaId == TipoAreaPermitidoId &&
+                    x.FilialId == filialId)
                 .OrderBy(x => x.Nome)
                 .ToList()
                 .Select(x => new SelectListItem
@@ -237,18 +256,37 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             return areas;
         }
 
+        private bool AreaValida(int? areaId)
+        {
+            return !areaId.HasValue || db.Area.Any(x =>
+                x.Id == areaId.Value &&
+                x.TipoAreaId == TipoAreaPermitidoId &&
+                x.FilialId == filialId);
+        }
+
         private bool ZonaExists(string nome, int? id)
         {
             nome = (nome ?? string.Empty).Trim();
+            if (id.HasValue)
+            {
+                return db.Database.SqlQuery<int>(
+                    @"SELECT COUNT(1)
+                        FROM Zona
+                       WHERE LTRIM(RTRIM(Nome)) = @p0
+                         AND FilialId = @p1
+                         AND Id <> @p2",
+                    nome,
+                    filialId,
+                    id.Value).FirstOrDefault() > 0;
+            }
+
             return db.Database.SqlQuery<int>(
                 @"SELECT COUNT(1)
                     FROM Zona
                    WHERE LTRIM(RTRIM(Nome)) = @p0
-                     AND (FilialId = @p1 OR FilialId IS NULL)
-                     AND (@p2 IS NULL OR Id <> @p2)",
+                     AND FilialId = @p1",
                 nome,
-                filialId,
-                (object)id ?? DBNull.Value).FirstOrDefault() > 0;
+                filialId).FirstOrDefault() > 0;
         }
 
         private void EnsureZonaSchema()

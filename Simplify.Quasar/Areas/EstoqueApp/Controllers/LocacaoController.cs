@@ -42,6 +42,8 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             LocacaoViewModel vm = new LocacaoViewModel
             {
                 TipoDDL = BuildTipoDDL(string.Empty),
+                AreaDDL = BuildAreaDDL(),
+                CurvaDDL = BuildCurvaDDL(),
                 ZonaDDL = BuildZonaDDL()
             };
 
@@ -55,7 +57,10 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
         {
             vm.Codigo = (vm.Codigo ?? string.Empty).Trim().ToUpperInvariant();
             vm.Tipo = (vm.Tipo ?? string.Empty).Trim().ToUpperInvariant();
+            vm.Curva = (vm.Curva ?? string.Empty).Trim().ToUpperInvariant();
             vm.TipoDDL = BuildTipoDDL(vm.Tipo);
+            vm.AreaDDL = BuildAreaDDL();
+            vm.CurvaDDL = BuildCurvaDDL();
             vm.ZonaDDL = BuildZonaDDL();
 
             if (string.IsNullOrWhiteSpace(vm.Codigo))
@@ -63,6 +68,12 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
 
             if (vm.Tipo != "P" && vm.Tipo != "R" && vm.Tipo != "E")
                 ModelState.AddModelError("Tipo", "Selecione um tipo de locação válido.");
+
+            if (vm.AreaId.HasValue && !AreaValida(vm.AreaId.Value))
+                ModelState.AddModelError("AreaId", "Selecione uma área válida.");
+
+            if (!CurvaValida(vm.Curva))
+                ModelState.AddModelError("Curva", "Selecione uma curva válida.");
 
             if (db.Locacao.Any(locacao => locacao.Codigo == vm.Codigo && locacao.FilialId == filialId))
                 ModelState.AddModelError("Codigo", "Já existe uma locação cadastrada com este código.");
@@ -581,6 +592,8 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             vm.ModificadoPor = locacao.ModificadoPor;
             vm.ModificadoPorNome = (from u in db.Usuario where u.FilialId == filialId && u.Login == locacao.ModificadoPor select u.Nome).FirstOrDefault();
             vm.TipoDDL = BuildTipoDDL(vm.Tipo);
+            vm.AreaDDL = BuildAreaDDL();
+            vm.CurvaDDL = BuildCurvaDDL();
             vm.ZonaDDL = BuildZonaDDL();
 
             return PartialView("_Edit", vm);
@@ -592,12 +605,25 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
         public ActionResult Edit(LocacaoViewModel vm)
         {
             vm.Tipo = (vm.Tipo ?? string.Empty).Trim().ToUpperInvariant();
+            vm.Curva = (vm.Curva ?? string.Empty).Trim().ToUpperInvariant();
             vm.TipoDDL = BuildTipoDDL(vm.Tipo);
+            vm.AreaDDL = BuildAreaDDL();
+            vm.CurvaDDL = BuildCurvaDDL();
             vm.ZonaDDL = BuildZonaDDL();
 
             if (vm.Tipo != "P" && vm.Tipo != "R" && vm.Tipo != "E")
             {
                 ModelState.AddModelError("Tipo", "Selecione um tipo de locação válido.");
+            }
+
+            if (vm.AreaId.HasValue && !AreaValida(vm.AreaId.Value))
+            {
+                ModelState.AddModelError("AreaId", "Selecione uma área válida.");
+            }
+
+            if (!CurvaValida(vm.Curva))
+            {
+                ModelState.AddModelError("Curva", "Selecione uma curva válida.");
             }
 
             if (!ModelState.IsValid)
@@ -772,6 +798,49 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 filialId).FirstOrDefault();
         }
 
+        private IEnumerable<SelectListItem> BuildAreaDDL()
+        {
+            var areas = db.Area.AsNoTracking()
+                .Where(x => x.FilialId == filialId || x.FilialId == null)
+                .OrderBy(x => x.Nome)
+                .Select(x => new { x.Id, x.Nome })
+                .ToList()
+                .Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.Nome
+                })
+                .ToList();
+
+            areas.Insert(0, new SelectListItem { Value = string.Empty, Text = string.Empty });
+            return areas;
+        }
+
+        private static IEnumerable<SelectListItem> BuildCurvaDDL()
+        {
+            return new[]
+            {
+                new SelectListItem { Value = string.Empty, Text = string.Empty },
+                new SelectListItem { Value = "A", Text = "A" },
+                new SelectListItem { Value = "B", Text = "B" },
+                new SelectListItem { Value = "C", Text = "C" },
+                new SelectListItem { Value = "D", Text = "D" },
+                new SelectListItem { Value = "N", Text = "N" }
+            };
+        }
+
+        private bool AreaValida(int areaId)
+        {
+            return db.Area.AsNoTracking()
+                .Any(x => x.Id == areaId && (x.FilialId == filialId || x.FilialId == null));
+        }
+
+        private static bool CurvaValida(string curva)
+        {
+            return string.IsNullOrWhiteSpace(curva) ||
+                curva == "A" || curva == "B" || curva == "C" || curva == "D" || curva == "N";
+        }
+
         private IEnumerable<SelectListItem> BuildZonaDDL()
         {
             var zonas = db.Database.SqlQuery<ZonaLookupItem>(
@@ -845,15 +914,6 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
 
         private LocacaoEtiquetaLoteViewModel BuildEtiquetaConsultaViewModel()
         {
-            var areas = db.Area.AsNoTracking()
-                .Where(x => x.FilialId == filialId || x.FilialId == null)
-                .OrderBy(x => x.Nome)
-                .Select(x => new { x.Id, x.Nome })
-                .ToList()
-                .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nome })
-                .ToList();
-            areas.Insert(0, new SelectListItem { Value = string.Empty, Text = "Todas" });
-
             var zonasDados = db.Zona.AsNoTracking()
                 .Where(x => x.FilialId == filialId || x.FilialId == null)
                 .OrderBy(x => x.Codigo)
@@ -880,7 +940,6 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
 
             return new LocacaoEtiquetaLoteViewModel
             {
-                Areas = areas,
                 Zonas = zonas,
                 Equipamentos = equipamentos,
                 Demandas = new[]

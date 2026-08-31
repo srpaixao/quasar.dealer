@@ -107,7 +107,6 @@ namespace Simplify.Quasar.Areas.EstoqueApp.ViewModels
 
     public class LocacaoEtiquetaLoteViewModel
     {
-        public IEnumerable<SelectListItem> Areas { get; set; }
         public IEnumerable<SelectListItem> Zonas { get; set; }
         public IEnumerable<SelectListItem> Equipamentos { get; set; }
         public IEnumerable<SelectListItem> Demandas { get; set; }

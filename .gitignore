@@ -191,7 +191,13 @@ publish/
 
 # Environment-specific application configuration and runtime data
 /Simplify.Quasar/Web.config
-/Simplify.Quasar/App_Data/
+/Simplify.Quasar/App_Data/*
+!/Simplify.Quasar/App_Data/Manual/
+!/Simplify.Quasar/App_Data/Manual/**
+!/Simplify.Quasar/App_Data/Templates/
+/Simplify.Quasar/App_Data/Templates/*
+!/Simplify.Quasar/App_Data/Templates/Formulario Anomalias GM.xls
+!/Simplify.Quasar/App_Data/Templates/Formulario Danificados GM.xls
 /Simplify.Quasar/Uploads/
 *.bak
 

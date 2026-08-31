@@ -1,0 +1,921 @@
+<h1 id="manual-por-tela-expedicao">Manual por Tela - Expedição</h1>
+<h2 id="objetivo">Objetivo</h2>
+<p>Documentar as telas do módulo <code>Expedicao</code> com foco em uso operacional, explicando:</p>
+<ul>
+<li>como acessar a tela</li>
+<li>qual a finalidade</li>
+<li>quais campos existem</li>
+<li>o que preencher em cada campo</li>
+<li>o que cada botão faz</li>
+<li>quais validações e mensagens podem ocorrer</li>
+</ul>
+<h2 id="como-usar-este-documento">Como Usar Este Documento</h2>
+<p>Cada tela está organizada com o mesmo padrão:</p>
+<ol>
+<li>objetivo</li>
+<li>acesso</li>
+<li>elementos visuais principais</li>
+<li>campos e o que fazer em cada um</li>
+<li>botões e ações</li>
+<li>fluxo recomendado</li>
+<li>validações e mensagens</li>
+</ol>
+<h2 id="politica-de-capturas">Política de Capturas</h2>
+<p>Este manual foi preparado para suportar capturas de tela reais.</p>
+<p>Pasta sugerida para evidências:</p>
+<ul>
+<li><code>web/docs/assets/manual-expedicao/</code></li>
+</ul>
+<p>Padrão sugerido de nomes:</p>
+<ul>
+<li><code>01-menu-expedicao.png</code></li>
+<li><code>02-conferir-volume.png</code></li>
+<li><code>03-conferir-separacao-coletor.png</code></li>
+<li><code>04-conferir-romaneios-web.png</code></li>
+<li><code>05-despachar.png</code></li>
+<li><code>06-importar-transportadora.png</code></li>
+<li><code>07-imprimir-etiquetas.png</code></li>
+<li><code>08-clientes.png</code></li>
+</ul>
+<p>Enquanto as capturas não forem anexadas, este documento continua útil como manual funcional campo a campo.</p>
+<hr>
+<h2 id="tela-01-menu-expedicao-no-coletor">Tela 01. Menu Expedição no Coletor</h2>
+<h3 id="captura-sugerida">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-expedicao/01-menu-expedicao.png" loading="lazy" alt="Menu Expedição"></p>
+<h3 id="objetivo-2">Objetivo</h3>
+<p>Servir como ponto de entrada para os fluxos operacionais de expedição no coletor.</p>
+<h3 id="acesso">Acesso</h3>
+<ol>
+<li>Entrar no coletor.</li>
+<li>Acessar o menu principal.</li>
+<li>Selecionar <code>Expedicao</code>.</li>
+</ol>
+<h3 id="itens-da-tela">Itens da Tela</h3>
+<table>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Tipo</th>
+<th>O que é</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Conferir Volumes</code></td>
+<td>Botão</td>
+<td>Abre a tela de conferência de volumes</td>
+<td>Tocar para iniciar a conferência de volumes</td>
+</tr>
+<tr>
+<td><code>Conferir Separacao</code></td>
+<td>Botão</td>
+<td>Abre a tela de conferência de romaneios</td>
+<td>Tocar para iniciar a conferência de romaneios</td>
+</tr>
+<tr>
+<td><code>Despachar</code></td>
+<td>Botão</td>
+<td>Acesso previsto para fluxo de despacho</td>
+<td>Usar quando o fluxo estiver habilitado para operação</td>
+</tr>
+<tr>
+<td><code>Home</code></td>
+<td>Botão inferior</td>
+<td>Retorna ao menu principal</td>
+<td>Usar para sair do módulo</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Botão inferior</td>
+<td>Encerra a sessao</td>
+<td>Usar ao finalizar a operação</td>
+</tr>
+</tbody></table>
+<h3 id="observacoes">Observações</h3>
+<ul>
+<li>a tela não exige preenchimento de campos</li>
+<li>ela funciona apenas como menu operacional</li>
+</ul>
+<hr>
+<h2 id="tela-02-conferir-volume-no-coletor">Tela 02. Conferir Volume no Coletor</h2>
+<h3 id="captura-sugerida-2">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-expedicao/02-conferir-volume.png" loading="lazy" alt="Conferir Volume"></p>
+<h3 id="objetivo-3">Objetivo</h3>
+<p>Conferir volumes de expedição por transportadora, controlar pendentes, conferidos e total, e registrar o histórico de leitura.</p>
+<h3 id="acesso-2">Acesso</h3>
+<ol>
+<li>Abrir <code>Expedicao</code>.</li>
+<li>Selecionar <code>Conferir Volumes</code>.</li>
+</ol>
+<h3 id="estrutura-da-tela">Estrutura da Tela</h3>
+<p>Blocos principais:</p>
+<ul>
+<li>seleção da transportadora</li>
+<li>resumo de volumes</li>
+<li>identificação do veículo</li>
+<li>identificação do responsável</li>
+<li>leitura do volume</li>
+<li>modais de pendentes e conferidos</li>
+</ul>
+<h3 id="campos">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Transportadora</code></td>
+<td>Lista/autocomplete</td>
+<td>Sim</td>
+<td>Define a transportadora que sera conferida</td>
+<td>Selecionar a transportadora antes de seguir</td>
+</tr>
+<tr>
+<td><code>Veiculo</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Identificação do veículo de expedição</td>
+<td>Informar o veículo e confirmar</td>
+</tr>
+<tr>
+<td><code>Responsavel</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Pessoa responsável pela operação</td>
+<td>Informar o responsável e confirmar</td>
+</tr>
+<tr>
+<td><code>Volume Nr</code></td>
+<td>Texto</td>
+<td>Sim</td>
+<td>Código do volume a ser conferido</td>
+<td>Ler ou digitar o volume e confirmar</td>
+</tr>
+<tr>
+<td><code>Filtrar...</code> em <code>Pendentes</code></td>
+<td>Texto</td>
+<td>Não</td>
+<td>Filtro da lista de pendentes</td>
+<td>Digitar termo para localizar registros</td>
+</tr>
+<tr>
+<td><code>Filtrar...</code> em <code>Conferidos</code></td>
+<td>Texto</td>
+<td>Não</td>
+<td>Filtro da lista de conferidos</td>
+<td>Digitar termo para localizar registros</td>
+</tr>
+</tbody></table>
+<h3 id="resumo-visual">Resumo Visual</h3>
+<table>
+<thead>
+<tr>
+<th>Indicador</th>
+<th>Significado</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Pendentes</code></td>
+<td>Quantidade ainda não conferida</td>
+<td>Pode tocar para abrir a lista detalhada</td>
+</tr>
+<tr>
+<td><code>Conferidos</code></td>
+<td>Quantidade já lida</td>
+<td>Pode tocar para abrir a lista detalhada</td>
+</tr>
+<tr>
+<td><code>Total</code></td>
+<td>Total previsto para a transportadora</td>
+<td>Usar como referência geral</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Pendentes</code></td>
+<td>Abre modal com lista de documentos/volumes pendentes</td>
+</tr>
+<tr>
+<td><code>Conferidos</code></td>
+<td>Abre modal com lista de histórico lido</td>
+</tr>
+<tr>
+<td><code>Fechar</code> nos modais</td>
+<td>Fecha a lista aberta</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Retorna ao menu de expedição</td>
+</tr>
+<tr>
+<td><code>Menu</code> / <code>Home</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar">Como Operar</h3>
+<ol>
+<li>Selecionar a <code>Transportadora</code>.</li>
+<li>Conferir o resumo apresentado.</li>
+<li>Informar o <code>Veiculo</code>.</li>
+<li>Informar o <code>Responsavel</code>.</li>
+<li>Ler ou digitar o <code>Volume Nr</code>.</li>
+<li>Repetir a leitura até concluir os volumes.</li>
+</ol>
+<h3 id="regras-e-validacoes">Regras e Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nenhuma transportadora selecionada</td>
+<td>O sistema bloqueia a continuidade e solicita seleção</td>
+</tr>
+<tr>
+<td>Falha ao carregar transportadoras</td>
+<td>Exibe popup de erro</td>
+</tr>
+<tr>
+<td>Falha ao obter pendentes ou conferidos</td>
+<td>Exibe popup de erro</td>
+</tr>
+<tr>
+<td>Volume fora do formato esperado</td>
+<td>O volume não é aceito</td>
+</tr>
+<tr>
+<td>Volume já registrado para a NF</td>
+<td>O sistema informa duplicidade</td>
+</tr>
+<tr>
+<td>Nota fiscal sem volume esperado</td>
+<td>O sistema informa a divergência</td>
+</tr>
+<tr>
+<td>Todos os volumes da nota já registrados</td>
+<td>O sistema informa que a nota já está completa</td>
+</tr>
+</tbody></table>
+<h3 id="campos-exibidos-nos-modais">Campos Exibidos nos Modais</h3>
+<h4 id="modal-pendentes">Modal Pendentes</h4>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NF</code></td>
+<td>Número da nota fiscal</td>
+</tr>
+<tr>
+<td><code>Ctrl</code></td>
+<td>Controle do documento</td>
+</tr>
+<tr>
+<td><code>Vol</code></td>
+<td>Quantidade de volumes</td>
+</tr>
+<tr>
+<td><code>Cliente</code></td>
+<td>Nome do cliente</td>
+</tr>
+<tr>
+<td><code>Cidade</code></td>
+<td>Cidade do cliente</td>
+</tr>
+<tr>
+<td><code>UF</code></td>
+<td>Estado</td>
+</tr>
+</tbody></table>
+<h4 id="modal-conferidos">Modal Conferidos</h4>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NF</code></td>
+<td>Número da nota fiscal</td>
+</tr>
+<tr>
+<td><code>Vol</code></td>
+<td>Volume lido</td>
+</tr>
+<tr>
+<td><code>Veiculo</code></td>
+<td>Veículo utilizado</td>
+</tr>
+<tr>
+<td><code>Resp.</code></td>
+<td>Responsável informado</td>
+</tr>
+<tr>
+<td><code>Cliente</code></td>
+<td>Nome do cliente</td>
+</tr>
+<tr>
+<td><code>Cidade</code></td>
+<td>Cidade do cliente</td>
+</tr>
+<tr>
+<td><code>UF</code></td>
+<td>Estado</td>
+</tr>
+<tr>
+<td><code>Data</code></td>
+<td>Data/hora do registro</td>
+</tr>
+<tr>
+<td><code>Usuario</code></td>
+<td>Usuário que registrou</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-03-conferir-separacao-no-coletor">Tela 03. Conferir Separação no Coletor</h2>
+<h3 id="captura-sugerida-3">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-expedicao/03-conferir-separacao-coletor.png" loading="lazy" alt="Conferir Separação no Coletor"></p>
+<h3 id="objetivo-4">Objetivo</h3>
+<p>Conferir itens de um romaneio de expedição no coletor, com bloqueio por usuário e controle de quantidades.</p>
+<h3 id="acesso-3">Acesso</h3>
+<ol>
+<li>Abrir <code>Expedicao</code>.</li>
+<li>Selecionar <code>Conferir Separacao</code>.</li>
+</ol>
+<h3 id="estrutura-da-tela-2">Estrutura da Tela</h3>
+<p>Blocos principais:</p>
+<ul>
+<li>seleção do romaneio</li>
+<li>item atual em conferência</li>
+<li>resumo do item atual</li>
+<li>campo de quantidade</li>
+<li>tabela de apoio com itens do romaneio</li>
+<li>botões de navegação</li>
+</ul>
+<h3 id="campos-2">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Romaneio Nr</code></td>
+<td>Lista/autocomplete</td>
+<td>Sim</td>
+<td>Romaneio disponível para conferência</td>
+<td>Selecionar o romaneio. A conferência inicia automaticamente</td>
+</tr>
+<tr>
+<td><code>Quantidade conferida</code></td>
+<td>Número</td>
+<td>Sim, para confirmar o item atual</td>
+<td>Quantidade a ser conferida do item atual</td>
+<td>Informar a quantidade e confirmar</td>
+</tr>
+</tbody></table>
+<h3 id="informacoes-exibidas-do-item-atual">Informações Exibidas do Item Atual</h3>
+<table>
+<thead>
+<tr>
+<th>Campo exibido</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Zona</code></td>
+<td>Zona operacional do item</td>
+</tr>
+<tr>
+<td><code>Item Nr</code></td>
+<td>Código do item atual</td>
+</tr>
+<tr>
+<td><code>Descricao</code></td>
+<td>Descrição do item</td>
+</tr>
+<tr>
+<td><code>Pedido</code></td>
+<td>Quantidade pedida</td>
+</tr>
+<tr>
+<td><code>Conferida</code></td>
+<td>Quantidade já conferida</td>
+</tr>
+<tr>
+<td><code>Faltante</code></td>
+<td>Quantidade ainda pendente</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes-2">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Confirmar</code></td>
+<td>Confirma a quantidade do item atual</td>
+</tr>
+<tr>
+<td><code>Buscar novo romaneio</code></td>
+<td>Reinicia a busca quando a conferência termina</td>
+</tr>
+<tr>
+<td><code>Trocar romaneio</code></td>
+<td>Limpa o contexto atual para nova seleção</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Sai da tela e libera o romaneio se ainda estiver em andamento</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Encerra a sessao, liberando o romaneio se necessário</td>
+</tr>
+<tr>
+<td><code>Fechar</code> no popup</td>
+<td>Fecha mensagens de erro ou informação</td>
+</tr>
+<tr>
+<td><code>Sim/Não</code> no popup de zero</td>
+<td>Confirma ou cancela o envio do item para busca</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar-2">Como Operar</h3>
+<ol>
+<li>Selecionar o <code>Romaneio Nr</code>.</li>
+<li>Aguardar o inicio automático da conferência.</li>
+<li>Verificar o item atual.</li>
+<li>Informar a <code>Quantidade conferida</code>.</li>
+<li>Confirmar.</li>
+<li>Repetir até concluir o romaneio.</li>
+</ol>
+<h3 id="regras-e-validacoes-2">Regras e Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Romaneio assumido por outro usuário</td>
+<td>Bloqueio de acesso</td>
+</tr>
+<tr>
+<td>Quantidade maior que a faltante</td>
+<td>Rejeicao da confirmação</td>
+</tr>
+<tr>
+<td>Quantidade menor que a pendente</td>
+<td>Item continua em conferência</td>
+</tr>
+<tr>
+<td>Quantidade igual ao restante</td>
+<td>Item finaliza</td>
+</tr>
+<tr>
+<td>Quantidade zero</td>
+<td>Sistema pede confirmação e envia o item para <code>Em Busca</code> se confirmado</td>
+</tr>
+<tr>
+<td>Sair com romaneio em andamento</td>
+<td>O sistema tenta liberar o romaneio</td>
+</tr>
+</tbody></table>
+<h3 id="tabela-de-apoio">Tabela de Apoio</h3>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Zona</code></td>
+<td>Zona do item</td>
+</tr>
+<tr>
+<td><code>Item</code></td>
+<td>Código do item</td>
+</tr>
+<tr>
+<td><code>Ped</code></td>
+<td>Quantidade pedida</td>
+</tr>
+<tr>
+<td><code>Conf</code></td>
+<td>Quantidade conferida</td>
+</tr>
+<tr>
+<td><code>Falta</code></td>
+<td>Quantidade pendente</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-04-conferir-romaneios-no-web">Tela 04. Conferir Romaneios no Web</h2>
+<h3 id="captura-sugerida-4">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-expedicao/04-conferir-romaneios-web.png" loading="lazy" alt="Conferir Romaneios no Web"></p>
+<h3 id="objetivo-5">Objetivo</h3>
+<p>Executar no web o mesmo processo operacional de conferência de romaneios de expedição, com digitação por linha e confirmação em lote.</p>
+<h3 id="acesso-4">Acesso</h3>
+<ol>
+<li>Entrar no sistema web.</li>
+<li>Acessar <code>Expedicao</code>.</li>
+<li>Selecionar <code>Conferir Romaneios</code>.</li>
+</ol>
+<h3 id="estrutura-da-tela-3">Estrutura da Tela</h3>
+<p>Blocos principais:</p>
+<ul>
+<li>seletor de romaneio</li>
+<li>grade de itens</li>
+<li>botões de ação</li>
+<li>alertas de erro e sucesso</li>
+</ul>
+<h3 id="campos-3">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Obrigatório</th>
+<th>O que representa</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Romaneio Nr</code></td>
+<td>Lista</td>
+<td>Sim</td>
+<td>Romaneio disponível para conferência</td>
+<td>Selecionar o romaneio. A conferência inicia automaticamente</td>
+</tr>
+<tr>
+<td><code>Qtde Conferida</code> por linha</td>
+<td>Número</td>
+<td>Sim para a linha que sera confirmada</td>
+<td>Quantidade conferida para o item da linha</td>
+<td>Preencher as linhas desejadas antes de clicar em <code>Confirmar</code></td>
+</tr>
+</tbody></table>
+<h3 id="colunas-da-grade">Colunas da Grade</h3>
+<table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Significado</th>
+<th>O que observar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Zona</code></td>
+<td>Zona do item</td>
+<td>Usar para localizar o contexto operacional</td>
+</tr>
+<tr>
+<td><code>Item Nr</code></td>
+<td>Item e descrição na mesma célula</td>
+<td>Identifica o item a ser conferido</td>
+</tr>
+<tr>
+<td><code>Qtde Pedido</code></td>
+<td>Quantidade total pedida</td>
+<td>Referência original</td>
+</tr>
+<tr>
+<td><code>Qtde Pendente</code></td>
+<td>Quantidade faltante</td>
+<td>Limite máximo do que ainda pode ser confirmado</td>
+</tr>
+<tr>
+<td><code>Qtde Conferida</code></td>
+<td>Campo de digitação da quantidade</td>
+<td>Informar o valor a confirmar</td>
+</tr>
+</tbody></table>
+<h3 id="botoes-e-acoes-3">Botões e Ações</h3>
+<table>
+<thead>
+<tr>
+<th>Botão</th>
+<th>Ação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Confirmar</code></td>
+<td>Envia as quantidades digitadas</td>
+</tr>
+<tr>
+<td><code>Buscar novo romaneio</code></td>
+<td>Reinicia a conferência após finalização</td>
+</tr>
+<tr>
+<td><code>Trocar romaneio</code></td>
+<td>Limpa a seleção atual</td>
+</tr>
+<tr>
+<td><code>Voltar</code></td>
+<td>Sai da tela e libera o romaneio se estiver em andamento</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar-3">Como Operar</h3>
+<ol>
+<li>Selecionar o <code>Romaneio Nr</code>.</li>
+<li>Aguardar a carga automática dos itens.</li>
+<li>Digitar a <code>Qtde Conferida</code> nas linhas desejadas.</li>
+<li>Clicar em <code>Confirmar</code>.</li>
+<li>Repetir até concluir o romaneio.</li>
+</ol>
+<h3 id="regras-e-validacoes-3">Regras e Validações</h3>
+<table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Comportamento esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Seleção de romaneio</td>
+<td>Inicia a conferência automaticamente</td>
+</tr>
+<tr>
+<td>Digitar valor em uma linha</td>
+<td>O sistema registra interacao para marcar o tempo operacional</td>
+</tr>
+<tr>
+<td>Nenhuma quantidade informada</td>
+<td>O sistema bloqueia a confirmação</td>
+</tr>
+<tr>
+<td>Quantidade invalida ou negativa</td>
+<td>O sistema rejeita a confirmação</td>
+</tr>
+<tr>
+<td>Quantidade maior que a pendente</td>
+<td>O sistema mostra popup de erro</td>
+</tr>
+<tr>
+<td>Quantidade zero em alguma linha</td>
+<td>O sistema pede confirmação antes de gravar</td>
+</tr>
+<tr>
+<td>Romaneio em uso por outro usuário</td>
+<td>O sistema bloqueia o acesso</td>
+</tr>
+<tr>
+<td>Romaneio finalizado</td>
+<td>Mostra mensagem de sucesso e botões de continuidade</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="tela-05-despachar-no-coletor">Tela 05. Despachar no Coletor</h2>
+<h3 id="captura-sugerida-5">Captura Sugerida</h3>
+<p><img src="__MANUAL_ASSET__manual-expedicao/05-despachar.png" loading="lazy" alt="Despachar"></p>
+<h3 id="objetivo-6">Objetivo</h3>
+<p>Servir como base para o fluxo de despacho no coletor.</p>
+<h3 id="situacao-atual-observada">Situação Atual Observada</h3>
+<p>A tela possui:</p>
+<ul>
+<li>título</li>
+<li>navegação inferior</li>
+<li>diálogo de mensagens</li>
+<li>diálogo de saida</li>
+<li>estrutura inicial para reportar ocorrencia</li>
+</ul>
+<h3 id="elementos-visiveis">Elementos Visíveis</h3>
+<table>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Tipo</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Voltar</code></td>
+<td>Botão</td>
+<td>Retorna ao menu de expedição</td>
+</tr>
+<tr>
+<td><code>Menu</code></td>
+<td>Botão</td>
+<td>Retorna ao menu principal</td>
+</tr>
+<tr>
+<td><code>Sair</code></td>
+<td>Botão</td>
+<td>Encerra a sessao</td>
+</tr>
+<tr>
+<td><code>Reportar Ocorrencia</code></td>
+<td>Diálogo/base funcional</td>
+<td>Preencher quando o fluxo for oficialmente habilitado</td>
+</tr>
+</tbody></table>
+<h3 id="observacao">Observação</h3>
+<ul>
+<li>a tela parece estar em estado inicial ou parcial</li>
+<li>antes de virar documento oficial de treinamento, convém validar com a operação se o fluxo já está homologado para uso</li>
+</ul>
+<hr>
+<h2 id="tela-06-importar-arquivo-de-transportadora-no-web">Tela 06. Importar Arquivo de Transportadora no Web</h2>
+<h3 id="objetivo-7">Objetivo</h3>
+<p>Processar o PDF da transportadora, criar uma etiqueta por volume novo e imprimir conforme os parâmetros da filial.</p>
+<h3 id="campos-e-informacoes">Campos e Informações</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Origem/uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Transportadora</code></td>
+<td>Define o cadastro e o layout operacional do lote</td>
+</tr>
+<tr>
+<td><code>Tipo de Movimento</code></td>
+<td>Define o movimento dos documentos novos</td>
+</tr>
+<tr>
+<td><code>Arquivo</code></td>
+<td>PDF fornecido pela transportadora</td>
+</tr>
+<tr>
+<td><code>Imprimir</code></td>
+<td>Permite marcar ou desmarcar individualmente cada etiqueta</td>
+</tr>
+<tr>
+<td><code>Volume Nr</code></td>
+<td>Identifica o volume que será impresso</td>
+</tr>
+<tr>
+<td>Grade</td>
+<td>Mostra somente as últimas etiquetas processadas da filial</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar-4">Como Operar</h3>
+<ol>
+<li>Selecione a transportadora.</li>
+<li>Selecione o PDF fornecido pela transportadora.</li>
+<li>Clique em <code>Importar</code>. A importação começa diretamente, sem popup de confirmação.</li>
+<li>No modo manual, revise a grade e use <code>Marcar Todos</code>, <code>Desmarcar Todos</code> ou os marcadores individuais.</li>
+<li>Clique em <code>Imprimir selecionadas</code>.</li>
+<li>Confira o preview e escolha a impressora no diálogo do Windows.</li>
+</ol>
+<h3 id="regras-e-validacoes-4">Regras e Validações</h3>
+<ul>
+<li>NFs existentes em <code>DocExpedicao</code> não são gravadas nem etiquetadas novamente.</li>
+<li>Linhas duplicadas no PDF não duplicam volumes.</li>
+<li>Um upload válido substitui o lote anterior; a tabela não é acumulativa.</li>
+<li>No modo manual, todas as etiquetas começam marcadas e somente as selecionadas são impressas.</li>
+<li><code>ImprimirDireto = True</code> mantém o processo automático configurado para a filial.</li>
+<li><code>ImprimirDireto = False</code> abre o preview das etiquetas e o diálogo de impressão do Windows.</li>
+<li>Cliente identificado com todos os cadastros homônimos em <code>Etiqueta = 0</code> ou <code>NULL</code> não gera etiqueta.</li>
+<li>Se pelo menos um cliente homônimo estiver com <code>Etiqueta = 1</code>, a etiqueta é gerada.</li>
+<li>Quando não for possível identificar o cliente com segurança, o sistema considera <code>Etiqueta = 1</code>.</li>
+<li>Sem etiquetas, o sistema informa <code>Nenhuma etiqueta foi gerada.</code></li>
+<li>A grade mantém o último lote tanto no fluxo automático quanto no manual.</li>
+</ul>
+<h3 id="parametros">Parâmetros</h3>
+<ul>
+<li><code>AppConfig</code>: <code>ImprimirDireto</code>, <code>ImpressoraPadrao</code>, <code>PrinterServerIP</code>, <code>PrinterServerPort</code>.</li>
+<li><code>Impressora</code>: nome, IP e porta TCP.</li>
+<li>Não existem valores alternativos fixos no código.</li>
+</ul>
+<hr>
+<h2 id="tela-07-imprimir-etiquetas-no-web">Tela 07. Imprimir Etiquetas no Web</h2>
+<h3 id="objetivo-8">Objetivo</h3>
+<p>Reimprimir um intervalo de volumes de uma nota fiscal utilizando preview e escolha manual da impressora.</p>
+<h3 id="campos-4">Campos</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>O que fazer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DANFE</code></td>
+<td>Ler ou digitar a chave de 44 posições ou o número da nota fiscal</td>
+</tr>
+<tr>
+<td><code>Transportadora</code></td>
+<td>Campo preenchido automaticamente após localizar a nota</td>
+</tr>
+<tr>
+<td><code>Volumes</code></td>
+<td>Informar o primeiro e o último volume que serão impressos</td>
+</tr>
+</tbody></table>
+<h3 id="como-operar-5">Como Operar</h3>
+<ol>
+<li>Leia a chave DANFE ou informe o número da nota fiscal.</li>
+<li>Confira a transportadora e a quantidade máxima de volumes preenchidas pelo sistema.</li>
+<li>Informe o intervalo de volumes.</li>
+<li>Clique em <code>Imprimir</code>.</li>
+<li>Confira o preview e escolha a impressora no diálogo do Windows.</li>
+</ol>
+<h3 id="regras-e-validacoes-5">Regras e Validações</h3>
+<ul>
+<li>A impressão segue diretamente para o preview, sem popup adicional de confirmação.</li>
+<li>O intervalo deve começar em <code>1</code> ou mais e não pode ultrapassar a quantidade cadastrada.</li>
+<li>A nota deve estar em situação permitida para impressão.</li>
+<li>A transportadora deve estar configurada para emitir etiqueta.</li>
+<li>Cliente identificado com <code>Etiqueta = 0</code> ou <code>NULL</code> não permite impressão.</li>
+<li>Em caso de clientes homônimos, qualquer cadastro com <code>Etiqueta = 1</code> autoriza a impressão; se todos estiverem em <code>0</code> ou <code>NULL</code>, a impressão é bloqueada.</li>
+<li>Na dúvida ou quando o cliente não for localizado, o sistema considera <code>Etiqueta = 1</code>.</li>
+</ul>
+<hr>
+<h2 id="tela-08-clientes-no-web">Tela 08. Clientes no Web</h2>
+<h3 id="objetivo-9">Objetivo</h3>
+<p>Cadastrar clientes e definir se suas notas fiscais podem gerar etiquetas de expedição.</p>
+<h3 id="campos-principais">Campos Principais</h3>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Regra</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Nome</code></td>
+<td>Identificação obrigatória do cliente</td>
+</tr>
+<tr>
+<td><code>CPF/CNPJ</code></td>
+<td>Opcional; quando informado, deve ser um CPF ou CNPJ válido e não duplicado</td>
+</tr>
+<tr>
+<td><code>Transportadora</code></td>
+<td>A lista mostra nome, cidade e CNPJ para diferenciar transportadoras homônimas</td>
+</tr>
+<tr>
+<td><code>Rota</code> e <code>Parada</code></td>
+<td>Dados utilizados no processo de expedição</td>
+</tr>
+<tr>
+<td><code>Gerar etiqueta</code></td>
+<td>Marcado por padrão em novos clientes; pode ser marcado ou desmarcado</td>
+</tr>
+</tbody></table>
+<h3 id="regras-e-validacoes-6">Regras e Validações</h3>
+<ul>
+<li><code>Gerar etiqueta</code> marcado grava <code>Cliente.Etiqueta = 1</code>.</li>
+<li><code>Gerar etiqueta</code> desmarcado grava <code>Cliente.Etiqueta = 0</code>.</li>
+<li>Cadastros antigos com valor <code>NULL</code> são tratados como não autorizados quando o cliente é identificado sem dúvida.</li>
+<li>A grade permite pesquisa, ordenação e paginação no servidor.</li>
+<li>O CPF/CNPJ vazio é salvo como <code>NULL</code>.</li>
+</ul>
+<hr>
+<h2 id="checklist-para-anexar-capturas-reais">Checklist para Anexar Capturas Reais</h2>
+<p>Quando quiser evoluir este manual com evidências visuais, use o checklist abaixo:</p>
+<ol>
+<li>Abrir a tela no ambiente homologado.</li>
+<li>Capturar a tela cheia.</li>
+<li>Salvar a imagem em <code>web/docs/assets/manual-expedicao/</code>.</li>
+<li>Nomear conforme o padrão definido neste documento.</li>
+<li>Anotar versão/data da captura.</li>
+<li>Atualizar este arquivo com o link da imagem.</li>
+</ol>
+<h2 id="proximos-passos-recomendados">Próximos Passos Recomendados</h2>
+<p>Depois de <code>Expedicao</code>, os próximos manuais por tela mais valiosos são:</p>
+<ol>
+<li><code>Separacao</code></li>
+<li><code>Recebimento</code></li>
+<li><code>Estoque</code></li>
+</ol>

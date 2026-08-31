@@ -138,6 +138,25 @@ Processos:
 - despacho
 - lancamentos e documentos auxiliares
 
+### 6. Devolução
+
+Processos:
+
+- cadastro de devolução e itens
+- consulta e atualização do processo
+- tratamento de ocorrências por item
+- impressão do processo
+
+### 7. Anomalias GM
+
+Processos:
+
+- pesquisa de item, NF e volume
+- validação de prazo e saldo
+- cadastro do tipo por item
+- aceite ou rejeição dos itens
+- exportação dos formulários oficiais
+
 ## POP 01. Login e Liberacao de Acesso
 
 ### Objetivo
@@ -427,6 +446,54 @@ Importar o PDF da transportadora, gerar uma etiqueta por volume novo e executar 
 - o fluxo automatico depende exclusivamente de `AppConfig` e do cadastro `Impressora`.
 - o lote nao e acumulativo; o proximo upload valido substitui o atual.
 
+## POP 14. Cadastro e Tratamento de Anomalias GM
+
+### Objetivo
+
+Registrar reclamações de itens recebidos da GM, respeitando o prazo e o saldo reclamável, e gerar o formulário oficial correspondente.
+
+### Fluxo geral
+
+1. Confirmar a filial ativa.
+2. Pesquisar o número do item.
+3. Selecionar a NF e o volume elegíveis.
+4. Escolher o tipo A, B, C ou G para o item.
+5. Informar uma quantidade inteira dentro do saldo disponível.
+6. Preencher os dados específicos e adicionar o item.
+7. Finalizar o cadastro para gerar o número de controle.
+8. Acompanhar e tratar os itens na consulta de anomalias.
+9. Exportar o formulário GM adequado.
+
+### Regras
+
+- o processo, a consulta, o saldo e os dados empresariais são isolados por filial;
+- o prazo é calculado por `DataEmissao + PrazoDias` do tipo;
+- NFs vencidas continuam visíveis, mas não podem ser selecionadas;
+- o saldo é validado novamente dentro da transação de gravação;
+- reenvio não representa nova reclamação e não consome saldo novamente;
+- tipos A, B e C utilizam o formulário de Anomalias;
+- tipo G utiliza o formulário de Danificados.
+
+Consulte [Manual por Tela - Anomalias](MANUAL_TELAS_ANOMALIAS.md).
+
+## POP 15. Cadastro e Tratamento de Devolução
+
+### Objetivo
+
+Registrar e acompanhar a devolução de materiais, incluindo o tratamento das ocorrências por item.
+
+### Fluxo geral
+
+1. Selecionar movimento, retirada, status e motivo.
+2. Localizar a NF de venda.
+3. Informar dados complementares e transportadora.
+4. Adicionar os itens, quantidades e valores.
+5. Salvar e imprimir o processo quando necessário.
+6. Consultar o processo para atualizar o andamento.
+7. Tratar as ocorrências e quantidades de cada item.
+
+Consulte [Manual por Tela - Devolução](MANUAL_TELAS_DEVOLUCAO.md).
+
 ## Cadastros de Apoio Relevantes
 
 - `AreaPedido`
@@ -450,3 +517,4 @@ Importar o PDF da transportadora, gerar uma etiqueta por volume novo e executar 
 - [Guia de Desenvolvimento e Execucao](GUIA_DESENVOLVIMENTO.md)
 - [Atualizacoes Operacionais de 20/07/2026](ATUALIZACOES_20260720.md)
 - [Atualizações Operacionais de 25/08/2026](ATUALIZACOES_20260825.md)
+- [Atualizações Operacionais de 31/08/2026](ATUALIZACOES_20260831.md)

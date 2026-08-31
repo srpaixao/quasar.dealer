@@ -22,7 +22,10 @@ namespace Simplify.Quasar.Controllers
                 new ManualNavigationItemViewModel { Slug = "recebimento", Titulo = "Recebimento", Icone = "fa-truck" },
                 new ManualNavigationItemViewModel { Slug = "estoque", Titulo = "Estoque", Icone = "fa-cubes" },
                 new ManualNavigationItemViewModel { Slug = "separacao", Titulo = "Separação", Icone = "fa-tasks" },
-                new ManualNavigationItemViewModel { Slug = "expedicao", Titulo = "Expedição", Icone = "fa-truck" }
+                new ManualNavigationItemViewModel { Slug = "expedicao", Titulo = "Expedição", Icone = "fa-truck" },
+                new ManualNavigationItemViewModel { Slug = "devolucao", Titulo = "Devolução", Icone = "fa-undo" },
+                new ManualNavigationItemViewModel { Slug = "anomalias", Titulo = "Anomalias", Icone = "fa-exclamation-triangle" },
+                new ManualNavigationItemViewModel { Slug = "cadastros", Titulo = "Cadastros", Icone = "fa-cogs" }
             };
 
         [HttpGet]

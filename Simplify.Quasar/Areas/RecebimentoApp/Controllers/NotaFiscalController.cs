@@ -1288,24 +1288,42 @@ SELECT @Result;", "Recebimento.UploadFileTransito.Filial." + filialId).Single();
                 return Json(new { erro = true, mensagem = msg }, JsonRequestBehavior.AllowGet);
             }
 
-            // INSERT tabela TransitoUploadColumns
-            string sql = (from s in db.AppSQL where s.Nome == "INSERT_TransitoUploadColumns" select s.Comando).FirstOrDefault();
-            if (!string.IsNullOrEmpty(sql))
+            // INSERT tabela TransitoUploadColumns. Os campos de preço unitário e
+            // imposto são posições fixas do registro DNI do arquivo Trânsito GM.
+            // O valor vem sem separador decimal e possui duas casas implícitas.
+            string sql;
+            try
             {
-                sql = Util.FormatSQL(sql);
-                //sql = sql.Replace("@FilialId", filialId.ToString());
-
-                try
-                {
-                    db.Database.ExecuteSqlCommand(sql);
-                    db.SaveChanges();
-
-                }
-                catch (Exception ex)
-                {
-                    msg = "[TransitoUploadColumns] INSERT failed<br>" + ex.Message;
-                    return Json(new { erro = true, mensagem = msg }, JsonRequestBehavior.AllowGet);
-                }
+                db.Database.ExecuteSqlCommand(@"
+INSERT INTO dbo.TransitoUploadColumns
+(
+    RecordType, NotaFiscal, Origem, Emissao, Volume, Item, Pedido,
+    Quantidade, PrecoUnitario, Imposto, Dtatual, FilialId
+)
+SELECT
+    SUBSTRING(Linha, 1, 3),
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNC' THEN LTRIM(RTRIM(SUBSTRING(Linha, 24, 9))) ELSE '' END,
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNC' THEN LTRIM(RTRIM(SUBSTRING(Linha, 115, 4))) ELSE '' END,
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNC' THEN LTRIM(RTRIM(SUBSTRING(Linha, 37, 8))) ELSE '' END,
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNI' THEN LTRIM(RTRIM(SUBSTRING(Linha, 62, 10))) ELSE '' END,
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNI' THEN LTRIM(RTRIM(SUBSTRING(Linha, 4, 8))) ELSE '' END,
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNI' THEN LTRIM(RTRIM(SUBSTRING(Linha, 15, 6))) ELSE '' END,
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNI' THEN TRY_CONVERT(int, NULLIF(LTRIM(RTRIM(SUBSTRING(Linha, 22, 5))), '')) ELSE NULL END,
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNI' THEN TRY_CONVERT(decimal(18,2), NULLIF(SUBSTRING(Linha, 27, 13), '')) / 100 ELSE NULL END,
+    CASE SUBSTRING(Linha, 1, 3) WHEN 'DNI' THEN TRY_CONVERT(decimal(18,2), NULLIF(SUBSTRING(Linha, 40, 11), '')) / 100 ELSE NULL END,
+    @p1,
+    @p0
+FROM dbo.TransitoUpload
+WHERE SUBSTRING(Linha, 1, 3) IN ('DNC', 'DNI')
+  AND FilialId = @p0;",
+                    filialId,
+                    Util.GetCurrentDateTime());
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                msg = "[TransitoUploadColumns] INSERT failed<br>" + ex.Message;
+                return Json(new { erro = true, mensagem = msg }, JsonRequestBehavior.AllowGet);
             }
 
             // UPDATE tabela TransitoUploadColumns
@@ -1415,6 +1433,43 @@ WHERE NF.FilialId = @p0
                 {
                     db.Database.ExecuteSqlCommand(sql);
                     db.SaveChanges();
+
+                    db.Database.ExecuteSqlCommand(@"
+;WITH ValoresAgrupados AS
+(
+    SELECT
+        NF.Id AS NotaFiscalId,
+        LTRIM(RTRIM(T.Item)) AS Item,
+        T.Volume,
+        T.Pedido,
+        T.FilialId,
+        MAX(T.PrecoUnitario) AS PrecoUnitario,
+        MAX(T.Imposto) AS Imposto
+    FROM dbo.NotaFiscal NF
+    INNER JOIN dbo.TransitoUploadColumns T
+        ON NF.Numero = T.NotaFiscal
+       AND NF.FilialId = T.FilialId
+    WHERE T.RecordType = 'DNI'
+      AND T.FilialId = @p0
+      AND NULLIF(LTRIM(RTRIM(T.Item)), '') IS NOT NULL
+    GROUP BY NF.Id, LTRIM(RTRIM(T.Item)), T.Volume, T.Pedido, T.FilialId
+)
+UPDATE NFI
+   SET NFI.PrecoUnitario = Origem.PrecoUnitario,
+       NFI.Imposto = Origem.Imposto,
+       NFI.ModificadoEm = @p1,
+       NFI.ModificadoPor = @p2
+FROM dbo.NotaFiscalItem NFI
+INNER JOIN ValoresAgrupados Origem
+        ON NFI.NotaFiscalId = Origem.NotaFiscalId
+       AND NFI.Item = Origem.Item
+       AND ISNULL(NFI.Volume, '') = ISNULL(Origem.Volume, '')
+       AND ISNULL(NFI.Pedido, '') = ISNULL(Origem.Pedido, '')
+       AND NFI.FilialId = Origem.FilialId;",
+                        filialId,
+                        Util.GetCurrentDateTime(),
+                        Util.GetCurrentUser());
+                    db.SaveChanges();
                 }
                 catch (Exception ex)
                 {
@@ -1498,7 +1553,8 @@ WHERE NF.FilialId = @p0
         {
  
             ViewBag.AreaDDL = (from b in db.Area
-                               where b.Id > 13 && b.FilialId == filialId
+                               where b.TipoAreaId == 4 // Recebimento
+                               && b.FilialId == filialId
                                orderby b.Nome, b.Descricao
                                select new SelectListItem
                                {
@@ -1782,7 +1838,10 @@ WHERE NF.FilialId = @p0
                 return Json(new { erro = true, msg = "Filial não identificada na sessão atual." });
             }
 
-            bool areaValida = db.Area.Any(x => x.Id == area && x.FilialId == filialId);
+            bool areaValida = db.Area.Any(x =>
+                x.Id == area &&
+                x.TipoAreaId == 4 &&
+                x.FilialId == filialId);
             if (!areaValida)
             {
                 return Json(new { erro = true, msg = "Área de recebimento inválida para a filial atual." });
@@ -2087,7 +2146,10 @@ WHERE NF.FilialId = @p0
                 return Json(new { msg = "Filial não identificada na sessão atual.", erro = true, notfound = false });
             }
 
-            if (!db.Area.Any(x => x.Id == area && x.FilialId == filialId))
+            if (!db.Area.Any(x =>
+                x.Id == area &&
+                x.TipoAreaId == 4 &&
+                x.FilialId == filialId))
             {
                 return Json(new { msg = "Área de recebimento inválida para a filial atual.", erro = true, notfound = false });
             }

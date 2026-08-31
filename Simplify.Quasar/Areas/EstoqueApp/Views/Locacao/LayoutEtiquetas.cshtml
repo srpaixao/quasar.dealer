@@ -16,18 +16,18 @@
         .print-toolbar button:disabled { cursor: wait; opacity: .65; }
         .print-toolbar a { color: #fff; }
         .labels { padding: 20px; }
-        .label-page { width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 1mm 2mm; background: #fff; border: .25mm solid #231f20; display: grid; grid-template-rows: 28mm 19mm; overflow: hidden; page-break-after: always; break-after: page; }
+        .label-page { width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 2mm 3mm; background: #fff; border: .25mm solid #231f20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5mm; overflow: hidden; page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; }
         .label-page:last-child { page-break-after: auto; break-after: auto; }
-        .label-qr { align-self: center; justify-self: center; width: 27mm; height: 27mm; }
-        .label-qr canvas, .label-qr img { display: block; width: 27mm !important; height: 27mm !important; }
-        .label-code { align-self: center; justify-self: center; width: 100%; overflow: hidden; text-align: center; white-space: nowrap; }
-        .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 40pt; font-weight: 900; line-height: 1; letter-spacing: -.35mm; transform-origin: center center; white-space: nowrap; }
+        .label-qr { flex: 0 0 30mm; width: 30mm; height: 30mm; display: flex; align-items: center; justify-content: center; }
+        .label-qr canvas, .label-qr img { display: block; width: 30mm !important; height: 30mm !important; }
+        .label-code { flex: 0 0 11.5mm; width: 94mm; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap; }
+        .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 34pt; font-weight: 900; line-height: .9; letter-spacing: -.3mm; white-space: nowrap; }
         @@page { size: 100mm 50mm; margin: 0; }
         @@media print {
-            body { background: #fff; }
+            html, body { width: 100mm; margin: 0 !important; padding: 0 !important; background: #fff; }
             .print-toolbar { display: none !important; }
-            .labels { padding: 0; }
-            .label-page { margin: 0; border: 0; }
+            .labels { width: 100mm; margin: 0 !important; padding: 0 !important; }
+            .label-page { width: 100mm !important; height: 50mm !important; margin: 0 !important; padding: 2mm 3mm !important; border: 0; }
         }
     </style>
 </head>
@@ -35,7 +35,6 @@
     <div class="print-toolbar">
         <button id="btn-imprimir" type="button" disabled>Preparando QR Codes...</button>
         <span>@Model.Etiquetas.Count.ToString("N0") etiqueta(s)</span>
-        <a href="@Url.Action("LayoutEtiquetasAlternativo", "Locacao", new { area = "EstoqueApp", token = Request.QueryString["token"] })">Ver modelo alternativo</a>
         <a href="javascript:window.close()">Fechar</a>
     </div>
     <main class="labels">
@@ -66,14 +65,17 @@
                 }
                 function ajustarCodigos() {
                     var codigos = document.querySelectorAll('.label-code');
+                    var tamanhosPorQuantidade = { 9: 40, 10: 38, 11: 36, 12: 34 };
                     for (var j = 0; j < codigos.length; j++) {
                         var texto = codigos[j].querySelector('.label-code-text');
-                        texto.style.transform = 'none';
-                        var larguraDisponivel = codigos[j].clientWidth * 0.94;
-                        var larguraTexto = texto.offsetWidth;
-                        var escalaHorizontal = larguraTexto > 0 ? larguraDisponivel / larguraTexto : 1;
-                        escalaHorizontal = Math.min(1.25, escalaHorizontal);
-                        texto.style.transform = 'scaleX(' + escalaHorizontal.toFixed(3) + ')';
+                        var quantidade = (texto.textContent || '').trim().length;
+                        var tamanhoConfigurado = tamanhosPorQuantidade[quantidade] || 34;
+                        texto.style.fontSize = tamanhoConfigurado + 'pt';
+
+                        var larguraDisponivel = codigos[j].clientWidth * 0.96;
+                        var proporcao = texto.scrollWidth > 0 ? larguraDisponivel / texto.scrollWidth : 1;
+                        var tamanho = Math.min(tamanhoConfigurado, tamanhoConfigurado * proporcao);
+                        texto.style.fontSize = tamanho.toFixed(1) + 'pt';
                     }
                     botao.disabled = false;
                     botao.textContent = 'Imprimir ou salvar como PDF';

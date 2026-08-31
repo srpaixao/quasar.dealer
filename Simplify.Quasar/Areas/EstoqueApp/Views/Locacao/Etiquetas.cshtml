@@ -35,10 +35,6 @@
                         <input type="text" id="filtro-descricao" class="form-control" />
                     </div>
                     <div class="col-sm-6 col-md-3 form-group">
-                        <label for="filtro-area">Área</label>
-                        @Html.DropDownList("filtro-area", Model.Areas, new { @class = "form-control", id = "filtro-area" })
-                    </div>
-                    <div class="col-sm-6 col-md-3 form-group">
                         <label for="filtro-zona">Zona</label>
                         @Html.DropDownList("filtro-zona", Model.Zonas, new { @class = "form-control", id = "filtro-zona" })
                     </div>
@@ -65,10 +61,7 @@
                     <i class="fa fa-square-o fa-fw"></i> DESMARCAR TODOS
                 </button>
                 <button type="button" id="btn-imprimir-selecionados" class="btn btn-success">
-                    <i class="fa fa-print fa-fw"></i> IMPRIMIR MODELO PADRÃO
-                </button>
-                <button type="button" id="btn-imprimir-alternativo" class="btn btn-info">
-                    <i class="fa fa-qrcode fa-fw"></i> IMPRIMIR MODELO ALTERNATIVO
+                    <i class="fa fa-print fa-fw"></i> Imprimir
                 </button>
                 <span id="quantidade-selecionada" class="etiqueta-selected-count">0 selecionada(s)</span>
             </div>
@@ -114,7 +107,6 @@
                 return {
                     codigo: $('#filtro-codigo').val() || '',
                     descricao: $('#filtro-descricao').val() || '',
-                    areaId: $('#filtro-area').val() || null,
                     zonaId: $('#filtro-zona').val() || null,
                     equipamentoId: $('#filtro-equipamento').val() || null,
                     demanda: $('#filtro-demanda').val() || '',
@@ -227,7 +219,7 @@
             $('#btn-limpar').on('click', function () {
                 limparSelecao();
                 $('#filtro-codigo, #filtro-descricao').val('');
-                $('#filtro-area, #filtro-zona, #filtro-equipamento, #filtro-demanda').val('');
+                $('#filtro-zona, #filtro-equipamento, #filtro-demanda').val('');
                 table.search('');
                 table.ajax.reload(null, true);
             });
@@ -268,7 +260,7 @@
             $('#btn-marcar-todos').on('click', function () { alterarTodosFiltrados(true); });
             $('#btn-desmarcar-todos').on('click', function () { alterarTodosFiltrados(false); });
 
-            function imprimirSelecionados(modelo) {
+            function imprimirSelecionados() {
                 var ids = idsSelecionados();
                 if (ids.length === 0) {
                     avisar('Selecione pelo menos uma locação para imprimir.');
@@ -279,7 +271,7 @@
                 $.ajax({
                     url: '@Url.Action("PrepararEtiquetas", "Locacao", new { area = "EstoqueApp" })',
                     type: 'POST',
-                    data: { ids: ids.join(','), modelo: modelo, __RequestVerificationToken: antiForgeryToken }
+                    data: { ids: ids.join(','), modelo: 'padrao', __RequestVerificationToken: antiForgeryToken }
                 }).done(function (result) {
                     if (!result.success) {
                         if (janela) janela.close();
@@ -294,8 +286,7 @@
                 });
             }
 
-            $('#btn-imprimir-selecionados').on('click', function () { imprimirSelecionados('padrao'); });
-            $('#btn-imprimir-alternativo').on('click', function () { imprimirSelecionados('alternativo'); });
+            $('#btn-imprimir-selecionados').on('click', imprimirSelecionados);
         });
     </script>
 }

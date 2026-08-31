@@ -15,11 +15,13 @@ namespace Simplify.Quasar.Areas.EstoqueApp.ViewModels
         public string Status { get; set; }
         public int? AreaId { get; set; }
         public string AreaNome { get; set; }
+        public IEnumerable<System.Web.Mvc.SelectListItem> AreaDDL { get; set; }
         public int? ZonaId { get; set; }
         public string ZonaNome { get; set; }
         public int? EquipamentoId { get; set; }
         public string EquipamentoNome { get; set; }
         public string Curva { get; set; }
+        public IEnumerable<System.Web.Mvc.SelectListItem> CurvaDDL { get; set; }
         public string Estrategia { get; set; }
         public string Observacoes { get; set; }
         public DateTime? CriadoEm { get; set; }

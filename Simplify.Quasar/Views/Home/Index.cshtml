@@ -78,6 +78,11 @@
         background: #eaf1fb;
         border-color: #0073b7;
     }
+
+    .summary-card.is-red {
+        background: #fcebec;
+        border-color: #dd4b39;
+    }
 </style>
 
 <section class="qd-home-hero">
@@ -137,6 +142,16 @@
                         <span class="summary-value">0</span>
                         <span class="summary-title">Entrega</span>
                         <span class="summary-detail">Volumes para entregar</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a class="summary-link" href="@Url.Action("Index", "Processo", new { area = "AnomaliaApp", statusId = 1 })">
+                    <div class="summary-card is-red">
+                        <span class="summary-label">Anomalias</span>
+                        <span class="summary-value">@ViewBag.ItensAnomaliasPendentes</span>
+                        <span class="summary-title">Pendentes</span>
+                        <span class="summary-detail">Itens aguardando an&aacute;lise</span>
                     </div>
                 </a>
             </div>
