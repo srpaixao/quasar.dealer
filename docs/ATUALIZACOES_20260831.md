@@ -3,7 +3,7 @@
 ## Versão
 
 - Web MVC: `1.0.9.0`.
-- Situação: preparada e versionada no GitHub, ainda sem implantação em produção.
+- Situação: implantada em produção em `01/09/2026`.
 
 ## Novo módulo de Anomalias GM
 
@@ -45,7 +45,15 @@ Os scripts criam as tabelas, índices, restrições, parâmetros e opções de m
 
 ## Situação de implantação
 
-As alterações estão preparadas e documentadas para testes. A implantação em produção deve ocorrer somente mediante autorização expressa, incluindo banco, aplicação, menu e modelos de planilha.
+Implantação concluída em produção em `01/09/2026`, incluindo:
+
+- versão Web MVC `1.0.9.0`;
+- sete tabelas do processo de Anomalias GM e respectivos índices, restrições e cadastros auxiliares;
+- campos `Empresa.CodigoGM`, `NotaFiscalItem.PrecoUnitario`, `NotaFiscalItem.Imposto`, `TransitoUploadColumns.PrecoUnitario` e `TransitoUploadColumns.Imposto`;
+- registros ativos do `AppMenu` para cadastrar e consultar Anomalias;
+- formulários oficiais GM em `App_Data/Templates`;
+- conteúdo do Manual referente a Anomalias;
+- layout de impressão das etiquetas de localização no formato `100 x 50 mm`.
 
 ## Manual e interface
 
