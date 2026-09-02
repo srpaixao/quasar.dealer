@@ -25,6 +25,23 @@ import App from './App.vue'
 const vuetify = createVuetify({
     components,
     directives,
+    theme: {
+      defaultTheme: 'quasarCollector',
+      themes: {
+        quasarCollector: {
+          dark: false,
+          colors: {
+            primary: '#2368ff',
+            secondary: '#354850',
+            success: '#008f82',
+            warning: '#e9a11b',
+            error: '#d74c4c',
+            background: '#f4f6f7',
+            surface: '#ffffff',
+          },
+        },
+      },
+    },
   })
 
 const app = createApp(App);

@@ -9,7 +9,7 @@ const route = useRoute();
 </script>
 
 <template>
-  <v-app>
+  <v-app class="collector-app">
     <Navbar v-if="route.meta.showNavbar" />
 
     <v-main>

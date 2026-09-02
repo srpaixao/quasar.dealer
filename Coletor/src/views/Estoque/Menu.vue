@@ -10,7 +10,7 @@ function confirmLogout() {
 </script>
 
 <template>
-  <v-container class="text-center">
+  <v-container class="collector-home collector-submenu text-center">
     <v-row dense>
       <v-col cols="12">
         <div class="text-center">Estoque</div>

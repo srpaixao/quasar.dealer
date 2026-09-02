@@ -2,12 +2,21 @@
 
 Sistema web de gestão de peças, estoque e operação de concessionárias.
 
-## Atualizações preparadas em 31/08/2026
+## Versões em produção - 02/09/2026
 
-- Web MVC: `1.0.9.0`.
-- Situação: disponível no GitHub e ainda não implantada em produção.
+- Web MVC: `1.0.10.0`
+- Coletor: `1.0.10`
+- API: ASP.NET Core `net9.0`
 
-O repositório inclui o novo módulo de Anomalias GM, ainda sem implantação em produção:
+Atualizações visuais implantadas:
+
+- padrão visual do Quasar.Delivery aplicado ao Quasar.Dealer Web e ao coletor
+- login orbital com logotipo Quasar Dealer, card transparente e ação principal em azul
+- popups da versão Web padronizados
+- cabeçalho e menus do coletor compactados para operação sem rolagem na tela de referência
+- versão `1.0.10` exibida abaixo do botão de acesso do coletor
+
+O repositório também inclui o módulo de Anomalias GM:
 
 - cadastro por item, NF e volume;
 - tipos A, B, C e G definidos por item;

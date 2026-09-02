@@ -1,8 +1,8 @@
 # Coletor Quasar
 
-Versão: `1.0.7`
+Versão: `1.0.10`
 
-Documentação revisada em `25/08/2026`.
+Documentação revisada em `02/09/2026`.
 
 ## Objetivo
 
@@ -17,6 +17,32 @@ O foco do projeto e oferecer fluxos curtos, navegacao touch e consumo da API ope
 - Vuetify 3
 - Pinia
 - Axios
+
+## Atualização 1.0.10 - 02/09/2026
+
+### Interface
+
+- novo padrão visual alinhado ao Quasar.Delivery
+- login com fundo orbital, logotipo Quasar Dealer e card transparente
+- identificação `Warehouse Management System` em uma única linha
+- botão `ACESSAR` na cor azul do logotipo e versão posicionada abaixo da ação
+- cabeçalho compacto com logotipo, identificação do coletor, status on-line e versão
+- menus compactos, sem texto introdutório e sem necessidade de rolagem na resolução de referência `325 x 601`
+- campos, botões, cards, navegação inferior e diálogos padronizados
+
+### Operação
+
+- conferência quantitativa de itens por volume no recebimento
+- consulta dos volumes pendentes e controle do teclado virtual no descarregamento
+- coleta e transferência de estoque orientadas pela Locação de Espera
+- separação por zona, com atribuição, confirmação e liberação de tarefa
+- conferência de separação por romaneio na expedição
+
+### Publicação
+
+- build de produção otimizado com divisão dos pacotes principais
+- suporte a rotas SPA no IIS por meio de `public/web.config`
+- versão de produção: `http://srpaixao-001-site11.jtempurl.com/`
 
 ## Modulos Atuais no Coletor
 
@@ -122,6 +148,8 @@ npm run dev
 ```powershell
 npm run build
 ```
+
+O conteúdo gerado em `dist/` é o pacote estático utilizado na publicação. A pasta não deve ser versionada.
 
 ## Fluxo de Conferir Separacao em Expedicao
 

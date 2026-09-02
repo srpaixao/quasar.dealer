@@ -25,3 +25,372 @@
 .text-center {
   text-align: center;
 }
+
+:root {
+  --collector-ink: #18232d;
+  --collector-muted: #65727e;
+  --collector-line: #dce2e6;
+  --collector-paper: #ffffff;
+  --collector-canvas: #f4f6f7;
+  --collector-dark: #18282d;
+  --collector-dark-2: #21363b;
+  --collector-blue-a: #18b8ff;
+  --collector-blue-b: #2368ff;
+  --collector-teal: #008f82;
+  --collector-green: #27d3a2;
+  --collector-amber: #e9a11b;
+  --collector-red: #d74c4c;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+  background: var(--collector-canvas);
+}
+
+body {
+  color: var(--collector-ink);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.collector-app,
+.collector-app .v-application__wrap,
+.collector-app .v-main {
+  background: var(--collector-canvas);
+}
+
+.collector-app .v-main > .v-container:not(.collector-login-screen) {
+  width: 100%;
+  max-width: 560px;
+  padding: 20px 16px 78px;
+}
+
+/* Cabeçalho operacional */
+.collector-appbar.v-toolbar {
+  color: #fff !important;
+  background: var(--collector-dark) !important;
+  border-bottom: 3px solid var(--collector-blue-a) !important;
+  box-shadow: none !important;
+}
+
+.collector-appbar .v-toolbar__content {
+  padding: 5px 12px;
+}
+
+.collector-appbar-logo {
+  width: 126px;
+  height: 44px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.collector-appbar-title {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+/* Login */
+.collector-login-screen {
+  position: relative;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100vh !important;
+  min-height: 620px;
+  align-items: flex-start !important;
+  padding-top: max(8px, env(safe-area-inset-top)) !important;
+  margin: 0;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(5, 15, 24, .9), rgba(5, 15, 24, .48)),
+    radial-gradient(circle at 72% 34%, rgba(160, 174, 201, .48) 0 16%, transparent 17%),
+    radial-gradient(ellipse at 74% 38%, transparent 0 25%, rgba(193, 206, 231, .7) 26% 27%, transparent 28% 32%, rgba(98, 114, 176, .48) 33% 35%, transparent 36%),
+    radial-gradient(circle at 70% 34%, #293150 0 27%, #111a30 43%, #06111c 72%);
+}
+
+.collector-login-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 16% 20%, rgba(24, 184, 255, .13), transparent 34%);
+}
+
+.collector-login-screen > .v-row {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin: 0;
+}
+
+.collector-login-screen > .v-row > .v-col {
+  width: 100%;
+  max-width: 372px;
+  flex: 0 0 372px;
+}
+
+.collector-login-panel {
+  width: 100%;
+  max-width: 340px;
+}
+
+.collector-login-card.v-card {
+  overflow: visible;
+  color: #fff;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.collector-login-card .v-container {
+  padding: 0;
+}
+
+.collector-login-card .v-row {
+  margin: 0 0 2px;
+}
+
+.collector-login-card .v-col {
+  padding: 4px 0;
+}
+
+.collector-login-brand {
+  margin: 0 0 8px;
+}
+
+.collector-login-brand img {
+  display: block;
+  width: 220px;
+  height: auto;
+  margin: 0 auto 4px;
+}
+
+.collector-login-brand > span {
+  display: block;
+  color: #fff;
+  font-size: clamp(14px, 4.6vw, 17px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px #000;
+}
+
+.collector-login-card .v-field {
+  color: var(--collector-ink);
+  background: rgba(255, 255, 255, .97);
+  border-radius: 5px;
+}
+
+.collector-login-card .v-field__outline {
+  --v-field-border-opacity: 0;
+}
+
+.collector-login-card .v-field--focused .v-field__outline {
+  --v-field-border-opacity: 1;
+  color: var(--collector-blue-a);
+}
+
+.collector-login-card .v-label,
+.collector-login-card .v-icon,
+.collector-login-card input {
+  color: var(--collector-ink) !important;
+}
+
+.collector-login-card .v-input__details {
+  min-height: 14px;
+  color: #ffd8d8;
+}
+
+.collector-login-action.v-btn {
+  min-height: 48px;
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--collector-blue-a), var(--collector-blue-b)) !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.collector-login-action.v-btn:hover {
+  background: linear-gradient(135deg, #0aa9f0, #174fdb) !important;
+  box-shadow: 0 5px 16px rgba(35, 104, 255, .28) !important;
+}
+
+.collector-login-card .version {
+  margin-top: 27px;
+  color: #aab9bf;
+  font-size: 11px;
+}
+
+.collector-login-card .api-error {
+  padding: 9px 11px;
+  color: #ffd8d8;
+  background: rgba(130, 28, 28, .42);
+  border: 1px solid rgba(255, 180, 180, .22);
+  border-radius: 5px;
+}
+
+/* Menu principal */
+.collector-home {
+  text-align: left !important;
+}
+
+.collector-page-heading {
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.collector-page-heading p {
+  margin: 0 0 4px;
+  color: var(--collector-teal);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.collector-page-heading h1 {
+  margin: 0;
+  color: var(--collector-ink);
+  font-size: 23px;
+  line-height: 1.2;
+}
+
+.collector-page-heading span {
+  display: block;
+  margin-top: 6px;
+  color: var(--collector-muted);
+  font-size: 12px;
+}
+
+.collector-home > .v-row {
+  margin: 0 0 6px;
+}
+
+.collector-home > .v-row > [class*="v-col"] {
+  max-width: none;
+  padding: 4px 0 !important;
+  flex: 0 0 100%;
+}
+
+.collector-submenu > .v-row:first-child {
+  margin-bottom: 10px;
+  color: var(--collector-ink);
+  font-size: 20px;
+  font-weight: 750;
+  text-align: left;
+}
+
+.collector-home .v-btn {
+  min-height: 52px !important;
+  justify-content: flex-start;
+  padding: 8px 14px;
+  color: var(--collector-ink) !important;
+  background: var(--collector-paper) !important;
+  border: 1px solid var(--collector-line) !important;
+  border-left: 4px solid var(--collector-blue-a) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px rgba(20, 35, 45, .08) !important;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+.collector-home > .v-row:nth-of-type(2) .v-btn { border-left-color: var(--collector-green) !important; }
+.collector-home > .v-row:nth-of-type(3) .v-btn { border-left-color: var(--collector-amber) !important; }
+.collector-home > .v-row:nth-of-type(4) .v-btn { border-left-color: #7b6eb5 !important; }
+.collector-home .v-btn.inactive-btn { opacity: .55; border-left-color: #9aa8ae !important; }
+
+/* Componentes operacionais */
+.collector-app .screen-title,
+.collector-app .v-container > div.text-center:first-child {
+  margin-bottom: 10px;
+  color: var(--collector-ink);
+  font-size: 17px !important;
+  font-weight: 750;
+}
+
+.collector-app .v-card {
+  border: 1px solid var(--collector-line);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(20, 35, 45, .08);
+}
+
+.collector-app .v-field {
+  border-radius: 5px;
+}
+
+.collector-app .v-field--focused {
+  box-shadow: 0 0 0 3px rgba(35, 104, 255, .1);
+}
+
+.collector-app .v-btn {
+  border-radius: 5px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.collector-app .v-btn.bg-green-darken-1 {
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--collector-blue-a), var(--collector-blue-b)) !important;
+}
+
+.collector-app .v-alert {
+  border-radius: 5px;
+}
+
+.collector-app .v-dialog .v-card-actions {
+  gap: 8px;
+  padding: 12px 16px 16px;
+}
+
+.collector-app .v-bottom-navigation {
+  color: #607179;
+  background: #fff !important;
+  border-top: 1px solid var(--collector-line);
+  box-shadow: 0 -2px 8px rgba(20, 35, 45, .06) !important;
+}
+
+.collector-app .v-bottom-navigation .v-btn,
+.collector-app .v-bottom-navigation .active-btn {
+  color: #607179 !important;
+  background: transparent !important;
+  border-radius: 0;
+  font-size: 11px;
+}
+
+.collector-app .v-bottom-navigation .v-btn.router-link-active,
+.collector-app .v-bottom-navigation .v-btn:first-child {
+  color: var(--collector-teal) !important;
+}
+
+@media (max-width: 600px) {
+  .collector-login-screen {
+    padding: max(6px, env(safe-area-inset-top)) 16px 12px !important;
+  }
+
+  .collector-app .v-main > .collector-home.v-container {
+    padding: 12px 16px 66px;
+  }
+
+  .collector-login-screen > .v-row > .v-col {
+    width: 100%;
+    max-width: 356px;
+    flex-basis: 100%;
+  }
+
+  .collector-appbar-logo {
+    width: 112px;
+  }
+
+  .collector-appbar .system-info .ambiente,
+  .collector-appbar .system-info .version {
+    display: none;
+  }
+}

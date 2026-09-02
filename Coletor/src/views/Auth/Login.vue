@@ -10,6 +10,7 @@ import apiService from '../../http/request.js';
 import { APP_VERSION } from '@/config/version.js';
 
 import { stateSession } from '../../router/index.js';
+const logoUrl = `${import.meta.env.BASE_URL}quasar-dealer-logo.svg`;
 
 const errorMessage = computed(() => stateSession.errorMessage);
 const dialogVisible = computed(() => errorMessage.value !== '');
@@ -135,21 +136,21 @@ const submitLogin = async () => {
 </script>
 
 <template>
-    <v-container class="d-flex align-center justify-center" style="height: 100vh;">
+    <v-container class="collector-login-screen d-flex align-center justify-center">
         <v-row justify="center">
             <v-col cols="12" sm="6" md="4">
-                <v-form ref="form" v-model='formValid' class="mx-auto pa-4" lazy-validation>
-                    <v-card class="mx-auto">
+                <v-form ref="form" v-model='formValid' class="collector-login-panel mx-auto pa-4" lazy-validation @submit.prevent="submitLogin">
+                    <v-card class="collector-login-card mx-auto">
                         <v-container>
                             <v-row justify="center">
                                 <v-col>
-                                    <h2 class="text-center">
-                                        Quasar Dealer
+                                    <h2 class="collector-login-brand text-center">
+                                        <img :src="logoUrl" alt="Quasar Dealer" />
+                                        <span>Warehouse Management System</span>
                                         <div>
                                             <small class="ambiente">{{ ambiente }}</small>
                                         </div>
                                     </h2>
-                                    <div class="version text-center">Versão {{ APP_VERSION }}</div>
                                 </v-col>
                             </v-row>
                             <v-row>
@@ -170,7 +171,7 @@ const submitLogin = async () => {
                             </v-row>
                             <v-row>
                                 <v-col class="text-center">
-                                    <v-btn color="green-darken-1" variant="elevated" block @click="submitLogin">
+                                    <v-btn type="submit" class="collector-login-action" variant="elevated" block>
                                         <template v-if="processing">
                                             <v-row class="d-flex align-center">
                                                 <v-icon color="white" size="18"
@@ -180,9 +181,10 @@ const submitLogin = async () => {
                                         </template>
 
                                         <template v-else>
-                                            <v-icon>mdi-login</v-icon>&nbsp;Login
+                                            <v-icon>mdi-login</v-icon>&nbsp;ACESSAR
                                         </template>
                                     </v-btn>
+                                    <div class="version text-center">Versão {{ APP_VERSION }}</div>
                                 </v-col>
                             </v-row>
 
@@ -227,7 +229,7 @@ h2 {
 small.ambiente {
     font-size: 60%;
     font-style: italic;
-    color: tomato;
+    color: #ffd27a;
 }
 
 .version {

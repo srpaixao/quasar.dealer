@@ -10,7 +10,7 @@ function confirmLogout() {
 </script>
 
 <template>
-  <v-container class="text-center">
+  <v-container class="collector-home text-center">
     <v-row justify="center">
       <v-col cols="12" md="4" sm="6">
         <v-btn block :to="{ name: 'Recebimento' }" size="x-large" color="primary" variant="outlined">Recebimento</v-btn>

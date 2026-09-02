@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prévia visual | Quasar Dealer Coletor</title>
+  <style>
+    :root {
+      --ink: #18232d;
+      --muted: #65727e;
+      --line: #dce2e6;
+      --paper: #fff;
+      --canvas: #f4f6f7;
+      --sidebar: #18282d;
+      --blue-a: #18b8ff;
+      --blue-b: #2368ff;
+      --green: #27d3a2;
+      --amber: #e9a11b;
+      --red: #d74c4c;
+      --shadow: 0 18px 50px rgba(8, 20, 32, .2);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #e9eef1;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    .preview-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .preview-toolbar {
+      max-width: 980px;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 auto 20px;
+      padding: 10px 12px 10px 18px;
+      color: #dbe6ea;
+      background: var(--sidebar);
+      border-radius: 8px;
+      box-shadow: 0 8px 28px rgba(24, 40, 45, .16);
+    }
+
+    .preview-toolbar strong { color: #fff; }
+    .preview-toolbar small { display: block; margin-top: 2px; color: #91a4aa; }
+    .preview-tabs { display: flex; gap: 7px; }
+    .preview-tabs button {
+      min-height: 34px;
+      padding: 6px 13px;
+      color: #b9c7ca;
+      background: transparent;
+      border: 1px solid #3a4c52;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .preview-tabs button.active {
+      color: #fff;
+      border-color: var(--blue-a);
+      background: linear-gradient(135deg, var(--blue-a), var(--blue-b));
+    }
+
+    .device {
+      position: relative;
+      width: min(390px, calc(100vw - 32px));
+      height: min(800px, calc(100vh - 125px));
+      min-height: 640px;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 7px solid #17242a;
+      border-radius: 26px;
+      background: var(--canvas);
+      box-shadow: var(--shadow), 0 0 0 1px #53636b;
+    }
+
+    .device::before {
+      content: "";
+      position: absolute;
+      top: 7px;
+      left: 50%;
+      z-index: 20;
+      width: 72px;
+      height: 5px;
+      border-radius: 99px;
+      background: #34464d;
+      transform: translateX(-50%);
+    }
+
+    .screen { position: absolute; inset: 0; display: none; }
+    .screen.active { display: flex; }
+
+    .login-screen {
+      align-items: center;
+      justify-content: center;
+      padding: 28px 24px;
+      color: #fff;
+      background:
+        linear-gradient(90deg, rgba(5, 15, 24, .88), rgba(5, 15, 24, .45)),
+        radial-gradient(circle at 72% 34%, rgba(160, 174, 201, .48) 0 16%, transparent 17%),
+        radial-gradient(ellipse at 74% 38%, transparent 0 25%, rgba(193, 206, 231, .7) 26% 27%, transparent 28% 32%, rgba(98, 114, 176, .48) 33% 35%, transparent 36%),
+        radial-gradient(circle at 70% 34%, #293150 0 27%, #111a30 43%, #06111c 72%);
+    }
+
+    .login-screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 16% 20%, rgba(24, 184, 255, .12), transparent 34%);
+    }
+
+    .login-panel { position: relative; z-index: 2; width: 100%; max-width: 310px; }
+    .brand { display: flex; justify-content: center; margin-bottom: 4px; }
+    .brand svg { width: 220px; height: auto; }
+    .system-name {
+      margin: 0 0 27px;
+      color: #fff;
+      font-size: 19px;
+      font-weight: 800;
+      line-height: 1.2;
+      text-align: center;
+      text-shadow: 0 1px 4px #000;
+    }
+
+    .field { margin-bottom: 13px; }
+    .field label { display: block; margin-bottom: 6px; color: #e2e8ea; font-size: 12px; font-weight: 700; }
+    .field input {
+      width: 100%;
+      height: 46px;
+      padding: 0 13px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, .97);
+      border: 1px solid transparent;
+      border-radius: 5px;
+      outline: none;
+    }
+    .field input:focus { border-color: var(--blue-a); box-shadow: 0 0 0 3px rgba(24, 184, 255, .18); }
+    .login-action {
+      width: 100%;
+      height: 48px;
+      margin-top: 4px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue-a), var(--blue-b));
+      border: 0;
+      border-radius: 5px;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+    .login-meta { margin: 18px 0 0; color: #aab9bf; font-size: 11px; text-align: center; }
+
+    .menu-screen { flex-direction: column; background: var(--canvas); }
+    .appbar {
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px 10px;
+      color: #fff;
+      background: var(--sidebar);
+      border-bottom: 3px solid var(--blue-a);
+    }
+    .appbar .mark { width: 34px; height: 34px; flex: 0 0 auto; }
+    .appbar strong, .appbar small { display: block; }
+    .appbar strong { font-size: 15px; }
+    .appbar small { margin-top: 1px; color: #9fb2b6; font-size: 10px; }
+    .signal { margin-left: auto; color: var(--green); font-size: 11px; font-weight: 800; }
+
+    .menu-content { flex: 1; overflow: auto; padding: 22px 16px 18px; }
+    .eyebrow { margin: 0 0 4px; color: #08736b; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .menu-content h1 { margin: 0; font-size: 23px; line-height: 1.2; }
+    .menu-content .intro { margin: 6px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .operation-grid { display: grid; gap: 10px; }
+    .operation {
+      min-height: 74px;
+      display: grid;
+      grid-template-columns: 46px 1fr 24px;
+      align-items: center;
+      gap: 11px;
+      padding: 12px;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue-a);
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(20, 35, 45, .08);
+      text-align: left;
+    }
+    .operation:nth-child(2) { border-left-color: var(--green); }
+    .operation:nth-child(3) { border-left-color: var(--amber); }
+    .operation:nth-child(4) { border-left-color: #7b6eb5; }
+    .operation.inactive { opacity: .55; border-left-color: #9aa8ae; }
+    .operation-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: #0b73ba;
+      background: #e5f5fd;
+      border-radius: 5px;
+      font-size: 21px;
+    }
+    .operation strong, .operation small { display: block; }
+    .operation strong { font-size: 14px; }
+    .operation small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .arrow { color: #87949b; font-size: 22px; text-align: right; }
+
+    .bottom-bar {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 5px 10px 7px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+    }
+    .bottom-bar button { color: #607179; background: transparent; border: 0; font-size: 11px; font-weight: 700; }
+    .bottom-bar button:first-child { color: #08736b; }
+    .bottom-bar span { display: block; margin-bottom: 2px; font-size: 20px; }
+
+    @media (max-width: 600px) {
+      .preview-shell { padding: 0; }
+      .preview-toolbar { margin: 0; border-radius: 0; }
+      .preview-toolbar small { display: none; }
+      .device { width: 100vw; height: calc(100vh - 54px); min-height: 0; border: 0; border-radius: 0; box-shadow: none; }
+      .device::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="preview-shell">
+    <header class="preview-toolbar">
+      <div><strong>Prévia visual do Coletor</strong><small>Proposta baseada no padrão aprovado do Quasar.Dealer</small></div>
+      <nav class="preview-tabs" aria-label="Selecionar tela">
+        <button type="button" class="active" data-screen="login">Login</button>
+        <button type="button" data-screen="menu">Menu</button>
+      </nav>
+    </header>
+
+    <section class="device" aria-label="Simulação de coletor móvel">
+      <div class="screen login-screen active" data-panel="login">
+        <div class="login-panel">
+          <div class="brand">
+            <svg viewBox="0 0 240 72" role="img" aria-label="Quasar Dealer">
+              <defs><linearGradient id="qg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#18b8ff"/><stop offset="1" stop-color="#2368ff"/></linearGradient></defs>
+              <g transform="translate(4 4)"><circle cx="32" cy="32" r="19" fill="none" stroke="url(#qg)" stroke-width="9"/><path d="M45 45 58 58" fill="none" stroke="#27d3a2" stroke-width="9" stroke-linecap="round"/><path d="M3 25c13-13 42-23 60-12" fill="none" stroke="#8fe9ff" stroke-width="2.5" stroke-linecap="round"/><circle cx="6" cy="23" r="4" fill="#27d3a2"/></g>
+              <text x="80" y="35" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="31" font-weight="750" letter-spacing="-1.1" fill="#f7fbff">Quasar</text><text x="80" y="58" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" font-weight="550" letter-spacing="4.8" fill="#8ea7bd">DEALER</text>
+            </svg>
+          </div>
+          <p class="system-name">Warehouse Management System</p>
+          <div class="field"><label for="user">Usuário</label><input id="user" placeholder="Informe seu usuário" /></div>
+          <div class="field"><label for="password">Senha</label><input id="password" type="password" placeholder="Digite sua senha" /></div>
+          <button class="login-action" type="button">ACESSAR</button>
+          <p class="login-meta">Quasar Dealer Coletor &middot; Versão 1.0.10</p>
+        </div>
+      </div>
+
+      <div class="screen menu-screen" data-panel="menu">
+        <header class="appbar">
+          <svg class="mark" viewBox="0 0 68 68" aria-hidden="true"><defs><linearGradient id="qm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#18b8ff"/><stop offset="1" stop-color="#2368ff"/></linearGradient></defs><circle cx="30" cy="30" r="19" fill="none" stroke="url(#qm)" stroke-width="9"/><path d="M43 43 57 57" stroke="#27d3a2" stroke-width="9" stroke-linecap="round"/><circle cx="4" cy="22" r="4" fill="#27d3a2"/></svg>
+          <div><strong>Quasar Dealer</strong><small>Coletor &middot; Automec Chevrolet</small></div>
+          <span class="signal">● ONLINE</span>
+        </header>
+        <section class="menu-content">
+          <p class="eyebrow">Operação</p>
+          <h1>Olá, operador</h1>
+          <p class="intro">Selecione o fluxo que deseja executar no coletor.</p>
+          <div class="operation-grid">
+            <button class="operation"><span class="operation-icon">↓</span><span><strong>Recebimento</strong><small>Descarga, conferência e armazenagem</small></span><span class="arrow">›</span></button>
+            <button class="operation"><span class="operation-icon">▦</span><span><strong>Estoque</strong><small>Consulta, contagem e transferência</small></span><span class="arrow">›</span></button>
+            <button class="operation"><span class="operation-icon">✓</span><span><strong>Separação</strong><small>Conferência de pedidos e volumes</small></span><span class="arrow">›</span></button>
+            <button class="operation"><span class="operation-icon">→</span><span><strong>Expedição</strong><small>Despacho e conferência final</small></span><span class="arrow">›</span></button>
+            <button class="operation inactive"><span class="operation-icon">#</span><span><strong>Inventário</strong><small>Funcionalidade indisponível</small></span><span class="arrow">›</span></button>
+          </div>
+        </section>
+        <nav class="bottom-bar"><button><span>⌂</span>Início</button><button><span>⇥</span>Sair</button></nav>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const buttons = document.querySelectorAll('[data-screen]');
+    const panels = document.querySelectorAll('[data-panel]');
+    buttons.forEach(button => button.addEventListener('click', () => {
+      buttons.forEach(item => item.classList.toggle('active', item === button));
+      panels.forEach(panel => panel.classList.toggle('active', panel.dataset.panel === button.dataset.screen));
+    }));
+    const requestedScreen = new URLSearchParams(location.search).get('screen');
+    if (requestedScreen === 'menu') {
+      buttons.forEach(item => item.classList.toggle('active', item.dataset.screen === requestedScreen));
+      panels.forEach(panel => panel.classList.toggle('active', panel.dataset.panel === requestedScreen));
+    }
+  </script>
+</body>
+</html>
