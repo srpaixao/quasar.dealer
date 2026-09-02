@@ -38,7 +38,19 @@ Os modulos atuais mapeados em `Simplify.Quasar/Areas` sao:
 
 ## Destaques Funcionais
 
-Versão Web MVC desta atualização: `1.0.9.0`.
+Versão Web MVC desta atualização: `1.0.10.0`.
+
+### Padrão visual 1.0.10
+
+O padrão visual baseado no Quasar.Delivery foi adotado como interface oficial do Quasar.Dealer:
+
+- login orbital com card transparente e chamada operacional
+- identidade visual azul do Quasar no botão principal
+- cabeçalho, menu lateral, rodapé e dashboard responsivos
+- formulários, tabelas, alertas, paginação e cards padronizados
+- popups Bootstrap, Bootbox e SweetAlert com o mesmo padrão visual
+
+A mudança é restrita à camada de apresentação e não altera controllers, serviços ou regras de negócio.
 
 ### Anomalias GM
 
@@ -98,6 +110,7 @@ Esses ajustes sao disparados em `Global.asax.cs` e ajudam a manter o `AppMenu` c
 - [Manual por Tela - Devolução](docs/MANUAL_TELAS_DEVOLUCAO.md)
 - [Manual por Tela - Cadastros e Administração](docs/MANUAL_TELAS_CADASTROS.md)
 - [Atualizações Operacionais de 31/08/2026](docs/ATUALIZACOES_20260831.md)
+- [Padrão visual baseado no Quasar.Delivery](docs/visual-delivery-preview.md)
 
 ## Integração Operacional Atual
 

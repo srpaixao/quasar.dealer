@@ -609,6 +609,7 @@
     <Content Include="Content\DataTables\swf\flashExport.swf" />
     <Content Include="Content\img\Avatar.PNG" />
     <Content Include="Content\Quasar.Modern.css" />
+    <Content Include="Content\Quasar.DeliveryPreview.css" />
     <Content Include="Content\Quasar.VisualPrototype.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Global.asax" />
