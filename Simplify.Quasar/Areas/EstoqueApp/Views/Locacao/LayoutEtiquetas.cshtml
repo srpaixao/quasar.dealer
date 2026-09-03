@@ -21,14 +21,16 @@
         .label-page:last-child { page-break-after: auto; break-after: auto; }
         .label-qr { position: absolute; top: 1mm; left: 50%; width: 32mm; height: 32mm; transform: translateX(-50%); overflow: hidden; }
         .label-qr canvas, .label-qr img { display: block; width: 32mm !important; height: 32mm !important; }
-        .label-code { position: absolute; right: 1.5mm; bottom: 1mm; left: 1.5mm; height: 14.5mm; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap; }
-        .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 40pt; font-weight: 900; line-height: .88; letter-spacing: -.25mm; white-space: nowrap; }
+        .label-code { position: absolute; right: 1.5mm; bottom: .5mm; left: 1.5mm; height: 15.5mm; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap; }
+        .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 44pt; font-weight: 900; line-height: .84; letter-spacing: -.3mm; white-space: nowrap; }
         @@page { size: 100mm 50mm; margin: 0; }
         @@media print {
             html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff; }
             .print-toolbar { display: none !important; }
             .labels { width: 100% !important; margin: 0 !important; padding: 0 !important; }
-            .label-page { width: 100mm !important; height: 50mm !important; margin: 0 auto !important; padding: 0 !important; border: 0; }
+            .label-page { width: 100mm !important; height: 50mm !important; margin: 0 auto !important; padding: 0 !important; border: 0; overflow: visible !important; }
+            .label-qr { transform: translateX(calc(-50% + 10mm)); }
+            .label-code { transform: translateX(10mm); }
         }
     </style>
 </head>
@@ -69,8 +71,8 @@
                     for (var j = 0; j < codigos.length; j++) {
                         var texto = codigos[j].querySelector('.label-code-text');
                         var quantidade = parseInt(codigos[j].getAttribute('data-character-count'), 10) || 12;
-                        var maximo = quantidade <= 9 ? 40 : quantidade === 10 ? 38 : quantidade === 11 ? 36 : 34;
-                        var minimo = 22;
+                        var maximo = quantidade <= 9 ? 44 : quantidade === 10 ? 42 : quantidade === 11 ? 40 : 38;
+                        var minimo = 24;
                         var larguraDisponivel = codigos[j].clientWidth - 2;
                         var alturaDisponivel = codigos[j].clientHeight - 2;
 
