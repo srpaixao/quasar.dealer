@@ -13,4 +13,4 @@ Para preservar as medidas, mantenha o papel configurado no driver, use margens *
 
 ## Impressão direta na Zebra ZT230
 
-Quando o servidor e as impressoras estão cadastrados, o preview oferece um DDL com as impressoras válidas da filial e o botão **Imprimir direto**. O cadastro `Recebimento` é sempre pré-selecionado quando disponível; as demais impressoras continuam acessíveis no DDL. Essa opção envia ZPL nativo com 832 × 400 pontos para a ZT230 de 203 dpi e não passa pelo redimensionamento do navegador ou do driver. O botão convencional permanece disponível.
+Quando as impressoras estão cadastradas, o preview oferece um DDL com as impressoras válidas da filial e o botão **Imprimir direto**. O cadastro `Recebimento` é sempre pré-selecionado quando disponível; as demais impressoras continuam acessíveis no DDL. Essa opção faz o servidor do Quasar enviar ZPL nativo diretamente à porta cadastrada, com 832 × 400 pontos para a ZT230 de 203 dpi. Ela não depende do navegador, do driver nem do certificado do antigo servidor intermediário. O botão convencional permanece disponível.

@@ -14,6 +14,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Web;
 using System.Text;
+using System.Net.Sockets;
 
 namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
 {
@@ -461,6 +462,57 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             return MontarLayoutEtiquetas(token, "LayoutEtiquetasAlternativo");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ImprimirEtiquetasDireto(string token, int impressoraId)
+        {
+            LocacaoEtiquetaLoteSessao sessao = ObterSessaoEtiqueta(token);
+            if (sessao == null)
+            {
+                return Json(new { success = false, message = "A seleção de etiquetas expirou. Prepare a impressão novamente." });
+            }
+
+            Impressora impressora = db.Impressora.AsNoTracking().FirstOrDefault(x =>
+                x.Id == impressoraId && x.FilialId == filialId &&
+                x.IP != null && x.IP != string.Empty && x.Porta > 0);
+            if (impressora == null)
+            {
+                return Json(new { success = false, message = "A impressora selecionada não está disponível para esta filial." });
+            }
+
+            var porId = CarregarLocacoesPorIds(sessao.Ids).ToDictionary(x => x.Id);
+            var etiquetas = new List<LocacaoEtiquetaItemViewModel>();
+            foreach (int id in sessao.Ids)
+            {
+                Locacao locacao;
+                if (!porId.TryGetValue(id, out locacao))
+                {
+                    continue;
+                }
+
+                etiquetas.Add(new LocacaoEtiquetaItemViewModel
+                {
+                    CodigoSemEspacos = ChaveComparacaoCodigo(locacao.Codigo),
+                    CodigoFormatado = FormatarCodigoEtiqueta(locacao.Codigo)
+                });
+            }
+
+            if (etiquetas.Count == 0)
+            {
+                return Json(new { success = false, message = "Nenhuma etiqueta válida foi encontrada para impressão." });
+            }
+
+            try
+            {
+                EnviarZplParaImpressora(impressora.IP.Trim(), impressora.Porta, MontarZplEtiquetasLocacao(etiquetas));
+                return Json(new { success = true, message = "Etiquetas enviadas para " + impressora.Nome + "." });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "O Quasar não conseguiu conectar à impressora selecionada." });
+            }
+        }
+
         private ActionResult MontarLayoutEtiquetas(string token, string nomeView)
         {
             LocacaoEtiquetaLoteSessao sessao = ObterSessaoEtiqueta(token);
@@ -474,7 +526,7 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             var zonas = db.Zona.AsNoTracking().Where(x => x.FilialId == filialId || x.FilialId == null).ToDictionary(x => x.Id, x => x.Nome ?? x.Codigo);
             var equipamentos = db.Equipamento.AsNoTracking().Where(x => x.FilialId == filialId || x.FilialId == null).ToDictionary(x => x.Id, x => x.Nome);
             var porId = locacoes.ToDictionary(x => x.Id);
-            var vm = new LocacaoEtiquetaImpressaoViewModel();
+            var vm = new LocacaoEtiquetaImpressaoViewModel { Token = sessao.Token };
 
             foreach (int id in sessao.Ids)
             {
@@ -1029,19 +1081,16 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
 
         private void ConfigurarImpressaoDireta(LocacaoEtiquetaImpressaoViewModel vm)
         {
-            vm.PrinterServerIP = ObterConfiguracaoAplicacao("PrinterServerIP");
-            vm.PrinterServerPort = ObterConfiguracaoAplicacao("PrinterServerPort");
-
             List<Impressora> impressoras = db.Impressora.AsNoTracking()
                 .Where(x => x.FilialId == filialId && x.IP != null && x.IP != string.Empty && x.Porta > 0)
                 .OrderBy(x => x.Nome)
+                .ToList()
+                .Where(x => !string.IsNullOrWhiteSpace(x.IP) && !string.IsNullOrWhiteSpace(x.Nome))
                 .ToList();
             vm.Impressoras = impressoras.Select(x => new LocacaoEtiquetaImpressoraViewModel
             {
                 Id = x.Id,
-                Nome = x.Nome,
-                IP = x.IP.Trim(),
-                Porta = x.Porta
+                Nome = x.Nome
             }).ToList();
 
             Impressora impressora = ResolverImpressoraEtiquetaLocacao(impressoras);
@@ -1051,10 +1100,6 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             }
 
             vm.ImpressoraSelecionadaId = impressora.Id;
-            vm.ImpressoraNome = impressora.Nome.Trim();
-            vm.ImpressoraIP = impressora.IP.Trim();
-            vm.ImpressoraPorta = impressora.Porta.ToString();
-            vm.Zpl = MontarZplEtiquetasLocacao(vm.Etiquetas);
         }
 
         private Impressora ResolverImpressoraEtiquetaLocacao(List<Impressora> impressoras)
@@ -1143,6 +1188,34 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
         private static string SanitizarCampoZpl(string valor)
         {
             return (valor ?? string.Empty).Replace("^", string.Empty).Replace("~", string.Empty);
+        }
+
+        private static void EnviarZplParaImpressora(string endereco, int porta, string zpl)
+        {
+            byte[] dados = Encoding.ASCII.GetBytes(zpl ?? string.Empty);
+            using (var cliente = new TcpClient())
+            {
+                IAsyncResult conexao = cliente.BeginConnect(endereco, porta, null, null);
+                try
+                {
+                    if (!conexao.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(8)))
+                    {
+                        throw new TimeoutException("Tempo limite ao conectar à impressora.");
+                    }
+                    cliente.EndConnect(conexao);
+                }
+                finally
+                {
+                    conexao.AsyncWaitHandle.Close();
+                }
+
+                cliente.SendTimeout = 8000;
+                using (NetworkStream fluxo = cliente.GetStream())
+                {
+                    fluxo.Write(dados, 0, dados.Length);
+                    fluxo.Flush();
+                }
+            }
         }
 
         private void RegistrarHistoricoLote(LocacaoLoteSessao sessao, string usuario, DateTime dataHora, int criadas, int existentes)

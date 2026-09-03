@@ -45,11 +45,11 @@
                 {
                     if (impressora.Id == Model.ImpressoraSelecionadaId)
                     {
-                        <option value="@impressora.Id" data-name="@impressora.Nome" data-ip="@impressora.IP" data-port="@impressora.Porta" selected>@impressora.Nome</option>
+                        <option value="@impressora.Id" selected>@impressora.Nome</option>
                     }
                     else
                     {
-                        <option value="@impressora.Id" data-name="@impressora.Nome" data-ip="@impressora.IP" data-port="@impressora.Porta">@impressora.Nome</option>
+                        <option value="@impressora.Id">@impressora.Nome</option>
                     }
                 }
             </select>
@@ -61,10 +61,8 @@
     </div>
     @if (Model.PodeImprimirDireto)
     {
-        <input type="hidden" id="ps-ip" value="@Model.PrinterServerIP" />
-        <input type="hidden" id="ps-port" value="@Model.PrinterServerPort" />
-        <textarea id="zpl-etiquetas" style="display:none">@Model.Zpl</textarea>
-        <iframe src="" id="direct-label-print-frame" title="Servidor de impressão" style="display:none; width:0; height:0; border:0;"></iframe>
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="label-token" value="@Model.Token" />
     }
     <main class="labels">
         @for (int indice = 0; indice < Model.Etiquetas.Count; indice++)
@@ -131,58 +129,38 @@
 
             var status = document.getElementById('status-impressao-direta');
             botao.onclick = function () {
-                var iframe = document.getElementById('direct-label-print-frame');
                 var seletor = document.getElementById('printer-select');
-                var impressora = seletor.options[seletor.selectedIndex];
-                var servidorIp = document.getElementById('ps-ip').value.trim();
-                var servidorPorta = document.getElementById('ps-port').value.trim();
-                var impressoraNome = impressora.getAttribute('data-name') || impressora.textContent.trim();
-                var impressoraIp = impressora.getAttribute('data-ip') || '';
-                var impressoraPorta = impressora.getAttribute('data-port') || '';
-                var zpl = document.getElementById('zpl-etiquetas').value;
-                var finalizado = false;
+                var token = document.getElementById('label-token').value;
+                var antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                var xhr = new XMLHttpRequest();
 
                 botao.disabled = true;
                 seletor.disabled = true;
-                status.textContent = 'Conectando ao servidor de impressão...';
+                status.textContent = 'Enviando para a impressora...';
 
-                var timeoutId = window.setTimeout(function () {
-                    if (finalizado) return;
-                    finalizado = true;
+                function concluir(mensagem) {
                     botao.disabled = false;
                     seletor.disabled = false;
-                    status.textContent = 'Não foi possível conectar ao servidor de impressão.';
-                }, 30000);
+                    status.textContent = mensagem;
+                }
 
-                iframe.onload = function () {
-                    window.setTimeout(function () {
-                        if (finalizado) return;
-                        try {
-                            iframe.contentWindow.postMessage(JSON.stringify({
-                                ipServidorImpressao: servidorIp,
-                                portaServidorImpressao: servidorPorta,
-                                nomeImpressora: impressoraNome,
-                                ipImpressora: impressoraIp,
-                                portaImpressora: impressoraPorta,
-                                comandosZPL: zpl
-                            }), '*');
-                            finalizado = true;
-                            window.clearTimeout(timeoutId);
-                            botao.disabled = false;
-                            seletor.disabled = false;
-                            status.textContent = 'Etiquetas enviadas diretamente para a impressora.';
-                        } catch (e) {
-                            finalizado = true;
-                            window.clearTimeout(timeoutId);
-                            botao.disabled = false;
-                            seletor.disabled = false;
-                            status.textContent = 'Falha ao enviar as etiquetas para a impressora.';
-                        }
-                    }, 3000);
+                xhr.open('POST', '@Url.Action("ImprimirEtiquetasDireto", "Locacao", new { area = "EstoqueApp" })', true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                xhr.timeout = 15000;
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState !== 4) return;
+                    try {
+                        var resposta = JSON.parse(xhr.responseText);
+                        concluir(resposta.message || (resposta.success ? 'Etiquetas enviadas.' : 'Falha ao imprimir.'));
+                    } catch (e) {
+                        concluir('Não foi possível confirmar a impressão. Atualize a página e tente novamente.');
+                    }
                 };
-
-                iframe.src = 'https://' + servidorIp + ':' + servidorPorta
-                    + '/quasardealer/impressora/iframeImpressao?_=' + new Date().getTime();
+                xhr.onerror = function () { concluir('Falha de comunicação com o Quasar.'); };
+                xhr.ontimeout = function () { concluir('A impressora não respondeu dentro do tempo esperado.'); };
+                xhr.send('__RequestVerificationToken=' + encodeURIComponent(antiForgeryToken)
+                    + '&token=' + encodeURIComponent(token)
+                    + '&impressoraId=' + encodeURIComponent(seletor.value));
             };
         })();
     </script>

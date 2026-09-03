@@ -154,21 +154,14 @@ namespace Simplify.Quasar.Areas.EstoqueApp.ViewModels
         public List<LocacaoEtiquetaItemViewModel> Etiquetas { get; set; }
         public List<LocacaoEtiquetaImpressoraViewModel> Impressoras { get; set; }
         public int? ImpressoraSelecionadaId { get; set; }
-        public string PrinterServerIP { get; set; }
-        public string PrinterServerPort { get; set; }
-        public string ImpressoraNome { get; set; }
-        public string ImpressoraIP { get; set; }
-        public string ImpressoraPorta { get; set; }
-        public string Zpl { get; set; }
+        public string Token { get; set; }
 
         public bool PodeImprimirDireto
         {
             get
             {
-                return !string.IsNullOrWhiteSpace(PrinterServerIP) &&
-                    !string.IsNullOrWhiteSpace(PrinterServerPort) &&
-                    Impressoras != null && Impressoras.Count > 0 &&
-                    !string.IsNullOrWhiteSpace(Zpl);
+                return !string.IsNullOrWhiteSpace(Token) &&
+                    Impressoras != null && Impressoras.Count > 0;
             }
         }
     }
@@ -177,8 +170,6 @@ namespace Simplify.Quasar.Areas.EstoqueApp.ViewModels
     {
         public int Id { get; set; }
         public string Nome { get; set; }
-        public string IP { get; set; }
-        public int Porta { get; set; }
     }
 
     public class LocacaoEtiquetaItemViewModel
