@@ -23,14 +23,15 @@
         .label-qr canvas, .label-qr img { display: block; width: 32mm !important; height: 32mm !important; }
         .label-code { position: absolute; right: 1.5mm; bottom: .5mm; left: 1.5mm; height: 15.5mm; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap; }
         .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 44pt; font-weight: 900; line-height: .84; letter-spacing: -.3mm; white-space: nowrap; }
-        @@page { size: 104mm 50mm; margin: 0; }
+        @@page { margin: 0; }
         @@media print {
-            html, body { width: 104mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff; }
+            html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff; }
             .print-toolbar { display: none !important; }
-            .labels { width: 104mm !important; margin: 0 !important; padding: 0 !important; }
+            .labels { width: 100% !important; margin: 0 !important; padding: 0 !important; }
             .label-page { width: 100mm !important; height: 50mm !important; margin: 0 auto !important; padding: 0 !important; border: 0; overflow: visible !important; }
-            .label-qr { transform: translateX(calc(-50% + 15mm)); }
-            .label-code { right: -8.5mm; left: -8.5mm; transform: translateX(15mm); overflow: visible; }
+            .label-qr { width: 36mm; height: 36mm; transform: translateX(calc(-50% + 15mm)); }
+            .label-qr canvas, .label-qr img { width: 36mm !important; height: 36mm !important; }
+            .label-code { right: -8.5mm; bottom: .5mm; left: -8.5mm; height: 18.5mm; transform: translateX(15mm); overflow: visible; }
         }
     </style>
 </head>
@@ -73,7 +74,7 @@
                         var quantidade = parseInt(codigos[j].getAttribute('data-character-count'), 10) || 12;
                         var maximo = quantidade <= 9 ? 48 : quantidade === 10 ? 46 : quantidade === 11 ? 44 : 42;
                         var emImpressao = window.matchMedia && window.matchMedia('print').matches;
-                        if (emImpressao) maximo += 10;
+                        if (emImpressao) maximo += 16;
                         var minimo = 24;
                         var larguraDisponivel = codigos[j].clientWidth - 2;
                         var alturaDisponivel = codigos[j].clientHeight - 2;
