@@ -14,6 +14,8 @@
         body { background: #eef1f4; color: #000; font-family: Arial, Helvetica, sans-serif; }
         .print-toolbar { position: sticky; top: 0; z-index: 10; padding: 12px 20px; background: #0f172a; color: #fff; display: flex; align-items: center; gap: 12px; }
         .print-toolbar button { border: 0; border-radius: 5px; padding: 10px 18px; background: #198754; color: #fff; font-weight: 700; cursor: pointer; }
+        .print-toolbar .direct-print { background: #1473e6; }
+        .print-toolbar select { min-width: 170px; height: 36px; border: 1px solid #94a3b8; border-radius: 5px; padding: 0 9px; background: #fff; color: #0f172a; font-weight: 600; }
         .print-toolbar button:disabled { cursor: wait; opacity: .65; }
         .print-toolbar a { color: #fff; }
         .labels { padding: 20px; }
@@ -35,9 +37,35 @@
 <body>
     <div class="print-toolbar">
         <button id="btn-imprimir" type="button" disabled>Preparando QR Codes...</button>
+        @if (Model.PodeImprimirDireto)
+        {
+            <label for="printer-select">Impressora:</label>
+            <select id="printer-select">
+                @foreach (var impressora in Model.Impressoras)
+                {
+                    if (impressora.Id == Model.ImpressoraSelecionadaId)
+                    {
+                        <option value="@impressora.Id" data-name="@impressora.Nome" data-ip="@impressora.IP" data-port="@impressora.Porta" selected>@impressora.Nome</option>
+                    }
+                    else
+                    {
+                        <option value="@impressora.Id" data-name="@impressora.Nome" data-ip="@impressora.IP" data-port="@impressora.Porta">@impressora.Nome</option>
+                    }
+                }
+            </select>
+            <button id="btn-imprimir-direto" class="direct-print" type="button">Imprimir direto</button>
+        }
         <span>@Model.Etiquetas.Count.ToString("N0") etiqueta(s)</span>
+        <span id="status-impressao-direta"></span>
         <a href="javascript:window.close()">Fechar</a>
     </div>
+    @if (Model.PodeImprimirDireto)
+    {
+        <input type="hidden" id="ps-ip" value="@Model.PrinterServerIP" />
+        <input type="hidden" id="ps-port" value="@Model.PrinterServerPort" />
+        <textarea id="zpl-etiquetas" style="display:none">@Model.Zpl</textarea>
+        <iframe src="" id="direct-label-print-frame" title="Servidor de impressão" style="display:none; width:0; height:0; border:0;"></iframe>
+    }
     <main class="labels">
         @for (int indice = 0; indice < Model.Etiquetas.Count; indice++)
         {
@@ -95,6 +123,67 @@
             } catch (e) {
                 botao.textContent = 'Não foi possível gerar os QR Codes';
             }
+        })();
+
+        (function () {
+            var botao = document.getElementById('btn-imprimir-direto');
+            if (!botao) return;
+
+            var status = document.getElementById('status-impressao-direta');
+            botao.onclick = function () {
+                var iframe = document.getElementById('direct-label-print-frame');
+                var seletor = document.getElementById('printer-select');
+                var impressora = seletor.options[seletor.selectedIndex];
+                var servidorIp = document.getElementById('ps-ip').value.trim();
+                var servidorPorta = document.getElementById('ps-port').value.trim();
+                var impressoraNome = impressora.getAttribute('data-name') || impressora.textContent.trim();
+                var impressoraIp = impressora.getAttribute('data-ip') || '';
+                var impressoraPorta = impressora.getAttribute('data-port') || '';
+                var zpl = document.getElementById('zpl-etiquetas').value;
+                var finalizado = false;
+
+                botao.disabled = true;
+                seletor.disabled = true;
+                status.textContent = 'Conectando ao servidor de impressão...';
+
+                var timeoutId = window.setTimeout(function () {
+                    if (finalizado) return;
+                    finalizado = true;
+                    botao.disabled = false;
+                    seletor.disabled = false;
+                    status.textContent = 'Não foi possível conectar ao servidor de impressão.';
+                }, 30000);
+
+                iframe.onload = function () {
+                    window.setTimeout(function () {
+                        if (finalizado) return;
+                        try {
+                            iframe.contentWindow.postMessage(JSON.stringify({
+                                ipServidorImpressao: servidorIp,
+                                portaServidorImpressao: servidorPorta,
+                                nomeImpressora: impressoraNome,
+                                ipImpressora: impressoraIp,
+                                portaImpressora: impressoraPorta,
+                                comandosZPL: zpl
+                            }), '*');
+                            finalizado = true;
+                            window.clearTimeout(timeoutId);
+                            botao.disabled = false;
+                            seletor.disabled = false;
+                            status.textContent = 'Etiquetas enviadas diretamente para a impressora.';
+                        } catch (e) {
+                            finalizado = true;
+                            window.clearTimeout(timeoutId);
+                            botao.disabled = false;
+                            seletor.disabled = false;
+                            status.textContent = 'Falha ao enviar as etiquetas para a impressora.';
+                        }
+                    }, 3000);
+                };
+
+                iframe.src = 'https://' + servidorIp + ':' + servidorPorta
+                    + '/quasardealer/impressora/iframeImpressao?_=' + new Date().getTime();
+            };
         })();
     </script>
 </body>

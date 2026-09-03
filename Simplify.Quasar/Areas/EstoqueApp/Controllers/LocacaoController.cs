@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using System.Web;
+using System.Text;
 
 namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
 {
@@ -498,6 +499,8 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                     Demanda = locacao.Curva
                 });
             }
+
+            ConfigurarImpressaoDireta(vm);
 
             return View(nomeView, vm);
         }
@@ -1022,6 +1025,124 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
                 .Trim()
                 .ToUpperInvariant()
                 .Split(new[] { ' ', '.', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        private void ConfigurarImpressaoDireta(LocacaoEtiquetaImpressaoViewModel vm)
+        {
+            vm.PrinterServerIP = ObterConfiguracaoAplicacao("PrinterServerIP");
+            vm.PrinterServerPort = ObterConfiguracaoAplicacao("PrinterServerPort");
+
+            List<Impressora> impressoras = db.Impressora.AsNoTracking()
+                .Where(x => x.FilialId == filialId && x.IP != null && x.IP != string.Empty && x.Porta > 0)
+                .OrderBy(x => x.Nome)
+                .ToList();
+            vm.Impressoras = impressoras.Select(x => new LocacaoEtiquetaImpressoraViewModel
+            {
+                Id = x.Id,
+                Nome = x.Nome,
+                IP = x.IP.Trim(),
+                Porta = x.Porta
+            }).ToList();
+
+            Impressora impressora = ResolverImpressoraEtiquetaLocacao(impressoras);
+            if (impressora == null)
+            {
+                return;
+            }
+
+            vm.ImpressoraSelecionadaId = impressora.Id;
+            vm.ImpressoraNome = impressora.Nome.Trim();
+            vm.ImpressoraIP = impressora.IP.Trim();
+            vm.ImpressoraPorta = impressora.Porta.ToString();
+            vm.Zpl = MontarZplEtiquetasLocacao(vm.Etiquetas);
+        }
+
+        private Impressora ResolverImpressoraEtiquetaLocacao(List<Impressora> impressoras)
+        {
+            Impressora recebimento = impressoras.FirstOrDefault(x =>
+                string.Equals((x.Nome ?? string.Empty).Trim(), "Recebimento", StringComparison.OrdinalIgnoreCase));
+            if (recebimento != null)
+            {
+                return recebimento;
+            }
+
+            string nomeConfigurado = ObterConfiguracaoAplicacao("ImpressoraEtiquetaLocacao");
+            if (!string.IsNullOrWhiteSpace(nomeConfigurado))
+            {
+                string nome = nomeConfigurado.Trim();
+                Impressora configurada = impressoras.FirstOrDefault(x =>
+                    string.Equals((x.Nome ?? string.Empty).Trim(), nome, StringComparison.OrdinalIgnoreCase));
+                if (configurada != null)
+                {
+                    return configurada;
+                }
+            }
+
+            nomeConfigurado = ObterConfiguracaoAplicacao("ImpressoraPadrao");
+            if (!string.IsNullOrWhiteSpace(nomeConfigurado))
+            {
+                string nome = nomeConfigurado.Trim();
+                Impressora configurada = impressoras.FirstOrDefault(x =>
+                    string.Equals((x.Nome ?? string.Empty).Trim(), nome, StringComparison.OrdinalIgnoreCase));
+                if (configurada != null)
+                {
+                    return configurada;
+                }
+            }
+
+            return impressoras.FirstOrDefault(x =>
+                (x.Modelo ?? string.Empty).IndexOf("ZT230", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private string ObterConfiguracaoAplicacao(string nome)
+        {
+            string valor = db.AppConfig.AsNoTracking()
+                .Where(x => x.Nome == nome && x.FilialId == filialId)
+                .OrderBy(x => x.Id)
+                .Select(x => x.Valor)
+                .FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(valor))
+            {
+                return valor.Trim();
+            }
+
+            valor = db.AppConfig.AsNoTracking()
+                .Where(x => x.Nome == nome && (!x.FilialId.HasValue || x.FilialId == 0))
+                .OrderBy(x => x.Id)
+                .Select(x => x.Valor)
+                .FirstOrDefault();
+            return string.IsNullOrWhiteSpace(valor) ? string.Empty : valor.Trim();
+        }
+
+        private static string MontarZplEtiquetasLocacao(IEnumerable<LocacaoEtiquetaItemViewModel> etiquetas)
+        {
+            var zpl = new StringBuilder();
+            foreach (LocacaoEtiquetaItemViewModel etiqueta in etiquetas ?? Enumerable.Empty<LocacaoEtiquetaItemViewModel>())
+            {
+                string codigoQr = SanitizarCampoZpl(etiqueta.CodigoSemEspacos);
+                string codigoVisivel = SanitizarCampoZpl(etiqueta.CodigoFormatado);
+                int larguraFonte = codigoVisivel.Length <= 13 ? 60 :
+                    codigoVisivel.Length == 14 ? 56 :
+                    codigoVisivel.Length == 15 ? 52 : 48;
+
+                zpl.Append("^XA")
+                    .Append("^CI28")
+                    .Append("^PW832")
+                    .Append("^LL400")
+                    .Append("^LH0,0")
+                    .Append("^FO311,12^BQN,2,10^FDLA,").Append(codigoQr).Append("^FS")
+                    .Append("^FO0,292^A0N,96,").Append(larguraFonte)
+                    .Append("^FB832,1,0,C,0^FD").Append(codigoVisivel).Append("^FS")
+                    .Append("^PQ1,0,1,N")
+                    .Append("^XZ");
+            }
+            return zpl.ToString();
+        }
+
+        private static string SanitizarCampoZpl(string valor)
+        {
+            return (valor ?? string.Empty).Replace("^", string.Empty).Replace("~", string.Empty);
         }
 
         private void RegistrarHistoricoLote(LocacaoLoteSessao sessao, string usuario, DateTime dataHora, int criadas, int existentes)
