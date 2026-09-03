@@ -103,6 +103,7 @@ namespace Simplify.Quasar.Areas.ExpedicaoApp.Controllers
             transportadora.EmitirRoteiro = vm.EmitirRoteiro;
             transportadora.StatusNotaFiscal = vm.StatusNotaFiscal;
             transportadora.Nome_Fantasia = vm.Nome_Fantasia;
+            transportadora.FilialId = filialId;
             transportadora.CriadoPor = Util.GetCurrentUser();
             transportadora.CriadoEm = Util.GetCurrentDateTime();
             transportadora.Finalizar = vm.Finalizar;
