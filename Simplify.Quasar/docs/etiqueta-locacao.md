@@ -11,6 +11,4 @@ O modelo padrão é preparado para etiquetas de **100 mm × 50 mm**.
 
 Para preservar as medidas, mantenha o papel configurado no driver, use margens **nenhuma** e escala **100%** no diálogo de impressão.
 
-O único fluxo disponível é a impressão pelo preview do navegador. O texto é recalculado ao entrar no modo de impressão para aproveitar a largura física correta.
-
-Como compensação do resultado físico informado, QR Code e texto são deslocados 15 mm à direita somente na impressão. Na saída impressa, o QR Code cresce de 32 mm para 36 mm e a área vertical do texto passa de 15,5 mm para 18,5 mm, com até 16 pontos adicionais de fonte e uma área horizontal 20 mm maior; o preview permanece inalterado.
+O único fluxo disponível é a impressão pelo preview do navegador. QR Code, texto, dimensões e posições são exatamente os mesmos no preview e na impressão; ao imprimir, apenas a barra de ações e a borda visual são ocultadas.
