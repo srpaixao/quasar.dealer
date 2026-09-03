@@ -148,28 +148,9 @@ namespace Simplify.Quasar.Areas.EstoqueApp.ViewModels
         public LocacaoEtiquetaImpressaoViewModel()
         {
             Etiquetas = new List<LocacaoEtiquetaItemViewModel>();
-            Impressoras = new List<LocacaoEtiquetaImpressoraViewModel>();
         }
 
         public List<LocacaoEtiquetaItemViewModel> Etiquetas { get; set; }
-        public List<LocacaoEtiquetaImpressoraViewModel> Impressoras { get; set; }
-        public int? ImpressoraSelecionadaId { get; set; }
-        public string Token { get; set; }
-
-        public bool PodeImprimirDireto
-        {
-            get
-            {
-                return !string.IsNullOrWhiteSpace(Token) &&
-                    Impressoras != null && Impressoras.Count > 0;
-            }
-        }
-    }
-
-    public class LocacaoEtiquetaImpressoraViewModel
-    {
-        public int Id { get; set; }
-        public string Nome { get; set; }
     }
 
     public class LocacaoEtiquetaItemViewModel
