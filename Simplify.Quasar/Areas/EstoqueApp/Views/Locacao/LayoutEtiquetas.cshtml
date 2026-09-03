@@ -28,7 +28,9 @@
             html, body { width: 104mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff; }
             .print-toolbar { display: none !important; }
             .labels { width: 104mm !important; margin: 0 !important; padding: 0 !important; }
-            .label-page { width: 100mm !important; height: 50mm !important; margin: 0 auto !important; padding: 0 !important; border: 0; }
+            .label-page { width: 100mm !important; height: 50mm !important; margin: 0 auto !important; padding: 0 !important; border: 0; overflow: visible !important; }
+            .label-qr { transform: translateX(calc(-50% + 15mm)); }
+            .label-code { right: -8.5mm; left: -8.5mm; transform: translateX(15mm); overflow: visible; }
         }
     </style>
 </head>
@@ -70,6 +72,8 @@
                         var texto = codigos[j].querySelector('.label-code-text');
                         var quantidade = parseInt(codigos[j].getAttribute('data-character-count'), 10) || 12;
                         var maximo = quantidade <= 9 ? 48 : quantidade === 10 ? 46 : quantidade === 11 ? 44 : 42;
+                        var emImpressao = window.matchMedia && window.matchMedia('print').matches;
+                        if (emImpressao) maximo += 10;
                         var minimo = 24;
                         var larguraDisponivel = codigos[j].clientWidth - 2;
                         var alturaDisponivel = codigos[j].clientHeight - 2;
