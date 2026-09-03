@@ -10,24 +10,25 @@
     <title>Etiquetas de locações</title>
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; background: #eef1f4; color: #231f20; font-family: Arial, Helvetica, sans-serif; }
+        html, body { margin: 0; min-height: 100%; }
+        body { background: #eef1f4; color: #000; font-family: Arial, Helvetica, sans-serif; }
         .print-toolbar { position: sticky; top: 0; z-index: 10; padding: 12px 20px; background: #0f172a; color: #fff; display: flex; align-items: center; gap: 12px; }
         .print-toolbar button { border: 0; border-radius: 5px; padding: 10px 18px; background: #198754; color: #fff; font-weight: 700; cursor: pointer; }
         .print-toolbar button:disabled { cursor: wait; opacity: .65; }
         .print-toolbar a { color: #fff; }
         .labels { padding: 20px; }
-        .label-page { width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 2mm 3mm; background: #fff; border: .25mm solid #231f20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5mm; overflow: hidden; page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; }
+        .label-page { position: relative; width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 0; background: #fff; border: .25mm solid #231f20; overflow: hidden; page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; }
         .label-page:last-child { page-break-after: auto; break-after: auto; }
-        .label-qr { flex: 0 0 30mm; width: 30mm; height: 30mm; display: flex; align-items: center; justify-content: center; }
-        .label-qr canvas, .label-qr img { display: block; width: 30mm !important; height: 30mm !important; }
-        .label-code { flex: 0 0 11.5mm; width: 94mm; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap; }
-        .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 34pt; font-weight: 900; line-height: .9; letter-spacing: -.3mm; white-space: nowrap; }
+        .label-qr { position: absolute; top: 1mm; left: 50%; width: 32mm; height: 32mm; transform: translateX(-50%); overflow: hidden; }
+        .label-qr canvas, .label-qr img { display: block; width: 32mm !important; height: 32mm !important; }
+        .label-code { position: absolute; right: 1.5mm; bottom: 1mm; left: 1.5mm; height: 14.5mm; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap; }
+        .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 40pt; font-weight: 900; line-height: .88; letter-spacing: -.25mm; white-space: nowrap; }
         @@page { size: 100mm 50mm; margin: 0; }
         @@media print {
-            html, body { width: 100mm; margin: 0 !important; padding: 0 !important; background: #fff; }
+            html, body { width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff; }
             .print-toolbar { display: none !important; }
-            .labels { width: 100mm; margin: 0 !important; padding: 0 !important; }
-            .label-page { width: 100mm !important; height: 50mm !important; margin: 0 !important; padding: 2mm 3mm !important; border: 0; }
+            .labels { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .label-page { width: 100mm !important; height: 50mm !important; margin: 0 auto !important; padding: 0 !important; border: 0; }
         }
     </style>
 </head>
@@ -43,7 +44,7 @@
             var etiqueta = Model.Etiquetas[indice];
             <section class="label-page">
                 <div class="label-qr" data-value="@etiqueta.CodigoSemEspacos"></div>
-                <div class="label-code"><span class="label-code-text">@etiqueta.CodigoFormatado</span></div>
+                <div class="label-code" data-character-count="@((etiqueta.CodigoSemEspacos ?? string.Empty).Length)"><span class="label-code-text">@etiqueta.CodigoFormatado</span></div>
             </section>
         }
     </main>
@@ -65,17 +66,21 @@
                 }
                 function ajustarCodigos() {
                     var codigos = document.querySelectorAll('.label-code');
-                    var tamanhosPorQuantidade = { 9: 40, 10: 38, 11: 36, 12: 34 };
                     for (var j = 0; j < codigos.length; j++) {
                         var texto = codigos[j].querySelector('.label-code-text');
-                        var quantidade = (texto.textContent || '').trim().length;
-                        var tamanhoConfigurado = tamanhosPorQuantidade[quantidade] || 34;
-                        texto.style.fontSize = tamanhoConfigurado + 'pt';
+                        var quantidade = parseInt(codigos[j].getAttribute('data-character-count'), 10) || 12;
+                        var maximo = quantidade <= 9 ? 40 : quantidade === 10 ? 38 : quantidade === 11 ? 36 : 34;
+                        var minimo = 22;
+                        var larguraDisponivel = codigos[j].clientWidth - 2;
+                        var alturaDisponivel = codigos[j].clientHeight - 2;
 
-                        var larguraDisponivel = codigos[j].clientWidth * 0.96;
-                        var proporcao = texto.scrollWidth > 0 ? larguraDisponivel / texto.scrollWidth : 1;
-                        var tamanho = Math.min(tamanhoConfigurado, tamanhoConfigurado * proporcao);
-                        texto.style.fontSize = tamanho.toFixed(1) + 'pt';
+                        while (maximo - minimo > 0.25) {
+                            var tentativa = (maximo + minimo) / 2;
+                            texto.style.fontSize = tentativa.toFixed(2) + 'pt';
+                            if (texto.scrollWidth <= larguraDisponivel && texto.scrollHeight <= alturaDisponivel) minimo = tentativa;
+                            else maximo = tentativa;
+                        }
+                        texto.style.fontSize = minimo.toFixed(1) + 'pt';
                     }
                     botao.disabled = false;
                     botao.textContent = 'Imprimir ou salvar como PDF';

@@ -448,11 +448,13 @@ namespace Simplify.Quasar.Areas.EstoqueApp.Controllers
             });
         }
 
+        [OutputCache(NoStore = true, Duration = 0, VaryByParam = "*")]
         public ActionResult LayoutEtiquetas(string token)
         {
             return MontarLayoutEtiquetas(token, "LayoutEtiquetas");
         }
 
+        [OutputCache(NoStore = true, Duration = 0, VaryByParam = "*")]
         public ActionResult LayoutEtiquetasAlternativo(string token)
         {
             return MontarLayoutEtiquetas(token, "LayoutEtiquetasAlternativo");
