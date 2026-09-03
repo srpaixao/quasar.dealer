@@ -17,11 +17,10 @@
         .print-toolbar button:disabled { cursor: wait; opacity: .65; }
         .print-toolbar a { color: #fff; }
         .labels { padding: 20px; }
-        .label-page { position: relative; width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 0; background: #fff; border: .25mm solid #231f20; overflow: hidden; page-break-after: always; break-after: page; page-break-inside: avoid; break-inside: avoid; }
-        .label-page:last-child { page-break-after: auto; break-after: auto; }
-        .label-qr { position: absolute; top: 1mm; left: 50%; width: 32mm; height: 32mm; transform: translateX(-50%); overflow: hidden; }
+        .label-page { position: relative; width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 0; background: #fff; border: .25mm solid #231f20; overflow: hidden; page-break-inside: avoid; break-inside: avoid; }
+        .label-qr { position: absolute; top: 1mm; left: 50%; width: 32mm; height: 32mm; transform: translateX(calc(-50% - .3mm)); overflow: hidden; }
         .label-qr canvas, .label-qr img { display: block; width: 32mm !important; height: 32mm !important; }
-        .label-code { position: absolute; right: 1.5mm; bottom: .5mm; left: 1.5mm; height: 15.5mm; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap; }
+        .label-code { position: absolute; right: 1.8mm; bottom: .5mm; left: 1.2mm; height: 15.5mm; display: flex; align-items: center; justify-content: center; overflow: hidden; text-align: center; white-space: nowrap; }
         .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 44pt; font-weight: 900; line-height: .84; letter-spacing: -.3mm; white-space: nowrap; }
         @@page { margin: 0; }
         @@media print {

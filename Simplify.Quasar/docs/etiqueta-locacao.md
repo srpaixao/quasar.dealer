@@ -11,4 +11,4 @@ O modelo padrão é preparado para etiquetas de **100 mm × 50 mm**.
 
 Para preservar as medidas, mantenha o papel configurado no driver, use margens **nenhuma** e escala **100%** no diálogo de impressão.
 
-O único fluxo disponível é a impressão pelo preview do navegador. QR Code, texto, dimensões e posições são exatamente os mesmos no preview e na impressão; ao imprimir, apenas a barra de ações e a borda visual são ocultadas.
+O único fluxo disponível é a impressão pelo preview do navegador. QR Code, texto, dimensões e posições são exatamente os mesmos no preview e na impressão; ao imprimir, apenas a barra de ações e a borda visual são ocultadas. QR Code e texto recebem um ajuste horizontal de 0,3 mm para a esquerda. Não são enviadas quebras de página adicionais: a paginação segue naturalmente a mídia de 50 mm configurada no driver, evitando uma folha em branco entre as etiquetas.

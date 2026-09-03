@@ -18,11 +18,10 @@
         .print-toolbar button:disabled { cursor: wait; opacity: .65; }
         .print-toolbar a { color: #fff; }
         .labels { padding: 20px; }
-        .label-page { width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 1.5mm; background: #fff; border: .25mm solid #231f20; display: flex; align-items: stretch; gap: 1.5mm; overflow: hidden; page-break-after: always; break-after: page; }
-        .label-page:last-child { page-break-after: auto; break-after: auto; }
-        .label-qr { flex: 0 0 44mm; width: 44mm; height: 44mm; align-self: center; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .label-page { width: 100mm; height: 50mm; margin: 0 auto 18px; padding: 1.5mm; background: #fff; border: .25mm solid #231f20; display: flex; align-items: stretch; gap: 1.5mm; overflow: hidden; page-break-inside: avoid; break-inside: avoid; }
+        .label-qr { flex: 0 0 44mm; width: 44mm; height: 44mm; align-self: center; display: flex; align-items: center; justify-content: center; overflow: hidden; transform: translateX(-.3mm); }
         .label-qr canvas, .label-qr img { display: block; width: 44mm !important; height: 44mm !important; }
-        .label-code { flex: 1 1 auto; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: stretch; overflow: hidden; }
+        .label-code { flex: 1 1 auto; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: stretch; overflow: hidden; transform: translateX(-.3mm); }
         .label-code-line { flex: 1 1 0; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
         .label-code-text { display: inline-block; font-family: Arial Black, Arial, Helvetica, sans-serif; font-size: 38pt; font-weight: 900; line-height: .9; letter-spacing: -.3mm; transform-origin: center center; white-space: nowrap; }
         @@page { margin: 0; }
